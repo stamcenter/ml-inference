@@ -30,6 +30,7 @@ with open(local_file_paths.PT_PATH, "r") as f:
 context = pickle.load(open(local_file_paths.PATH_CONTEXT, "rb"))
 hom_seq = pickle.load(open(local_file_paths.PATH_HOM_SEQ, "rb"))
 sk =      pickle.load(open(local_file_paths.PATH_SK, "rb"))
+
 homsec_proto = ProtoQueryClientSequentialHomOp()
 homsec_proto.ParseFromString(hom_seq)
 block_proto = homsec_proto.client_blocks[0]
@@ -39,17 +40,7 @@ pt_axis_external = block_proto.pt_axis_external if block_proto.HasField("pt_axis
 for i, pt in enumerate(examples):
     pt = torch.tensor(pt).reshape(28, 28)
     pt = worker_api.dumps_proto_tensor(pt)
-    pt = toolkit_interface.apply_client_block(
-        block_proto.SerializeToString(),
-        context,
-        pt
-    )
-    ct = toolkit_interface.enc(
-        context,
-        sk,
-        pt,
-        pack_for_transmission=True,
-        n_axis_external=pt_axis_external
-    )
+    pt = toolkit_interface.apply_client_block(block_proto.SerializeToString(), context, pt)
+    ct = toolkit_interface.enc(context, sk, pt, pack_for_transmission=True, n_axis_external=pt_axis_external)
     pickle.dump(ct, open(local_file_paths.get_ct_upload_path(i), "wb"))
 
