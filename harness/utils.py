@@ -169,7 +169,7 @@ def calculate_quality(label_file: Path, pred_file: Path, tag: str):
     Label file and predictions file should contain one label per line.
     Logs accuracy metric and prints results.
     """
-    __, params, __, __, __ = parse_submission_arguments('Generate query for FHE benchmark.')
+    __, params, __, __, __, __ = parse_submission_arguments('Generate query for FHE benchmark.')
 
     label_file = params.get_ground_truth_labels_file()
     pred_file = params.get_encrypted_model_predictions_file()
