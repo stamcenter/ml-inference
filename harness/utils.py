@@ -48,16 +48,19 @@ def parse_submission_arguments(workload: str) -> Tuple[int, InstanceParams, int,
                         help='Random seed for dataset and query generation')
     parser.add_argument('--clrtxt', type=int,
                         help='Specify with 1 if to rerun the cleartext computation')
+    parser.add_argument('--remote', action='store_true',
+                        help='Run example submission in remote backend mode')
 
     args = parser.parse_args()
     size = args.size
     seed = args.seed
     num_runs = args.num_runs
     clrtxt = args.clrtxt
+    remote_be = args.remote
 
     # Use params.py to get instance parameters
     params = InstanceParams(size)
-    return size, params, seed, num_runs, clrtxt
+    return size, params, seed, num_runs, clrtxt, remote_be
 
 def ensure_directories(rootdir: Path):
     """ Check that the current directory has sub-directories
@@ -77,6 +80,14 @@ def build_submission(script_dir: Path):
     subprocess.run([script_dir/"get_openfhe.sh"], check=True)
     # CMake build of the submission itself
     subprocess.run([script_dir/"build_task.sh", "./submission"], check=True)
+
+class TextFormat:
+    BOLD = "\033[1m"
+    GREEN = "\033[32m"
+    YELLOW = "\033[33m"
+    BLUE = "\033[34m"
+    RED = "\033[31m"
+    RESET = "\033[0m"
 
 def log_step(step_num: int, step_name: str, start: bool = False):
     """ 
@@ -100,7 +111,7 @@ def log_step(step_num: int, step_name: str, start: bool = False):
     _last_timestamp = now
 
     if (not start):
-        print(f"{timestamp} [harness] {step_num}: {step_name} completed{elapsed_str}")
+        print(f"{TextFormat.BLUE}{timestamp} [harness] {step_num}: {step_name} completed{elapsed_str}{TextFormat.RESET}")
         _timestampsStr[step_name] = f"{round(elapsed_seconds, 4)}s"
         _timestamps[step_name] = elapsed_seconds
 
@@ -118,7 +129,7 @@ def log_size(path: Path, object_name: str, flag: bool = False, previous: int = 0
     if(flag):
         size -= previous
     
-    print("         [harness]", object_name, "size:", human_readable_size(size))
+    print(f"{TextFormat.YELLOW}         [harness] {object_name} size: {human_readable_size(size)}{TextFormat.RESET}")
 
     _bandwidth[object_name] = human_readable_size(size)
     return size
@@ -191,3 +202,20 @@ def log_quality(correct_predictions, total_samples, tag):
         "total_samples": total_samples,
         "accuracy": correct_predictions / total_samples if total_samples > 0 else 0
     }
+
+def run_exe_or_python(base, file_name, *args, check=True):
+    """
+        If {base}/{file_name}.py exists, run it with the current Python.
+        Otherwise, run {dir_name}/{file_name} as an executable.
+    """
+    py = base / f"{file_name}.py"
+    exe = base / "build" / file_name
+
+    if py.exists():
+        cmd = ["python3", py, *args]
+    elif exe.exists():
+        cmd = [exe, *args]
+    else:
+        cmd = None
+    if cmd is not None:
+        subprocess.run(cmd, check=check)
