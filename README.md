@@ -1,5 +1,5 @@
 # FHE Benchmarking Suite - ML Inference
-This repository contains the harness for the ML-inference workload of the FHE benchmarking suite of [HomomorphicEncryption.org].
+This repository contains the harness for the ML-inference workload of the FHE benchmarking suite of [HomomorphicEncryption.org](https://www.HomomorphicEncryption.org).
 The harness currently supports mnist model benchmarking as specified in `harness/mnist` directory.
 The `main` branch contains a reference implementation of this workload, under the `submission` subdirectory.
 The harness also supports an optional *remote backend execution mode* under the `submission_remote` subdirectory, where the homomorphic evaluation is executed on a remote backend.
@@ -10,14 +10,15 @@ Submitters are expected to document any changes made to the model architecture `
 
 ## Execution Modes
 
-The ML Inference benchmark supports two execution models:
+The ML Inference benchmark supports two execution modes:
 
 ### Local Execution (Default)
 
 All steps are executed on a single machine:
+- Cryptographic context setup and model preprocessing
 - Key generation
 - Input preprocessing and encryption
-- Homomorphic evaluation
+- Homomorphic inference
 - Decryption and postprocessing
 
 This corresponds to the reference submission in `submission/`.
@@ -29,12 +30,11 @@ In this mode:
 
 - **Client-side (local):**
   - Key generation
-  - Input preprocessing
-  - Encryption
+  - Input preprocessing and encryption
   - Decryption and postprocessing
 
 - **Server-side (remote):**
-  - Encrypted model preprocessing
+  - Cryptographic context setup and model preprocessing
   - Homomorphic inference
 
 This execution mode is enabled by passing the `--remote` flag to the harness.
@@ -67,7 +67,7 @@ An example run is provided below.
 
 ```console
 $ python3 harness/run_submission.py -h
-usage: run_submission.py [-h] [--num_runs NUM_RUNS] [--seed SEED] [--clrtxt CLRTXT] {0,1,2,3}
+usage: run_submission.py [-h] [--num_runs NUM_RUNS] [--seed SEED] [--clrtxt CLRTXT] [--remote] {0,1,2,3}
 
 Run ML Inference FHE benchmark.
 
@@ -79,7 +79,7 @@ options:
   --num_runs NUM_RUNS  Number of times to run steps 4-9 (default: 1)
   --seed SEED          Random seed for dataset and query generation
   --clrtxt CLRTXT      Specify with 1 if to rerun the cleartext computation
-  --remote             When enabled, the harness dispatches execution to the submission_remote/ directory and dditional client–server communication steps are executed
+  --remote             Specify if to run in remote-backend mode
 ```
 
 The single instance runs the inference for a single input and verifies the correctness of the obtained label compared to the ground-truth label.
