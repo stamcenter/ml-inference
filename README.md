@@ -292,18 +292,18 @@ database-dependent and run only once, and potentially multiple runs for multiple
 Each file can take as argument the test case size.
 
 
-| Stage executables             | Description |
-|-------------------------------|-------------|
-| `server_get_params`           | (Optional) Get cryptographic context from a remote server.
-| `client_key_generation`       | Generate all key material and cryptographic context at the client.           
-| `server_upload_ek`            | (Optional) Upload evaluation key to a remote backend.
-| `client_preprocess_dataset`   | (Optional) Any in the clear computations the client wants to apply over the dataset/model.
-| `client_preprocess_input`     | (Optional) Any in the clear computations the client wants to apply over the input.
-| `client_encode_encrypt_query` | Plaintext encoding and encryption of the input at the client.
-| `server_preprocess_model`     | (Optional) Any in the clear or encrypted computations the server wants to apply over the model.
-| `server_encrypted_compute`    | The computation the server applies to achieve the workload solution over encrypted data.
-| `client_decrypt_decode`       | Decryption and plaintext decoding of the result at the client.
-| `client_postprocess`          | Any in the clear computation that the client wants to apply on the decrypted result.
+| Stage executables                | Description |
+|----------------------------------|-------------|
+| `server_get_params`              | (Optional) Get cryptographic context from a remote server.
+| `client_key_generation`          | Generate all key material and cryptographic context at the client.           
+| `server_upload_ek`               | (Optional) Upload evaluation key to a remote backend.
+| `client_preprocess_dataset`      | (Optional) Any in the clear computations the client wants to apply over the dataset/model.
+| `client_preprocess_input`        | (Optional) Any in the clear computations the client wants to apply over the input.
+| `client_encode_encrypt_query`    | Plaintext encoding and encryption of the input at the client.
+| `server_preprocess_model`        | (Optional) Any in the clear or encrypted computations the server wants to apply over the model.
+| `server_encrypted_compute`       | The computation the server applies to achieve the workload solution over encrypted data.
+| `client_decrypt_decode`          | Decryption and plaintext decoding of the result at the client.
+| `client_postprocess`             | Any in the clear computation that the client wants to apply on the decrypted result.
 
 
 The outer python script measures the runtime of each stage.
