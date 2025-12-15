@@ -57,7 +57,7 @@ def main():
 
     # 2.1 Communication: Get cryptographic context
     if remote_be:
-        utils.run_exe_or_python(exec_dir, "get_fhe_params_from_be", str(size))
+        utils.run_exe_or_python(exec_dir, "server_get_params", str(size))
         utils.log_step(2.1 , "Communication: Get cryptographic context")
         # Report size of context
         utils.log_size(io_dir / "client_data", "Cryptographic Context")
@@ -73,7 +73,7 @@ def main():
 
     # 2.3 Communication: Upload evaluation key
     if remote_be:
-        utils.run_exe_or_python(exec_dir, "upload_ek_to_be", str(size))
+        utils.run_exe_or_python(exec_dir, "server_upload_ek", str(size))
         utils.log_step(2.3 , "Communication: Upload evaluation key")
 
     # 3. Server-side: Preprocess the (encrypted) dataset using exec_dir/server_preprocess_model

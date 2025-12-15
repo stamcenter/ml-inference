@@ -1,11 +1,43 @@
 # FHE Benchmarking Suite - ML Inference
-This repository contains the harness for the ML-inference workload of the FHE benchmarking suite of [HomomorphicEncrypption.org].
+This repository contains the harness for the ML-inference workload of the FHE benchmarking suite of [HomomorphicEncryption.org].
 The harness currently supports mnist model benchmarking as specified in `harness/mnist` directory.
 The `main` branch contains a reference implementation of this workload, under the `submission` subdirectory.
+The harness also supports an optional *remote backend execution mode* under the `submission_remote` subdirectory, where the homomorphic evaluation is executed on a remote backend.
 
-Submitters need to clone this repository, replace the content of the `submission` subdirectory by their own implementation.
+Submitters need to clone this repository, replace the content of the `submission` or `submission_remote` subdirectory by their own implementation.
 They also may need to changes or replace the script `scripts/build_task.sh` to account for dependencies and build environment for their submission.
 Submitters are expected to document any changes made to the model architecture `harness/mnist/mnist.py` in the `submission/README.md` file. 
+
+## Execution Modes
+
+The ML Inference benchmark supports two execution models:
+
+### Local Execution (Default)
+
+All steps are executed on a single machine:
+- Key generation
+- Input preprocessing and encryption
+- Homomorphic evaluation
+- Decryption and postprocessing
+
+This corresponds to the reference submission in `submission/`.
+
+### Remote Backend Execution (Optional)
+
+Some FHE deployments separate client-side and server-side responsibilities.  
+In this mode:
+
+- **Client-side (local):**
+  - Key generation
+  - Input preprocessing
+  - Encryption
+  - Decryption and postprocessing
+
+- **Server-side (remote):**
+  - Encrypted model preprocessing
+  - Homomorphic inference
+
+This execution mode is enabled by passing the `--remote` flag to the harness.
 
 ## Running the ML-inference workload
 The build environment depends on OpenFHE being installed as specificied in `scripts/get_openfhe.sh` and `submission/CMakeLists.txt`
@@ -23,7 +55,14 @@ pip install -r requirements.txt
 python3 harness/run_submission.py -h  # Information about command-line options
 ```
 
-The harness script `harness/run_submission.py` will attempt to build the submission itself, if it is not already built. If already built, it will use the same project without re-building it (unless the code has changed). An example run is provided below.
+The harness script `harness/run_submission.py` will attempt to build the submission itself, if it is not already built. If already built, it will use the same project without re-building it (unless the code has changed).
+
+To install dependencies for the remote backend example:
+```console
+pip install -r submission_remote/requirements.txt
+```
+
+An example run is provided below.
 
 
 ```console
@@ -40,6 +79,7 @@ options:
   --num_runs NUM_RUNS  Number of times to run steps 4-9 (default: 1)
   --seed SEED          Random seed for dataset and query generation
   --clrtxt CLRTXT      Specify with 1 if to rerun the cleartext computation
+  --remote             When enabled, the harness dispatches execution to the submission_remote/ directory and dditional client–server communication steps are executed
 ```
 
 The single instance runs the inference for a single input and verifies the correctness of the obtained label compared to the ground-truth label.
@@ -233,6 +273,8 @@ The directory structure of this reposiroty is as follows:
     ├─ README.md   # Submission documentation (mandatory)
     ├─ LICENSE.md  # Optional software license (if different from Apache v2)
     └─ [...]
+└─ submission_remote/  # This is where the remote-backend workload implementation lives
+    └─ [...]
 ```
 Submitters must overwrite the contents of the `scripts` and `submissions`
 subdirectories.
@@ -250,16 +292,18 @@ database-dependent and run only once, and potentially multiple runs for multiple
 Each file can take as argument the test case size.
 
 
-| Stage executables                | Description |
-|----------------------------------|-------------|
-| `client_key_generation`          | Generate all key material and cryptographic context at the client.           
-| `client_preprocess_dataset`      | (Optional) Any in the clear computations the client wants to apply over the dataset/model.
-| `client_preprocess_input`        | (Optional) Any in the clear computations the client wants to apply over the input.
-| `client_encode_encrypt_query`    | Plaintext encoding and encryption of the input at the client.
-| `server_preprocess_model`        | (Optional) Any in the clear or encrypted computations the server wants to apply over the model.
-| `server_encrypted_compute`       | The computation the server applies to achieve the workload solution over encrypted data.
-| `client_decrypt_decode`          | Decryption and plaintext decoding of the result at the client.
-| `client_postprocess`             | Any in the clear computation that the client wants to apply on the decrypted result.
+| Stage executables             | Description |
+|-------------------------------|-------------|
+| `server_get_params`           | (Optional) Get cryptographic context from a remote server.
+| `client_key_generation`       | Generate all key material and cryptographic context at the client.           
+| `server_upload_ek`            | (Optional) Upload evaluation key to a remote backend.
+| `client_preprocess_dataset`   | (Optional) Any in the clear computations the client wants to apply over the dataset/model.
+| `client_preprocess_input`     | (Optional) Any in the clear computations the client wants to apply over the input.
+| `client_encode_encrypt_query` | Plaintext encoding and encryption of the input at the client.
+| `server_preprocess_model`     | (Optional) Any in the clear or encrypted computations the server wants to apply over the model.
+| `server_encrypted_compute`    | The computation the server applies to achieve the workload solution over encrypted data.
+| `client_decrypt_decode`       | Decryption and plaintext decoding of the result at the client.
+| `client_postprocess`          | Any in the clear computation that the client wants to apply on the decrypted result.
 
 
 The outer python script measures the runtime of each stage.

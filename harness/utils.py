@@ -206,7 +206,7 @@ def log_quality(correct_predictions, total_samples, tag):
 def run_exe_or_python(base, file_name, *args, check=True):
     """
         If {base}/{file_name}.py exists, run it with the current Python.
-        Otherwise, run {dir_name}/{file_name} as an executable.
+        Otherwise, run {base}/build/{file_name} as an executable.
     """
     py = base / f"{file_name}.py"
     exe = base / "build" / file_name

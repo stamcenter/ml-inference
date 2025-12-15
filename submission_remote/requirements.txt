@@ -1,0 +1,8 @@
+numpy>=1.20
+torch==2.5.1
+torchvision==0.20.1
+absl-py==2.3.0
+
+lattica-common==0.6.0
+lattica-fhe-core==0.8.0
+lattica-query==1.1.1
