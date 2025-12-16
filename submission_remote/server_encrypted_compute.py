@@ -2,7 +2,7 @@ import pickle
 import sys
 
 import submission_utils
-local_file_paths = submission_utils.init(int(sys.argv[1]))
+local_file_paths = submission_utils.init(int(sys.argv[1]), mute_logs=False)
 
 client = submission_utils.get_lattica_client(local_file_paths)
 

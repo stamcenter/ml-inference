@@ -8,16 +8,16 @@ from lattica_query.lattica_query_client import QueryClient
 instance_name = ["single", "small", "medium", "large"]
 batch_size = [1, 15, 1000, 10000]
 
-def init(size):
-    return LocalFilePaths(size)
+def init(size, mute_logs=True):
+    return LocalFilePaths(size, mute_logs)
 
 class LocalFilePaths:
-    def __init__(self, size):
-        # Mute logs
-        devnull_fd = os.open(os.devnull, os.O_WRONLY)
-        os.dup2(devnull_fd, 1)
-        os.dup2(devnull_fd, 2)
-        os.close(devnull_fd)
+    def __init__(self, size, mute_logs):
+        if mute_logs:
+            devnull_fd = os.open(os.devnull, os.O_WRONLY)
+            os.dup2(devnull_fd, 1)
+            os.dup2(devnull_fd, 2)
+            os.close(devnull_fd)
 
         self.BATCH_SIZE = batch_size[size]
 
