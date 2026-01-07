@@ -11,7 +11,7 @@ MODEL_IDS = ["sketchToNumber",
              "mnistWorkloadLargeBatch"]
 
 size = int(sys.argv[1])
-local_file_paths = submission_utils.init(int)
+local_file_paths = submission_utils.init(size)
 
 # Get access_token for public model
 access_token = get_demo_token(MODEL_IDS[size])
