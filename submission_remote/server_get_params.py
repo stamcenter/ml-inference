@@ -5,10 +5,16 @@ import pickle
 
 import submission_utils
 
-local_file_paths = submission_utils.init(int(sys.argv[1]))
+MODEL_IDS = ["sketchToNumber",
+             "mnistWorkloadSmallBatch",
+             "mnistWorkloadMediumBatch",
+             "mnistWorkloadLargeBatch"]
+
+size = int(sys.argv[1])
+local_file_paths = submission_utils.init(int)
 
 # Get access_token for public model
-access_token = get_demo_token("sketchToNumber")
+access_token = get_demo_token(MODEL_IDS[size])
 pickle.dump(access_token, open(local_file_paths.PATH_ACCESS_TOKEN, "wb"))
 
 # Get encryption params and model metadata from BE
