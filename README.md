@@ -44,7 +44,7 @@ This execution mode is enabled by passing the `--remote` flag to the harness.
 #### Dependencies
 - Python 3.12+
 - The build environment for local execution depends on OpenFHE being installed as specificied in `scripts/get_openfhe.sh` and `submission/CMakeLists.txt`. See https://github.com/openfheorg/openfhe-development#installation.
-- The build environment for remote-backend execution depends on lattica-query being installed as specified in `submission_remote/requirements.txt`. See https://platformdocs.lattica.ai/how-to-guides/client-installation/how-to-install-query-client.
+- The build environment for remote-backend execution depends on lattica-query being installed as specified in `submission_remote/requirements.txt`. See https://platformdocs.lattica.ai/how-to-guides/client-installation/how-to-install-query-client. Should be installed on a `linux_x86_64` machine.
 
 #### Execution
 To run the workload, clone and install dependencies:
