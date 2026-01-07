@@ -36,7 +36,7 @@ def main():
     utils.ensure_directories(params.rootdir)
 
     # Build the submission if not built already
-    utils.build_submission(params.rootdir/"scripts")
+    utils.build_submission(params.rootdir/"scripts", remote_be)
 
     # The harness scripts are in the 'harness' directory,
     # the submission code is either in submission or submission_remote
