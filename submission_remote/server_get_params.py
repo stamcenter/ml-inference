@@ -8,7 +8,7 @@ import submission_utils
 local_file_paths = submission_utils.init(int(sys.argv[1]))
 
 # Get access_token for public model
-access_token = get_demo_token("MnistWorkflow")
+access_token = get_demo_token("sketchToNumber")
 pickle.dump(access_token, open(local_file_paths.PATH_ACCESS_TOKEN, "wb"))
 
 # Get encryption params and model metadata from BE

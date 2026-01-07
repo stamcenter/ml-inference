@@ -72,14 +72,17 @@ def ensure_directories(rootdir: Path):
                   f"not found in {rootdir}")
             sys.exit(1)
 
-def build_submission(script_dir: Path):
+def build_submission(script_dir: Path, remote_be: bool):
     """
     Build the submission, including pulling dependencies as neeed
     """
-    # Clone and build OpenFHE if needed
-    subprocess.run([script_dir/"get_openfhe.sh"], check=True)
-    # CMake build of the submission itself
-    subprocess.run([script_dir/"build_task.sh", "./submission"], check=True)
+    if remote_be:
+        subprocess.run(["pip", "install", "-r", "./submission_remote/requirements.txt"], check=True)
+    else:
+        # Clone and build OpenFHE if needed
+        subprocess.run([script_dir/"get_openfhe.sh"], check=True)
+        # CMake build of the submission itself
+        subprocess.run([script_dir/"build_task.sh", "./submission"], check=True)
 
 class TextFormat:
     BOLD = "\033[1m"

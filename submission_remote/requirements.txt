@@ -1,6 +1,1 @@
-numpy>=1.20
-torch==2.5.1
-torchvision==0.20.1
-absl-py==2.3.0
-
-lattica-query
+lattica-query>=1.2.0

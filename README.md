@@ -40,9 +40,13 @@ In this mode:
 This execution mode is enabled by passing the `--remote` flag to the harness.
 
 ## Running the ML-inference workload
-The build environment depends on OpenFHE being installed as specificied in `scripts/get_openfhe.sh` and `submission/CMakeLists.txt`
-See https://github.com/openfheorg/openfhe-development#installation.
 
+#### Dependencies
+- Python 3.12+
+- The build environment for local execution depends on OpenFHE being installed as specificied in `scripts/get_openfhe.sh` and `submission/CMakeLists.txt`. See https://github.com/openfheorg/openfhe-development#installation.
+- The build environment for remote-backend execution depends on lattica-query being installed as specified in `submission_remote/requirements.txt`. See https://platformdocs.lattica.ai/how-to-guides/client-installation/how-to-install-query-client.
+
+#### Execution
 To run the workload, clone and install dependencies:
 ```console
 git clone https://github.com/fhe-benchmarking/ml-inference.git
@@ -55,14 +59,7 @@ pip install -r requirements.txt
 python3 harness/run_submission.py -h  # Information about command-line options
 ```
 
-The harness script `harness/run_submission.py` will attempt to build the submission itself, if it is not already built. If already built, it will use the same project without re-building it (unless the code has changed).
-
-To install dependencies for the remote backend example:
-```console
-pip install -r submission_remote/requirements.txt
-```
-
-An example run is provided below.
+The harness script `harness/run_submission.py` will attempt to build the submission itself, if it is not already built. If already built, it will use the same project without re-building it (unless the code has changed). An example run is provided below.
 
 
 ```console
