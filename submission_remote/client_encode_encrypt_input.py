@@ -36,11 +36,8 @@ homsec_proto.ParseFromString(hom_seq)
 block_proto = homsec_proto.client_blocks[0]
 pt_axis_external = block_proto.pt_axis_external if block_proto.HasField("pt_axis_external") else None
 
-# For each input in the batch create a ciphertext
-for i, pt in enumerate(examples):
-    pt = torch.tensor(pt).reshape(28, 28)
-    pt = worker_api.dumps_proto_tensor(pt)
-    pt = toolkit_interface.apply_client_block(block_proto.SerializeToString(), context, pt)
-    ct = toolkit_interface.enc(context, sk, pt, pack_for_transmission=True, n_axis_external=pt_axis_external)
-    pickle.dump(ct, open(local_file_paths.get_ct_upload_path(i), "wb"))
-
+pt = torch.tensor(examples).reshape(-1, 28, 28)
+pt_ser = worker_api.dumps_proto_tensor(pt)
+pt_enc = toolkit_interface.apply_client_block(block_proto.SerializeToString(), context, pt_ser)
+ct_batch = toolkit_interface.enc(context, sk, pt_enc, pack_for_transmission=True, n_axis_external=pt_axis_external)
+pickle.dump(ct_batch, open(local_file_paths.get_ct_upload_path("batch"), "wb"))
