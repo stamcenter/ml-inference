@@ -59,12 +59,11 @@ The remote homomorphic inference follows the pipeline below:
 
 ```python
 hom_pipeline = SequentialHomOp(
-    ClientReshape((BATCH_SIZE, 28 * 28,)),      # flatten 28x28 input image to a 784-dimensional vector
+    ClientReshape((BATCH_SIZE, 28 * 28,)),      # preprocess: flatten 28x28 input image to a 784-dimensional vector
     HomLinear(l1_weight.shape),                 # first linear layer
     HomSquare(),                                # square activation
     HomLinear(l2_weight.shape),                 # second linear layer
-    ClientReshape((10,)),                       # reshape output to 10-class vector
-    input_shape=(BATCH_SIZE, 28, 28),
+    ClientReshape((BATCH_SIZE, 10,)),           # postprocess: reshape output to 10-class vector
 )
 ```
 
