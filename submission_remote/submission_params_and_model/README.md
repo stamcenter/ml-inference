@@ -1,8 +1,13 @@
 # Remote Submission Example
 
-This directory contains a remote submission example illustrating how a client can interact with a remote backend in the benchmarking suite. The goal is to make the parameters and model used by the backend explicit and easy to review.
+This directory contains a remote submission example for the benchmarking suite.
 
-This example is provided for integration and reproducibility, it is not intended to represent Lattica’s final or security-hardened challenge submission.
+As part of the benchmarking process, all remote backends are expected to make their homomorphic encryption parameters explicit and reviewable, since these parameters directly affect security, performance, and comparability across submissions.
+Ideally, such parameters should be reported automatically by the backend.
+
+This doc includes a static description of the FHE parameters used by the remote-backend example, along with a brief description of the model architecture. While helpful for context, model architecture disclosure is not a requirement of the benchmarking process.
+
+The parameters shown here are chosen for simplicity and reproducibility and are not intended to represent a security-hardened or final challenge submission.
 
 ---
 
@@ -121,7 +126,7 @@ apply_hom_pipeline timing: network;dur=1130, logic;dur=137, instance;dur=106, wo
 - Encrypted input size: \~64 KB
 - Total inference latency: 4.1393
 - Compute inference latency: 33 ms
----
+-----
 
 ### `batch_size = 15`
 
@@ -155,7 +160,7 @@ apply_hom_pipeline timing: network;dur=13920, logic;dur=224, instance;dur=153, w
 - Encrypted input size: \~24.5 MB
 - Total inference latency: 16.2854
 - Compute inference latency: 68 ms
----
+-----
 
 ### `batch_size = 1000`
 
