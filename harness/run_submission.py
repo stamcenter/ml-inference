@@ -28,7 +28,7 @@ def main():
     
     # 0. Prepare running
     # Get the arguments
-    size, params, seed, num_runs, clrtxt = utils.parse_submission_arguments('Run ML Inference FHE benchmark.')
+    size, params, seed, num_runs, clrtxt, remote_be = utils.parse_submission_arguments('Run ML Inference FHE benchmark.')
     test = instance_name(size)
     print(f"\n[harness] Running submission for {test} inference")
 
@@ -36,12 +36,12 @@ def main():
     utils.ensure_directories(params.rootdir)
 
     # Build the submission if not built already
-    utils.build_submission(params.rootdir/"scripts")
+    utils.build_submission(params.rootdir/"scripts", remote_be)
 
     # The harness scripts are in the 'harness' directory,
-    # the executables are in the directory submission/build
+    # the submission code is either in submission or submission_remote
     harness_dir = params.rootdir/"harness"
-    exec_dir = params.rootdir/"submission"/"build"
+    exec_dir = params.rootdir/ ("submission_remote" if remote_be else "submission")
 
     # Remove and re-create IO directory
     io_dir = params.iodir()
@@ -52,21 +52,32 @@ def main():
 
     # 1. Client-side: Generate the test datasets
     dataset_path = params.datadir() / f"dataset.txt"
-    cmd = ["python3", harness_dir/"generate_dataset.py", str(dataset_path)]
-    subprocess.run(cmd, check=True)
+    utils.run_exe_or_python(harness_dir, "generate_dataset", str(dataset_path))
     utils.log_step(1, "Harness: MNIST Test dataset generation")
 
-    # 2. Client-side: Generate the cryptographic keys 
+    # 2.1 Communication: Get cryptographic context
+    if remote_be:
+        utils.run_exe_or_python(exec_dir, "server_get_params", str(size))
+        utils.log_step(2.1 , "Communication: Get cryptographic context")
+        # Report size of context
+        utils.log_size(io_dir / "client_data", "Cryptographic Context")
+
+    # 2.2 Client-side: Generate the cryptographic keys
     # Note: this does not use the rng seed above, it lets the implementation
     #   handle its own prg needs. It means that even if called with the same
     #   seed multiple times, the keys and ciphertexts will still be different.
-    subprocess.run([exec_dir/"client_key_generation", str(size)], check=True)
-    utils.log_step(2 , "Client: Key Generation")
+    utils.run_exe_or_python(exec_dir, "client_key_generation", str(size))
+    utils.log_step(2.2 , "Client: Key Generation")
     # Report size of keys and encrypted data
     utils.log_size(io_dir / "public_keys", "Client: Public and evaluation keys")
 
+    # 2.3 Communication: Upload evaluation key
+    if remote_be:
+        utils.run_exe_or_python(exec_dir, "server_upload_ek", str(size))
+        utils.log_step(2.3 , "Communication: Upload evaluation key")
+
     # 3. Server-side: Preprocess the (encrypted) dataset using exec_dir/server_preprocess_model
-    subprocess.run(exec_dir/"server_preprocess_model", check=True)
+    utils.run_exe_or_python(exec_dir, "server_preprocess_model")
     utils.log_step(3, "Server: (Encrypted) model preprocessing")
 
     # Run steps 4-10 multiple times if requested
@@ -76,36 +87,36 @@ def main():
             print(f"\n         [harness] Run {run+1} of {num_runs}")
 
         # 4. Client-side: Generate a new random input using harness/generate_input.py
-        cmd = ["python3", harness_dir/"generate_input.py", str(size)]
+        cmd_args = [str(size),]
         if seed is not None:
             # Use a different seed for each run but derived from the base seed
             rng = np.random.default_rng(seed)
             genqry_seed = rng.integers(0,0x7fffffff)
-            cmd.extend(["--seed", str(genqry_seed)])
-        subprocess.run(cmd, check=True)
+            cmd_args.extend(["--seed", str(genqry_seed)])
+        utils.run_exe_or_python(harness_dir, "generate_input", *cmd_args)
         utils.log_step(4, "Harness: Input generation for MNIST")
 
         # 5. Client-side: Preprocess input using exec_dir/client_preprocess_input
-        subprocess.run([exec_dir/"client_preprocess_input", str(size)], check=True)
+        utils.run_exe_or_python(exec_dir, "client_preprocess_input", str(size))
         utils.log_step(5, "Client: Input preprocessing")
 
         # 6. Client-side: Encrypt the input
-        subprocess.run([exec_dir/"client_encode_encrypt_input", str(size)], check=True)
+        utils.run_exe_or_python(exec_dir, "client_encode_encrypt_input", str(size))
         utils.log_step(6, "Client: Input encryption")
         utils.log_size(io_dir / "ciphertexts_upload", "Client: Encrypted input")
 
         # 7. Server side: Run the encrypted processing run exec_dir/server_encrypted_compute
-        subprocess.run([exec_dir/"server_encrypted_compute", str(size)], check=True)
+        utils.run_exe_or_python(exec_dir, "server_encrypted_compute", str(size))
         utils.log_step(7, "Server: Encrypted ML Inference computation")
         # Report size of encrypted results
         utils.log_size(io_dir / "ciphertexts_download", "Client: Encrypted results")
 
         # 8. Client-side: decrypt
-        subprocess.run([exec_dir/"client_decrypt_decode", str(size)], check=True)
+        utils.run_exe_or_python(exec_dir, "client_decrypt_decode", str(size))
         utils.log_step(8, "Client: Result decryption")
 
         # 9. Client-side: post-process
-        subprocess.run([exec_dir/"client_postprocess", str(size)], check=True)
+        utils.run_exe_or_python(exec_dir, "client_postprocess", str(size))
         utils.log_step(9, "Client: Result postprocessing")
 
         # 10 Verify the result for single inference or calculate quality for batch inference.
@@ -116,13 +127,13 @@ def main():
             sys.exit(1)
 
         if (size == utils.SINGLE):
-            subprocess.run(["python3", harness_dir/"verify_result.py",
-                str(ground_truth_labels), str(encrypted_model_preds)], check=False)
+            utils.run_exe_or_python(harness_dir, "verify_result",
+                                    str(ground_truth_labels), str(encrypted_model_preds), check=False)
         else:
             # 10.1 Run the cleartext computation in cleartext_impl.py
             test_pixels = params.get_test_input_file()
             harness_model_preds = params.get_harness_model_predictions_file()
-            subprocess.run(["python3", harness_dir/"cleartext_impl.py", str(test_pixels), str(harness_model_preds)], check=True)
+            utils.run_exe_or_python(harness_dir, "cleartext_impl", str(test_pixels), str(harness_model_preds))
             utils.log_step(10.1, "Harness: Run inference for harness plaintext model")
 
             # 10.2 Run the quality calculation
