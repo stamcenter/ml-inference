@@ -123,7 +123,9 @@ def export_test_pixels_labels(data_dir=DATA_DIR, pixels_file="mnist_pixels.txt",
         torch.manual_seed(seed)
 
     # Get the total number of samples in the test dataset
-    transform = get_mnist_transform()
+    transform = transforms.Compose([
+        transforms.ToTensor(),  # Converts PIL Image or numpy.ndarray to FloatTensor and scales to [0.0, 1.0]
+    ])
     test_dataset = datasets.MNIST(data_dir, train=False, download=True, transform=transform)
     total_samples = len(test_dataset)
 
