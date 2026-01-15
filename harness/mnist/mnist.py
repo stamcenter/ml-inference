@@ -123,16 +123,13 @@ def export_test_pixels_labels(data_dir=DATA_DIR, pixels_file="mnist_pixels.txt",
         torch.manual_seed(seed)
 
     # Get the total number of samples in the test dataset
-    transform = transforms.Compose([
-        transforms.ToTensor(), # Converts PIL Image or numpy.ndarray to FloatTensor and scales to [0.0, 1.0]
-    ])
+    transform = get_mnist_transform()
     test_dataset = datasets.MNIST(data_dir, train=False, download=True, transform=transform)
     total_samples = len(test_dataset)
 
     # Determine how many samples to export
     samples_to_export = total_samples if num_samples == -1 else min(num_samples, total_samples)
-    
-    
+
     # Use sample_test_data to get random samples (but without normalization for export)
     if samples_to_export == total_samples:
         
