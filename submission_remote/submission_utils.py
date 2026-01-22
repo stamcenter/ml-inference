@@ -22,10 +22,11 @@ class LocalFilePaths:
         self.BATCH_SIZE = batch_size[size]
 
         PARENT_DIR = Path(os.path.dirname(os.path.abspath(__file__))).parent
-        self.PT_PATH = PARENT_DIR / "datasets" / instance_name[size] / "intermediate" / "test_pixels.txt"
+        self.TEST_DATA_PATH = PARENT_DIR / "datasets" / instance_name[size] / "intermediate" / "test_pixels.txt"
         self.IO_DIR =  PARENT_DIR / "io"       / instance_name[size]
 
         self.PREDICTIONS_PATH =  self.IO_DIR / "encrypted_model_predictions.txt"
+        self.PT_PATH = self.IO_DIR / "pt.bin"
 
         self.CLIENT_DATA_DIR = self.IO_DIR / "client_data"
         self.CLIENT_DATA_DIR.mkdir(parents=True, exist_ok=True)
