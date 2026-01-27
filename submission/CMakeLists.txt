@@ -104,6 +104,7 @@ add_executable( client_decrypt_decode src/client_decrypt_decode.cpp )
 target_link_libraries( client_decrypt_decode mlp_encryption_utils )
 
 add_executable( client_postprocess src/client_postprocess.cpp )
+target_link_libraries( client_postprocess mlp_encryption_utils )
 
 add_executable( server_preprocess_model src/server_preprocess_model.cpp )
 

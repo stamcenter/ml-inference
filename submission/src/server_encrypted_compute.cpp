@@ -46,7 +46,7 @@ int main(int argc, char* argv[]){
     try {
         module = torch::jit::load(model_path);
         module.eval();
-        std::cout << "         [server] PyTorch model weights successfully!" << std::endl;
+        std::cout << "         [server] PyTorch model weights loaded successfully!" << std::endl;
     } catch (const c10::Error& e) {
         std::cerr << "         [server] Error loading PyTorch model: " << e.what() << std::endl;
         return 1;

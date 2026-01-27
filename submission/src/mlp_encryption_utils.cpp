@@ -150,6 +150,33 @@ void write_dataset(const std::vector<Sample> &dataset, const char *filename) {
   }
 }
 
+void load_scores(std::vector<Score> &dataset, const char *filename) {
+  std::ifstream file(filename);
+  Score score;
+  std::string line;
+  while (std::getline(file, line)) {
+    std::istringstream iss(line);
+    // Read MNIST_LABEL_DIM values from file
+    for (int i = 0; i < MNIST_LABEL_DIM; i++) {
+      iss >> score.score[i];
+    }
+    dataset.push_back(score);
+  }
+}
+
+void write_scores(const std::vector<Score> &dataset, const char *filename) {
+  std::ofstream file(filename);
+  for (const auto &score : dataset) {
+    for (int i = 0; i < MNIST_LABEL_DIM; i++) {
+      file << score.score[i];
+      if (i < MNIST_LABEL_DIM - 1) {
+        file << " ";
+      }
+    }
+    file << "\n";
+  }
+}
+
 int argmax(float *A, int N) {
   int max_idx = 0;
   for (int i = 1; i < N; i++) {

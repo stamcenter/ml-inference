@@ -39,20 +39,23 @@ int main(int argc, char* argv[]) {
                                     SerType::BINARY)) {
         throw std::runtime_error("Failed to get secret key from  " + prms.seckeydir().string());
     }
-   std::vector<Ciphertext<DCRTPoly>> ctxt;     
-    std::vector<float> output;
-    auto result_path = prms.encrypted_model_predictions_file();
+    std::vector<Ciphertext<DCRTPoly>> ctxt;     
+    std::vector<Score> scores;
+    auto result_path = prms.model_scores_file();
     std::ofstream out(result_path);
     for (size_t i = 0; i < prms.getBatchSize(); ++i) {
         auto ctxt_path = prms.ctxtdowndir()/("cipher_result_" + std::to_string(i) + ".bin");
         if (!Serial::DeserializeFromFile(ctxt_path, ctxt, SerType::BINARY)) {
             throw std::runtime_error("Failed to get ciphertext from " + ctxt_path.string());
         }
-        output = mlp_decrypt(cc, ctxt, sk);
-        auto max_id = argmax(output.data(), 10);
-        out << max_id << '\n';
+        auto decrypted_output = mlp_decrypt(cc, ctxt, sk);
+        Score score;
+        for (int j = 0; j < MNIST_LABEL_DIM; ++j) {
+            score.score[j] = decrypted_output[j];
+        }
+        scores.push_back(score);
     }
-
+    write_scores(scores, result_path.c_str());
     return 0;
 }
 
