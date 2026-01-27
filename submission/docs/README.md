@@ -5,10 +5,8 @@ The submission is built with [HEIR](heir.dev) compiler.
 
 ## Model architecture changes
 We assume that server has access to training data and the model architecture has been modified as follows
-- The first FC layer, of size 1024x1024
+- The first FC layer, of size 512x784
 - The activation layer, using Approx-RELU based on polynomial appox
-- The second FC layer, of size 1024x1024
-The input is padded and output is post porcessed to get the label.
 
 This network is trained to get a plaintext accuracy of 9634/10000.
 
