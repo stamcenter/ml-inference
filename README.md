@@ -43,7 +43,7 @@ This execution mode is enabled by passing the `--remote` flag to the harness.
 
 #### Dependencies
 - Python 3.12+
-- The build environment for local execution depends on OpenFHE being installed as specificied in `scripts/get_openfhe.sh` and `submission/CMakeLists.txt`. See https://github.com/openfheorg/openfhe-development#installation.
+- The build environment for local execution depends on OpenFHE being installed as specified in `scripts/get_openfhe.sh` and `submission/CMakeLists.txt`. See https://github.com/openfheorg/openfhe-development#installation.
 - The build environment for remote-backend execution depends on lattica-query being installed as specified in `submission_remote/requirements.txt`. See https://platformdocs.lattica.ai/how-to-guides/client-installation/how-to-install-query-client. Should be installed on a `linux_x86_64` machine.
 
 #### Execution
@@ -86,62 +86,64 @@ $ python3 ./harness/run_submission.py 0 --seed 3 --num_runs 2
  
 
 [harness] Running submission for single inference
-[get-openfhe] Found OpenFHE at .../ml-inference/third_party/openfhe (use --force to rebuild).
+[get_openfhe] Found OpenFHE at .../ml-inference/third_party/openfhe (use --force to rebuild).
 -- FOUND PACKAGE OpenFHE
--- OpenFHE Version: 1.3.1
+-- OpenFHE Version: 1.4.0
 -- OpenFHE installed as shared libraries: ON
 -- OpenFHE include files location: .../ml-inference/third_party/openfhe/include/openfhe
 -- OpenFHE lib files location: .../ml-inference/third_party/openfhe/lib
 -- OpenFHE Native Backend size: 64
--- Configuring done (0.0s)
--- Generating done (0.0s)
+-- FOUND PACKAGE Torch
+-- Torch include dirs: .../ml-inference/third_party/libtorch/include;.../ml-inference/third_party/libtorch/include/torch/csrc/api/include
+-- Torch libraries: torch;torch_library;.../ml-inference/third_party/libtorch/lib/libc10.so;.../ml-inference/third_party/libtorch/lib/libkineto.a
+-- Configuring done
+-- Generating done
 -- Build files have been written to: .../ml-inference/submission/build
-[ 12%] Built target client_preprocess_input
-[ 25%] Built target client_postprocess
-[ 37%] Built target server_preprocess_model
-[ 62%] Built target client_key_generation
-[ 62%] Built target mlp_encryption_utils
-[ 75%] Built target client_encode_encrypt_input
-[100%] Built target client_decrypt_decode
+[ 11%] Built target mlp_encryption_utils
+[ 33%] Built target client_key_generation
+[ 33%] Built target server_preprocess_model
+[ 44%] Built target mlp_openfhe
+[ 55%] Built target client_encode_encrypt_input
+[ 66%] Built target client_decrypt_decode
+[ 77%] Built target client_preprocess_input
+[ 88%] Built target client_postprocess
 [100%] Built target server_encrypted_compute
-22:50:49 [harness] 1: Harness: MNIST Test dataset generation completed (elapsed: 7.5552s)
-22:50:51 [harness] 2: Client: Key Generation completed (elapsed: 2.2688s)
-         [harness] Client: Public and evaluation keys size: 1.4G
-22:50:51 [harness] 3: Server: (Encrypted) model preprocessing completed (elapsed: 0.1603s)
+13:21:55 [harness] 1: Harness: MNIST Test dataset generation completed (elapsed: 8.8735s)
+13:21:57 [harness] 2.2: Client: Key Generation completed (elapsed: 2.3535s)
+         [harness] Client: Public and evaluation keys size: 1.0G
+13:21:57 [harness] 3: Server: (Encrypted) model preprocessing completed (elapsed: 0.198s)
 
          [harness] Run 1 of 2
-100.0%
-100.0%
-100.0%
-100.0%
-22:51:04 [harness] 4: Harness: Input generation for MNIST completed (elapsed: 13.1305s)
-22:51:04 [harness] 5: Client: Input preprocessing completed (elapsed: 0.0489s)
-22:51:04 [harness] 6: Client: Input encryption completed (elapsed: 0.0481s)
-         [harness] Client: Encrypted input size: 358.8K
+13:22:01 [harness] 4: Harness: Input generation for MNIST completed (elapsed: 3.8631s)
+13:22:01 [harness] 5: Client: Input preprocessing completed (elapsed: 0.1061s)
+13:22:01 [harness] 6: Client: Input encryption completed (elapsed: 0.201s)
+         [harness] Client: Encrypted input size: 5.0M
          [server] Loading keys
-         [server] Run encrypted MNIST inference
-         [server] Execution time for ciphertext 0 : 11 seconds
-22:51:18 [harness] 7: Server: Encrypted ML Inference computation completed (elapsed: 13.3027s)
-         [harness] Client: Encrypted results size: 69.6K
-22:51:18 [harness] 8: Client: Result decryption completed (elapsed: 0.1729s)
-22:51:18 [harness] 9: Client: Result postprocessing completed (elapsed: 0.0921s)
+         [server] PyTorch model weights loaded successfully!
+         [server] run encrypted MNIST inference
+         [server] Execution time for ciphertext 0 : 12 seconds
+13:22:15 [harness] 7: Server: Encrypted ML Inference computation completed (elapsed: 13.4429s)
+         [harness] Client: Encrypted results size: 1.0M
+13:22:15 [harness] 8: Client: Result decryption completed (elapsed: 0.2832s)
+13:22:15 [harness] 9: Client: Result postprocessing completed (elapsed: 0.118s)
 [harness] PASS  (expected=7, got=7)
-[total latency] 36.7796s
+[total latency] 29.4393s
 
          [harness] Run 2 of 2
-22:51:23 [harness] 4: Harness: Input generation for MNIST completed (elapsed: 5.2028s)
-22:51:23 [harness] 5: Client: Input preprocessing completed (elapsed: 0.0986s)
-22:51:23 [harness] 6: Client: Input encryption completed (elapsed: 0.0998s)
-         [harness] Client: Encrypted input size: 358.8K
+13:22:21 [harness] 4: Harness: Input generation for MNIST completed (elapsed: 5.3879s)
+13:22:21 [harness] 5: Client: Input preprocessing completed (elapsed: 0.0852s)
+13:22:21 [harness] 6: Client: Input encryption completed (elapsed: 0.2011s)
+         [harness] Client: Encrypted input size: 5.0M
          [server] Loading keys
-         [server] Run encrypted MNIST inference
-         [server] Execution time for ciphertext 0 : 12 seconds
-22:51:37 [harness] 7: Server: Encrypted ML Inference computation completed (elapsed: 13.8138s)
-         [harness] Client: Encrypted results size: 69.6K
-22:51:37 [harness] 8: Client: Result decryption completed (elapsed: 0.1219s)
-22:51:37 [harness] 9: Client: Result postprocessing completed (elapsed: 0.0827s)
+         [server] PyTorch model weights loaded successfully!
+         [server] run encrypted MNIST inference
+         [server] Execution time for ciphertext 0 : 13 seconds
+13:22:36 [harness] 7: Server: Encrypted ML Inference computation completed (elapsed: 15.0731s)
+         [harness] Client: Encrypted results size: 1.0M
+13:22:36 [harness] 8: Client: Result decryption completed (elapsed: 0.2518s)
+13:22:36 [harness] 9: Client: Result postprocessing completed (elapsed: 0.1047s)
 [harness] PASS  (expected=7, got=7)
-[total latency] 29.4041s
+[total latency] 32.5287s
 
 All steps completed for the single inference!
 ```

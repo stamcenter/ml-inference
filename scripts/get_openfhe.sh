@@ -42,7 +42,7 @@ fi
 mkdir -p "$ROOT_DIR/third_party"
 if [[ -d "$SRC_DIR/.git" ]]; then
     echo "[get_openfhe] Updating existing clone in $SRC_DIR"
-    git -C "$SRC_DIR" fetch --depth 1 origin "$TAG"
+    git -C "$SRC_DIR" fetch origin tag "$TAG"
     git -C "$SRC_DIR" checkout -q "$TAG"
 else
     echo "[get_openfhe] Cloning OpenFHE $TAG"
