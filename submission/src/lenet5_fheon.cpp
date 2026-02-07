@@ -157,8 +157,8 @@ Ctext lenet5(CryptoContext<DCRTPoly> context, Ctext encryptedInput) {
     convData = fheonANNController.he_linear(convData, fc3_kernelData, fc3baisVec,
                                     channels[5], channels[6], rotPositions);
     
-    auto mask_data = context->MakeCKKSPackedPlaintext(generate_mixed_mask(10, 784), 1, 0, nullptr, nextPowerOf2(784));
-    convData = context->EvalMult(convData, mask_data);
+    // auto mask_data = context->MakeCKKSPackedPlaintext(generate_mixed_mask(10, 784), 1, 0, nullptr, nextPowerOf2(784));
+    // convData = context->EvalMult(convData, mask_data);
 
     // cout << "[server] After 3rd FC Layer" << endl;
     // cout << "[server] Inference completed" << endl << endl;
