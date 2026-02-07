@@ -49,6 +49,7 @@ harness/mnist/__pycache__/
 
 # Virtual environments
 virtualenv
+bmenv
 
 # Datasets, queries and results since we generate them on the fly
 datasets/*
