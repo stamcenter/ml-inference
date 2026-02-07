@@ -71,12 +71,19 @@ endif()
 # --------------------------------------------------------------------
 # 4.  Create mlp library
 # --------------------------------------------------------------------
+add_library( fheonhecontroller src/fheonsrc/FHEONHEController.cpp )
+add_library( fheonanncontroller src/fheonsrc/FHEONANNController.cpp )
 
+
+#-----------------------------------------------------------------------
+# Create the FHEON Libraries
+#------------------------------------------------------------------------
 add_library( mlp_encryption_utils src/mlp_encryption_utils.cpp )
 
 # Use pre-built mlp_openfhe library
 add_library( mlp_openfhe STATIC IMPORTED )
 set_target_properties( mlp_openfhe PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/pre-built-library/libmlp_openfhe.a )
+
 
 # --------------------------------------------------------------------
 # 5.  Each *.cpp file becomes its own executable.
@@ -97,6 +104,9 @@ add_executable( client_postprocess src/client_postprocess.cpp )
 
 add_executable( server_preprocess_model src/server_preprocess_model.cpp )
 
-add_executable( server_encrypted_compute src/server_encrypted_compute.cpp )
-target_link_libraries( server_encrypted_compute mlp_openfhe )
+add_executable( server_encrypted_compute src/server_encrypted_compute.cpp src/lenet5_fheon.cpp )
+target_link_libraries( server_encrypted_compute mlp_openfhe)
 target_link_libraries( server_encrypted_compute mlp_encryption_utils )
+target_link_libraries( server_encrypted_compute fheonhecontroller )
+target_link_libraries( server_encrypted_compute fheonanncontroller )
+target_compile_definitions(server_encrypted_compute PRIVATE WEIGHTS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/weights/lenet5/")
