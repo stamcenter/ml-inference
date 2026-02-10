@@ -74,7 +74,6 @@ endif()
 add_library( fheonhecontroller src/fheonsrc/FHEONHEController.cpp )
 add_library( fheonanncontroller src/fheonsrc/FHEONANNController.cpp )
 
-
 #-----------------------------------------------------------------------
 # Create the FHEON Libraries
 #------------------------------------------------------------------------
@@ -83,7 +82,6 @@ add_library( mlp_encryption_utils src/mlp_encryption_utils.cpp )
 # Use pre-built mlp_openfhe library
 add_library( mlp_openfhe STATIC IMPORTED )
 set_target_properties( mlp_openfhe PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/pre-built-library/libmlp_openfhe.a )
-
 
 # --------------------------------------------------------------------
 # 5.  Each *.cpp file becomes its own executable.

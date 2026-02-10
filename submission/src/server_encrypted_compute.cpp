@@ -15,7 +15,6 @@
 #include "FHEController.h"
 #include "lenet5_fheon.h"
 #include "mlp_encryption_utils.h"
-#include "mlp_openfhe.h"
 #include "params.h"
 #include "utils.h"
 #include <chrono>
@@ -35,6 +34,7 @@ int main(int argc, char *argv[]) {
   CryptoContext<DCRTPoly> cc = read_crypto_context(prms);
   read_eval_keys(prms, cc);
   PublicKey<DCRTPoly> pk = read_public_key(prms);
+  PrivateKey<DCRTPoly> sk = read_secret_key(prms);
 
   int numSlots = 1 << 12;
   std::vector<uint32_t> levelBudget = {4, 4};
@@ -46,6 +46,8 @@ int main(int argc, char *argv[]) {
   Ctext ctxt;
   fs::create_directories(prms.ctxtdowndir());
   std::cout << "         [server] run encrypted MNIST inference" << std::endl;
+
+  FHEONHEController fheonHEController(cc);
   for (size_t i = 0; i < prms.getBatchSize(); ++i) {
     auto input_ctxt_path =
         prms.ctxtupdir() / ("cipher_input_" + std::to_string(i) + ".bin");
@@ -54,7 +56,8 @@ int main(int argc, char *argv[]) {
                                input_ctxt_path.string());
     }
     auto start = std::chrono::high_resolution_clock::now();
-    auto ctxtResult = lenet5(cc, ctxt);
+    auto ctxtResult = lenet5(fheonHEController, cc, ctxt);
+
     auto end = std::chrono::high_resolution_clock::now();
     auto duration =
         std::chrono::duration_cast<std::chrono::seconds>(end - start);

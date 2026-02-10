@@ -91,7 +91,6 @@ int main(int argc, char *argv[]) {
 
     // Step 4: Bootstrap key generation
     cryptoContext->EvalBootstrapSetup(levelBudget, bsgsDim, numSlots);
-    // cout << "Bootstrap Setup done. Starting Bootstrap KeyGen..." << endl;
     cryptoContext->EvalBootstrapKeyGen(keyPair.secretKey, numSlots);
     // cout << "Bootstrap KeyGen done." << endl;
 

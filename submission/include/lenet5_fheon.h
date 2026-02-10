@@ -14,14 +14,16 @@
 #ifndef LENET5_FHEON_H_
 #define LENET5_FHEON_H_
 
-#include "openfhe.h"
-#include "FHEONHEController.h"
 #include "FHEONANNController.h"
+#include "FHEONHEController.h"
+#include "openfhe.h"
 
 using namespace std;
 using namespace lbcrypto;
 // using CiphertextT = ConstCiphertext<DCRTPoly>;
 
-Ctext lenet5(CryptoContext<DCRTPoly> v0, Ctext v1);
+// Ctext lenet5(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &v0,
+//              Ctext v1, PrivateKey<DCRTPoly> &sk);
+Ctext lenet5(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &v0, Ctext v1);
 
-#endif  // ifndef LENET5_FHEON_H_
+#endif // ifndef LENET5_FHEON_H_

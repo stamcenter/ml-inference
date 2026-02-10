@@ -121,11 +121,18 @@ public:
     int read_minmax(Ctext encryptedInput, int noElements); 
     int read_scaling_value(Ctext encryptedInput, int noElements);
 
+    
+
+    Ptext decrypt_data_with_key(PrivateKey<DCRTPoly>& sk, Ctext encryptedinputData, int cols);
+    int read_scaling_value_with_key(PrivateKey<DCRTPoly>& sk, Ctext encryptedInput, int noElements);
+    int read_inferenced_label_with_key(PrivateKey<DCRTPoly>& sk, Ctext encryptedInput, int noElements,  ofstream& outFile);
+    
+
 private:
     KeyPair<DCRTPoly> keyPair;
     vector<uint32_t> level_budget = {4, 4};
     vector<uint32_t> bsgsDim = {0, 0};
-    vector<double> build_tiled_mask(int starting_padding, int ending_padding, int window_length, int max_length, int tile_count) ;
+    vector<double> build_tiled_mask(int starting_padding, int ending_padding, int window_length, int max_length, int tile_count);
     
     void keys_serialization();
 };

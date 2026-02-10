@@ -192,9 +192,9 @@ namespace utilsdata {
      * @param vector_size Total size of mask.
      * @return Mask vector.
     */
-    static inline vector<double> generate_mixed_mask(int ones_width, int vector_size){
-        vector<double> ones_vector(ones_width, 1.0);
-        vector<double> zeros_vector((vector_size - ones_width), 0.0);
+    static inline vector<double> generate_mixed_mask(int ones_size, int vector_size){
+        vector<double> ones_vector(ones_size, 1.0);
+        vector<double> zeros_vector((vector_size - ones_size), 0.0);
         ones_vector.insert(ones_vector.end(), zeros_vector.begin(), zeros_vector.end());
         return ones_vector;
     }
@@ -285,24 +285,34 @@ namespace utilsdata {
         return avgpoolFilter;
     }
  
-    /**
-     * @brief Find the next power of 2.
-     * 
-     * @param n Input value.
-     * @return Next power of 2.
-     */
-    static inline int nextPowerOf2(unsigned int n) {
-            if (n == 0) return 1;
 
-            n--;                     // make sure exact powers of 2 stay unchanged
-            n |= n >> 1;
-            n |= n >> 2;
-            n |= n >> 4;
-            n |= n >> 8;
-            n |= n >> 16;
-            n++;                     // result is next power of 2
+    /**
+     * @brief Return the next power of 2 greater than or equal to n.
+     *
+     * If n is already a power of 2, return n. Otherwise, return the next higher power of 2.
+     *
+     * @param n Input integer.
+     * @return Next power of 2 (>= n).
+     */
+    static inline unsigned int nextPowerOf2(unsigned int n) {
+        if (n == 0) return 1;
+
+        // Check if n is already a power of 2
+        if ((n & (n - 1)) == 0) {
             return n;
-     }
+        }
+
+        // Otherwise, compute the next higher power of 2
+        n--;
+        n |= n >> 1;
+        n |= n >> 2;
+        n |= n >> 4;
+        n |= n >> 8;
+        n |= n >> 16;
+        n++;
+        return n;
+    }
+
 
 
     /**
@@ -382,8 +392,8 @@ namespace utilsdata {
                         vector<vector<double>>(rowsWidth, vector<double>(imgCols))));    
         int indexVal = 0; 
 
-        for (size_t i = 0; i< data.size(); i++) {
-            raw_weights = data[0];
+        for (const auto& row : data) {
+            raw_weights.insert(raw_weights.end(), row.begin(), row.end());
         }
         for(int i = 0; i< outputChannels; i++){
             for(int j=0; j<inputChannels; j++){
@@ -399,6 +409,7 @@ namespace utilsdata {
         raw_weights.clear();
         return reshapedData;
     }
+    
 
     /**
      * @brief Load and reshape fully connected layer weights.
@@ -414,8 +425,8 @@ namespace utilsdata {
     static inline vector<vector<double>> load_fc_weights(string fileName, int outputChannels, int inputChannels){
         vector<vector<double>> data = loadCSV(fileName);
         vector<double> raw_weights;
-        for (size_t i = 0; i< data.size(); i++) {
-            raw_weights = data[0];
+        for (const auto& row : data) {
+            raw_weights.insert(raw_weights.end(), row.begin(), row.end());
         }
 
         vector<vector<double>> reshapedData(outputChannels, vector<double>(inputChannels));    
@@ -428,6 +439,8 @@ namespace utilsdata {
         }
         return reshapedData;
     }
+
+
 
     /**
      * @brief Write text content to a file.
