@@ -34,7 +34,7 @@ _bandwidth = {}
 # Global variable to store model quality metrics
 _model_quality = {}
 
-def parse_submission_arguments(workload: str) -> Tuple[int, InstanceParams, int, int, int, bool]:
+def parse_submission_arguments(workload: str) -> Tuple[int, InstanceParams, int, int, int, bool, str, str]:
     """
     Get the arguments of the submission. Populate arguments as needed for the workload.
     """
@@ -50,6 +50,11 @@ def parse_submission_arguments(workload: str) -> Tuple[int, InstanceParams, int,
                         help='Specify with 1 if to rerun the cleartext computation')
     parser.add_argument('--remote', action='store_true',
                         help='Run example submission in remote backend mode')
+    parser.add_argument('--model', default='mlp', type=str,
+                        help='Pick a model run (default: mlp)')
+    parser.add_argument('--dataset', default='mnist', type=str,
+                        help='Pick a dataset run (default: mnist)')
+    
 
     args = parser.parse_args()
     size = args.size
@@ -58,21 +63,25 @@ def parse_submission_arguments(workload: str) -> Tuple[int, InstanceParams, int,
     clrtxt = args.clrtxt
     remote_be = args.remote
 
+    # adding model and dataset to the arguments
+    model_name = args.model.lower()
+    dataset_name = args.dataset.lower()
+
     # Use params.py to get instance parameters
     params = InstanceParams(size)
-    return size, params, seed, num_runs, clrtxt, remote_be
+    return size, params, seed, num_runs, clrtxt, remote_be, model_name, dataset_name
 
 def ensure_directories(rootdir: Path):
     """ Check that the current directory has sub-directories
-    'harness', 'scripts', and 'submission' """
-    required_dirs = ['harness', 'scripts', 'submission']
+    'harness', 'scripts', and 'submissions' """
+    required_dirs = ['harness', 'scripts', 'submissions']
     for dir_name in required_dirs:
         if not (rootdir / dir_name).exists():
             print(f"Error: Required directory '{dir_name}'",
                   f"not found in {rootdir}")
             sys.exit(1)
 
-def build_submission(script_dir: Path, remote_be: bool):
+def build_submission(script_dir: Path, model_name: str, remote_be: bool):
     """
     Build the submission, including pulling dependencies as neeed
     """
@@ -82,7 +91,7 @@ def build_submission(script_dir: Path, remote_be: bool):
         # Clone and build OpenFHE if needed
         subprocess.run([script_dir/"get_openfhe.sh"], check=True)
         # CMake build of the submission itself
-        subprocess.run([script_dir/"build_task.sh", "./submission"], check=True)
+        subprocess.run([script_dir/"build_task.sh", f"./submissions/{model_name}"], check=True)
 
 class TextFormat:
     BOLD = "\033[1m"

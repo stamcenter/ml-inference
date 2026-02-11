@@ -54,8 +54,10 @@ class InstanceParams:
         """Return the submission directory of this repository."""
         return self.rootdir
 
-    def datadir(self):
+    def datadir(self, dataset=None):
         """Return the dataset directory path."""
+        # if dataset:
+        #     return self.rootdir / "datasets" / dataset / instance_name(self.size)
         return self.rootdir / "datasets" / instance_name(self.size)
     
     def dataset_intermediate_dir(self):

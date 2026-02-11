@@ -28,20 +28,26 @@ def main():
     
     # 0. Prepare running
     # Get the arguments
-    size, params, seed, num_runs, clrtxt, remote_be = utils.parse_submission_arguments('Run ML Inference FHE benchmark.')
+    size, params, seed, num_runs, clrtxt, remote_be, model_name, dataset_name = utils.parse_submission_arguments('Run ML Inference FHE benchmark.')
     test = instance_name(size)
     print(f"\n[harness] Running submission for {test} inference")
 
     # Ensure the required directories exist
     utils.ensure_directories(params.rootdir)
 
-    # Build the submission if not built already
-    utils.build_submission(params.rootdir/"scripts", remote_be)
-
     # The harness scripts are in the 'harness' directory,
     # the submission code is either in submission or submission_remote
     harness_dir = params.rootdir/"harness"
-    exec_dir = params.rootdir/ ("submission_remote" if remote_be else "submission")
+    exec_dir = params.rootdir/ ("submission_remote" if remote_be else "submissions")
+    
+    # check whether the exec_dir contains a subdirector equals to the model name. 
+    model_exec_dir = exec_dir / model_name
+    if not model_exec_dir.is_dir():
+        print(f"[harness]: Model directory {model_exec_dir} not found.")
+        sys.exit(1)
+
+    # Build the submission if not built already
+    utils.build_submission(params.rootdir/"scripts", model_name, remote_be)
 
     # Remove and re-create IO directory
     io_dir = params.iodir()
@@ -52,12 +58,16 @@ def main():
 
     # 1. Client-side: Generate the test datasets
     dataset_path = params.datadir() / f"dataset.txt"
-    utils.run_exe_or_python(harness_dir, "generate_dataset", str(dataset_path))
-    utils.log_step(1, "Harness: MNIST Test dataset generation")
+    dataset_args = (
+        str(dataset_path),
+        str(dataset_name),
+    )
+    utils.run_exe_or_python(harness_dir, "generate_dataset", *dataset_args)
+    utils.log_step(1, f"Harness: {dataset_name.upper()} Test dataset generation")
 
     # 2.1 Communication: Get cryptographic context
     if remote_be:
-        utils.run_exe_or_python(exec_dir, "server_get_params", str(size))
+        utils.run_exe_or_python(model_exec_dir, "server_get_params", str(size))
         utils.log_step(2.1 , "Communication: Get cryptographic context")
         # Report size of context
         utils.log_size(io_dir / "client_data", "Cryptographic Context")
@@ -66,18 +76,18 @@ def main():
     # Note: this does not use the rng seed above, it lets the implementation
     #   handle its own prg needs. It means that even if called with the same
     #   seed multiple times, the keys and ciphertexts will still be different.
-    utils.run_exe_or_python(exec_dir, "client_key_generation", str(size))
+    utils.run_exe_or_python(model_exec_dir, "client_key_generation", str(size))
     utils.log_step(2.2 , "Client: Key Generation")
     # Report size of keys and encrypted data
     utils.log_size(io_dir / "public_keys", "Client: Public and evaluation keys")
 
     # 2.3 Communication: Upload evaluation key
     if remote_be:
-        utils.run_exe_or_python(exec_dir, "server_upload_ek", str(size))
+        utils.run_exe_or_python(model_exec_dir, "server_upload_ek", str(size))
         utils.log_step(2.3 , "Communication: Upload evaluation key")
 
     # 3. Server-side: Preprocess the (encrypted) dataset using exec_dir/server_preprocess_model
-    utils.run_exe_or_python(exec_dir, "server_preprocess_model")
+    utils.run_exe_or_python(model_exec_dir, "server_preprocess_model")
     utils.log_step(3, "Server: (Encrypted) model preprocessing")
 
     # Run steps 4-10 multiple times if requested
@@ -94,29 +104,29 @@ def main():
             genqry_seed = rng.integers(0,0x7fffffff)
             cmd_args.extend(["--seed", str(genqry_seed)])
         utils.run_exe_or_python(harness_dir, "generate_input", *cmd_args)
-        utils.log_step(4, "Harness: Input generation for MNIST")
+        utils.log_step(4, f"Harness: Input generation for {dataset_name.upper()}")
 
         # 5. Client-side: Preprocess input using exec_dir/client_preprocess_input
-        utils.run_exe_or_python(exec_dir, "client_preprocess_input", str(size))
+        utils.run_exe_or_python(model_exec_dir, "client_preprocess_input", str(size))
         utils.log_step(5, "Client: Input preprocessing")
 
         # 6. Client-side: Encrypt the input
-        utils.run_exe_or_python(exec_dir, "client_encode_encrypt_input", str(size))
+        utils.run_exe_or_python(model_exec_dir, "client_encode_encrypt_input", str(size))
         utils.log_step(6, "Client: Input encryption")
         utils.log_size(io_dir / "ciphertexts_upload", "Client: Encrypted input")
 
         # 7. Server side: Run the encrypted processing run exec_dir/server_encrypted_compute
-        utils.run_exe_or_python(exec_dir, "server_encrypted_compute", str(size))
+        utils.run_exe_or_python(model_exec_dir, "server_encrypted_compute", str(size))
         utils.log_step(7, "Server: Encrypted ML Inference computation")
         # Report size of encrypted results
         utils.log_size(io_dir / "ciphertexts_download", "Client: Encrypted results")
 
         # 8. Client-side: decrypt
-        utils.run_exe_or_python(exec_dir, "client_decrypt_decode", str(size))
+        utils.run_exe_or_python(model_exec_dir, "client_decrypt_decode", str(size))
         utils.log_step(8, "Client: Result decryption")
 
         # 9. Client-side: post-process
-        utils.run_exe_or_python(exec_dir, "client_postprocess", str(size))
+        utils.run_exe_or_python(model_exec_dir, "client_postprocess", str(size))
         utils.log_step(9, "Client: Result postprocessing")
 
         # 10 Verify the result for single inference or calculate quality for batch inference.

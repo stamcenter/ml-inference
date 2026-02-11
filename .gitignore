@@ -1,5 +1,5 @@
 # Build artefacts
-*/build/
+build/
 io/
 third_party/
 measurements/
