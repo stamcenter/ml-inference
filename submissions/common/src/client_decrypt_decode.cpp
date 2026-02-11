@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
       throw std::runtime_error("Failed to get ciphertext from " +
                                ctxt_path.string());
     }
-    output = mlp_decrypt(cc, ctxt, sk);
+    output = input_decrypt(cc, ctxt, sk);
     auto max_id = argmax(output.data(), 1024);
     out << max_id << '\n';
   }

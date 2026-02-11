@@ -73,7 +73,7 @@ endif()
 # 4.  Create mlp library
 # --------------------------------------------------------------------
 
-add_library( mlp_encryption_utils ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/encryption_utils.cpp )
+add_library( input_encryption_utils ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/encryption_utils.cpp )
 
 # Use pre-built mlp_openfhe library
 add_library( mlp_openfhe STATIC IMPORTED )
@@ -89,10 +89,10 @@ add_executable( client_key_generation src/client_key_generation.cpp )
 add_executable( client_preprocess_input ../common/src/client_preprocess_input.cpp )
 
 add_executable( client_encode_encrypt_input src/client_encode_encrypt_input.cpp )
-target_link_libraries( client_encode_encrypt_input mlp_encryption_utils )
+target_link_libraries( client_encode_encrypt_input input_encryption_utils )
 
 add_executable( client_decrypt_decode ../common/src/client_decrypt_decode.cpp )
-target_link_libraries( client_decrypt_decode mlp_encryption_utils )
+target_link_libraries( client_decrypt_decode input_encryption_utils )
 
 add_executable( client_postprocess ../common/src/client_postprocess.cpp )
 
@@ -100,4 +100,4 @@ add_executable( server_preprocess_model ../common/src/server_preprocess_model.cp
 
 add_executable( server_encrypted_compute src/server_encrypted_compute.cpp )
 target_link_libraries( server_encrypted_compute mlp_openfhe )
-target_link_libraries( server_encrypted_compute mlp_encryption_utils )
+target_link_libraries( server_encrypted_compute input_encryption_utils )

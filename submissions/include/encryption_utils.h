@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef MLP_ENCRYPTION_UTILS_H_
-#define MLP_ENCRYPTION_UTILS_H_
+#ifndef input_encryptION_UTILS_H_
+#define input_encryptION_UTILS_H_
 
 #include "openfhe.h"
 #include "params.h"
@@ -33,8 +33,8 @@ struct Sample {
   float image[NORMALIZED_DIM];
 };
 
-ConstCiphertext<DCRTPoly> mlp_encrypt(CryptoContext<DCRTPoly> cc, std::vector<float> input, PublicKey<DCRTPoly> pk);
-std::vector<float> mlp_decrypt(CryptoContextT v11343, CiphertextT v11344, PrivateKeyT v11345);
+ConstCiphertext<DCRTPoly> input_encrypt(CryptoContext<DCRTPoly> cc, std::vector<float> input, PublicKey<DCRTPoly> pk);
+std::vector<float> input_decrypt(CryptoContextT v11343, CiphertextT v11344, PrivateKeyT v11345);
 PublicKey<DCRTPoly> read_public_key(const InstanceParams& prms);
 PrivateKey<DCRTPoly> read_secret_key(const InstanceParams& prms);
 CryptoContext<DCRTPoly> read_crypto_context(const InstanceParams& prms);
@@ -42,4 +42,4 @@ void read_eval_keys(const InstanceParams& prms, CryptoContextT cc);
 void load_dataset(std::vector<Sample> &dataset, const char *filename);
 int argmax(float *A, int N);
 
-#endif  // ifndef MLP_ENCRYPTION_UTILS_H_
+#endif  // ifndef input_encryptION_UTILS_H_

@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
     auto *input = dataset[i].image;
     std::vector<float> input_vector(input, input + NORMALIZED_DIM);
     // Normalization removed for MLP
-    ctxt = mlp_encrypt(cc, input_vector, pk);
+    ctxt = input_encrypt(cc, input_vector, pk);
     auto ctxt_path =
         prms.ctxtupdir() / ("cipher_input_" + std::to_string(i) + ".bin");
     Serial::SerializeToFile(ctxt_path, ctxt, SerType::BINARY);

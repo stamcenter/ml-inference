@@ -64,7 +64,7 @@ void read_eval_keys(const InstanceParams &prms, CryptoContextT cc) {
   }
 }
 
-ConstCiphertext<DCRTPoly> mlp_encrypt(CryptoContext<DCRTPoly> cc,
+ConstCiphertext<DCRTPoly> input_encrypt(CryptoContext<DCRTPoly> cc,
                                       std::vector<float> input,
                                       PublicKey<DCRTPoly> pk) {
   std::vector<double> v11340(std::begin(input), std::end(input));
@@ -81,7 +81,7 @@ ConstCiphertext<DCRTPoly> mlp_encrypt(CryptoContext<DCRTPoly> cc,
   return v11342;
 }
 
-std::vector<float> mlp_decrypt(CryptoContextT v11343, CiphertextT v11344,
+std::vector<float> input_decrypt(CryptoContextT v11343, CiphertextT v11344,
                                PrivateKeyT v11345) {
   PlaintextT v11346;
   v11343->Decrypt(v11345, v11344, &v11346);

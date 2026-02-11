@@ -47,10 +47,6 @@ int main(int argc, char *argv[]) {
   for (size_t i = 0; i < dataset.size(); ++i) {
     auto *input = dataset[i].image;
     std::vector<float> input_vector(input, input + NORMALIZED_DIM);
-    // Apply Normalization: (x - 0.1307) / 0.3081
-    for (auto &val : input_vector) {
-      val = (val - 0.1307f) / 0.3081f;
-    }
     ctxt = input_encrypt(cc, input_vector, pk);
     auto ctxt_path =
         prms.ctxtupdir() / ("cipher_input_" + std::to_string(i) + ".bin");

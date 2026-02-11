@@ -100,7 +100,7 @@ $ python3 ./harness/run_submission.py 0 --seed 3 --num_runs 2
 [ 25%] Built target client_postprocess
 [ 37%] Built target server_preprocess_model
 [ 62%] Built target client_key_generation
-[ 62%] Built target mlp_encryption_utils
+[ 62%] Built target input_encryption_utils
 [ 75%] Built target client_encode_encrypt_input
 [100%] Built target client_decrypt_decode
 [100%] Built target server_encrypted_compute
@@ -167,7 +167,7 @@ $python3 ./harness/run_submission.py 1 --seed 3 --num_runs 2
 [ 25%] Built target client_postprocess
 [ 37%] Built target server_preprocess_model
 [ 62%] Built target client_key_generation
-[ 62%] Built target mlp_encryption_utils
+[ 62%] Built target input_encryption_utils
 [ 75%] Built target client_encode_encrypt_input
 [100%] Built target client_decrypt_decode
 [100%] Built target server_encrypted_compute
