@@ -71,8 +71,8 @@ endif()
 # --------------------------------------------------------------------
 # 4.  Create mlp library
 # --------------------------------------------------------------------
-add_library( fheonhecontroller src/fheonsrc/FHEONHEController.cpp )
-add_library( fheonanncontroller src/fheonsrc/FHEONANNController.cpp )
+add_library( fheonhecontroller fheonsrc/FHEONHEController.cpp )
+add_library( fheonanncontroller fheonsrc/FHEONANNController.cpp )
 
 #-----------------------------------------------------------------------
 # Create the FHEON Libraries
