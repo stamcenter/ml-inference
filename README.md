@@ -149,7 +149,7 @@ All steps completed for the single inference!
 The batch inference cases run the inference for a batch of inputs of varying sizes. The accuracy (with respect to the ground truth labels) is compared between the decrypted results and the results obtained using the harness model.
 
 ```console
-$python3 ./harness/run_submission.py 1 --seed 3 --num_runs 2
+$python3 ./harness/run_submission.py 1 --seed 3 --num_runs 2 --model mlp --dataset mnist
 
 [harness] Running submission for small inference
 [harness] Running submission for single inference
@@ -266,7 +266,7 @@ The directory structure of this reposiroty is as follows:
 ├─ io/           # This directory is used for client<->server communication
 ├─ measurements/ # Holds logs with performance numbers
 ├─ scripts/      # Helper scripts for dependencies and build system
-└─ submission/   # This is where the workload implementation lives
+└─ submissions/   # This is where the workload implementation lives
     ├─ README.md   # Submission documentation (mandatory)
     ├─ LICENSE.md  # Optional software license (if different from Apache v2)
     └─ [...]
