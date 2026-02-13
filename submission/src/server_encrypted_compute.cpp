@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "FHEController.h"
+#include "FHEONHEController.h"
 #include "lenet5_fheon.h"
 #include "mlp_encryption_utils.h"
 #include "params.h"
