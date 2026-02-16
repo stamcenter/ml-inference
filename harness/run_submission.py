@@ -53,7 +53,7 @@ def main():
     # 1. Client-side: Generate the test datasets
     dataset_path = params.datadir() / f"dataset.txt"
     utils.run_exe_or_python(harness_dir, "generate_dataset", str(dataset_path))
-    utils.log_step(1, "MNIST Test dataset generation")
+    utils.log_step(1, "Test dataset generation")
 
     # 2.1 Communication: Get cryptographic context
     if remote_be:
@@ -78,7 +78,7 @@ def main():
 
     # 3. Server-side: Preprocess the (encrypted) dataset using exec_dir/server_preprocess_model
     utils.run_exe_or_python(exec_dir, "server_preprocess_model")
-    utils.log_step(3, "(Encrypted) model preprocessing")
+    utils.log_step(3, "Encrypted model preprocessing")
 
     # Run steps 4-10 multiple times if requested
     for run in range(num_runs):
@@ -93,7 +93,7 @@ def main():
             genqry_seed = rng.integers(0,0x7fffffff)
             cmd_args.extend(["--seed", str(genqry_seed)])
         utils.run_exe_or_python(harness_dir, "generate_input", *cmd_args)
-        utils.log_step(4, "Input generation for MNIST")
+        utils.log_step(4, "Input generation")
 
         # 5. Client-side: Preprocess input using exec_dir/client_preprocess_input
         utils.run_exe_or_python(exec_dir, "client_preprocess_input", str(size))
@@ -106,7 +106,7 @@ def main():
 
         # 7. Server side: Run the encrypted processing run exec_dir/server_encrypted_compute
         utils.run_exe_or_python(exec_dir, "server_encrypted_compute", str(size))
-        utils.log_step(7, "Encrypted ML Inference computation")
+        utils.log_step(7, "Encrypted computation")
         # Report size of encrypted results
         utils.log_size(io_dir / "ciphertexts_download", "Encrypted results")
 
