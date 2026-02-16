@@ -44,7 +44,7 @@ int main(int argc, char* argv[]){
     try {
         module = torch::jit::load(model_path);
         module.eval();
-        std::cout << "         [server] PyTorch model weights loaded successfully!" << std::endl;
+        std::cout << "         [server] PyTorch model weights loaded successfully" << std::endl;
     } catch (const c10::Error& e) {
         std::cerr << "         [server] Error loading PyTorch model: " << e.what() << std::endl;
         return 1;
@@ -92,7 +92,7 @@ int main(int argc, char* argv[]){
 
     std::vector<CiphertextT> ctxt;
     fs::create_directories(prms.ctxtdowndir());
-    std::cout << "         [server] run encrypted MNIST inference" << std::endl;
+    std::cout << "         [server] Run encrypted MNIST inference" << std::endl;
     for (size_t i = 0; i < prms.getBatchSize(); ++i) {
         auto input_ctxt_path = prms.ctxtupdir()/("cipher_input_" + std::to_string(i) + ".bin");
         if (!Serial::DeserializeFromFile(input_ctxt_path, ctxt, SerType::BINARY)) {

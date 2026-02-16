@@ -154,19 +154,19 @@ The batch inference cases run the inference for a batch of inputs of varying siz
 $python3 ./harness/run_submission.py 1 --seed 76 --num_runs 2
 
 [harness] Running submission for small inference
-[get_openfhe] Found OpenFHE at /usr/local/google/home/gshruthi/projects/ml-inference/third_party/openfhe (use --force to rebuild).
+[get_openfhe] Found OpenFHE at .../ml-inference/third_party/openfhe (use --force to rebuild).
 -- FOUND PACKAGE OpenFHE
 -- OpenFHE Version: 1.4.0
 -- OpenFHE installed as shared libraries: ON
--- OpenFHE include files location: /usr/local/google/home/gshruthi/projects/ml-inference/third_party/openfhe/include/openfhe
--- OpenFHE lib files location: /usr/local/google/home/gshruthi/projects/ml-inference/third_party/openfhe/lib
+-- OpenFHE include files location: .../ml-inference/third_party/openfhe/include/openfhe
+-- OpenFHE lib files location: .../ml-inference/third_party/openfhe/lib
 -- OpenFHE Native Backend size: 64
 -- FOUND PACKAGE Torch
--- Torch include dirs: /usr/local/google/home/gshruthi/projects/ml-inference/third_party/libtorch/include;/usr/local/google/home/gshruthi/projects/ml-inference/third_party/libtorch/include/torch/csrc/api/include
--- Torch libraries: torch;torch_library;/usr/local/google/home/gshruthi/projects/ml-inference/third_party/libtorch/lib/libc10.so;/usr/local/google/home/gshruthi/projects/ml-inference/third_party/libtorch/lib/libkineto.a
+-- Torch include dirs: .../ml-inference/third_party/libtorch/include;.../ml-inference/third_party/libtorch/include/torch/csrc/api/include
+-- Torch libraries: torch;torch_library;.../ml-inference/third_party/libtorch/lib/libc10.so;.../ml-inference/third_party/libtorch/lib/libkineto.a
 -- Configuring done (0.0s)
 -- Generating done (0.0s)
--- Build files have been written to: /usr/local/google/home/gshruthi/projects/ml-inference/submission/build
+-- Build files have been written to: .../ml-inference/submission/build
 [ 11%] Built target server_preprocess_model
 [ 33%] Built target client_key_generation
 [ 33%] Built target mlp_encryption_utils
