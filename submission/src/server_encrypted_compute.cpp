@@ -95,8 +95,6 @@ int main(int argc, char* argv[]){
 
     std::vector<CiphertextT> ctxt;
     fs::create_directories(prms.ctxtdowndir());
-    std::cout << "         [server] run encrypted MNIST inference" << std::endl;
-    
     double total_encrypted_computation_seconds = 0.0;
     json steps_json = json::object();
     
