@@ -32,7 +32,8 @@ int main(int argc, char *argv[]) {
   PublicKey<DCRTPoly> pk = read_public_key(prms);
 
   std::vector<Sample> dataset;
-  load_dataset(dataset, prms.test_input_file().c_str(), MNIST_DIM);
+  load_dataset(dataset, prms.test_input_file().c_str(), CIFAR_DIM,
+               prms.getBatchSize());
   if (dataset.empty()) {
     throw std::runtime_error("No data found in " +
                              prms.test_input_file().string());
@@ -46,11 +47,25 @@ int main(int argc, char *argv[]) {
   fs::create_directories(prms.ctxtupdir());
   for (size_t i = 0; i < dataset.size(); ++i) {
     auto *input = dataset[i].image;
-    std::vector<float> input_vector(input, input + NORMALIZED_DIM);
-    // Apply Normalization: (x - 0.1307) / 0.3081
-    for (auto &val : input_vector) {
-      val = (val - 0.1307f) / 0.3081f;
+    std::vector<float> input_vector(input, input + CIFAR_DIM);
+    // Apply CIFAR10 per-channel normalization: (x - mean) / std
+    // CIFAR10: mean=[0.4914, 0.4822, 0.4465], std=[0.2023, 0.1994, 0.2010]
+    float cifar10_mean[] = {0.4914f, 0.4822f, 0.4465f};
+    float cifar10_std[] = {0.2023f, 0.1994f, 0.2010f};
+    int pixels_per_channel = CIFAR_DIM / 3;
+
+    // std::cout << "Plaintext sample: " << input_vector << "..." << std::endl;
+
+    for (int c = 0; c < 3; ++c) {
+      for (int idx = c * pixels_per_channel; idx < (c + 1) * pixels_per_channel;
+           ++idx) {
+        input_vector[idx] =
+            ((input_vector[idx]) - cifar10_mean[c]) / cifar10_std[c];
+      }
     }
+
+    // std::cout << "Encrypting sample: " << std::endl
+    //           << input_vector << std::endl;
     ctxt = input_encrypt(cc, input_vector, pk);
     auto ctxt_path =
         prms.ctxtupdir() / ("cipher_input_" + std::to_string(i) + ".bin");

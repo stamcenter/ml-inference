@@ -1189,18 +1189,21 @@ int FHEONHEController::read_scaling_value_with_key(PrivateKey<DCRTPoly> &sk,
   auto decryptedValue = decrypt_data_with_key(sk, inferencedData, num_slots);
   auto decryptedVector = decryptedValue->GetRealPackedValue();
 
-  cout << endl
-       << "--------------------------------------------------- " << endl
-       << endl;
-  cout << "Decrypted Vector for Scaling Value: " << decryptedVector << endl;
-  cout << endl
-       << "--------------------------------------------------- " << endl;
+  // cout << endl
+  //      << "--------------------------------------------------- " << endl
+  //      << endl;
+  // cout << "Decrypted Vector for Scaling Value: " << decryptedVector << endl;
+  // cout << endl
+  //      << "--------------------------------------------------- " << endl;
 
-  double maxAbsValue =
-      *std::max_element(decryptedVector.begin(), decryptedVector.end(),
-                        [](int a, int b) { return std::abs(a) < std::abs(b); });
+  double maxAbsValue = *std::max_element(
+      decryptedVector.begin(), decryptedVector.end(),
+      [](double a, double b) { return std::abs(a) < std::abs(b); });
   int roundedMaxAbsValue = static_cast<int>(std::ceil(std::abs(maxAbsValue)));
-  return roundedMaxAbsValue;
+  // std::cout << "[DEBUG] read_scaling_value_with_key: maxAbsValue="
+  //           << maxAbsValue << ", rounded=" << roundedMaxAbsValue <<
+  //           std::endl;
+  return nextPowerOf2(roundedMaxAbsValue);
 }
 
 int FHEONHEController::read_inferenced_label_with_key(PrivateKey<DCRTPoly> &sk,

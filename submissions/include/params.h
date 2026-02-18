@@ -15,67 +15,64 @@
 #define PARAMS_H_
 // params.h - parameters and directory structure for the workload
 
-#include <vector>
-#include <string>
-#include <stdexcept>
 #include <filesystem>
+#include <stdexcept>
+#include <string>
+#include <vector>
 namespace fs = std::filesystem;
 
 // an enum for benchmark size
-enum InstanceSize {
-    SINGlE = 0,
-    SMALL = 1,
-    MEDIUM = 2,
-    LARGE = 3
-};
+enum InstanceSize { SINGlE = 0, SMALL = 1, MEDIUM = 2, LARGE = 3 };
 inline std::string instance_name(const InstanceSize size) {
-    if (unsigned(size) > unsigned(InstanceSize::LARGE)) {
-        return "unknown";
-    }
-    static const std::string names[] = {"single", "small", "medium", "large"};
-    return names[int(size)];
+  if (unsigned(size) > unsigned(InstanceSize::LARGE)) {
+    return "unknown";
+  }
+  static const std::string names[] = {"single", "small", "medium", "large"};
+  return names[int(size)];
 }
 
 // Parameters that differ for different instance sizes
 class InstanceParams {
-    const InstanceSize size;
-    size_t batchSize;
-    // Add any parameters necessary
-    fs::path rootdir; // root of the submission dir structure (see below)
+  const InstanceSize size;
+  size_t batchSize;
+  // Add any parameters necessary
+  fs::path rootdir; // root of the submission dir structure (see below)
 
 public:
-    // Constructor
-    explicit InstanceParams(InstanceSize _size,
-                            fs::path _rootdir = fs::current_path())
-                            : size(_size), rootdir(_rootdir)
-    {
-        if (unsigned(_size) > unsigned(InstanceSize::LARGE)) {
-            throw std::invalid_argument("Invalid instance size");
-        }
-
-        const int batchSizes[] = {1, 15, 1000, 10000};
-        batchSize    = batchSizes[int(_size)];
+  // Constructor
+  explicit InstanceParams(InstanceSize _size,
+                          fs::path _rootdir = fs::current_path())
+      : size(_size), rootdir(_rootdir) {
+    if (unsigned(_size) > unsigned(InstanceSize::LARGE)) {
+      throw std::invalid_argument("Invalid instance size");
     }
 
-    // Getters for all the parameters. There are no setters, once
-    // an object is constructed these parameters cannot be modified.
-    const InstanceSize getSize() const { return size; }
-    const size_t getBatchSize() const { return batchSize; }
+    const int batchSizes[] = {1, 15, 1000, 10000};
+    batchSize = batchSizes[int(_size)];
+  }
 
-    // The relevant directories where things are found
-    fs::path rtdir() const  { return rootdir; }
-    fs::path iodir() const  { return rootdir/"io"/instance_name(size); }
-    fs::path pubkeydir() const { return iodir() / "public_keys"; }
-    fs::path seckeydir() const { return iodir() / "secret_key"; }
-    fs::path ctxtupdir() const { return iodir() / "ciphertexts_upload"; }
-    fs::path ctxtdowndir() const { return iodir() / "ciphertexts_download"; }
-    fs::path iointermdir() const { return iodir() / "intermediate"; }
-    fs::path datadir() const { 
-        return rootdir/"datasets"/instance_name(size);
-    }
-    fs::path dataintermdir() const { return datadir() / "intermediate"; }
-    fs::path test_input_file() const { return dataintermdir()/"test_pixels.txt"; }
-    fs::path encrypted_model_predictions_file() const { return iodir()/"encrypted_model_predictions.txt"; }
+  // Getters for all the parameters. There are no setters, once
+  // an object is constructed these parameters cannot be modified.
+  const InstanceSize getSize() const { return size; }
+  const size_t getBatchSize() const { return batchSize; }
+
+  // The relevant directories where things are found
+  fs::path rtdir() const { return rootdir; }
+  fs::path iodir() const { return rootdir / "io" / instance_name(size); }
+  fs::path pubkeydir() const { return iodir() / "public_keys"; }
+  fs::path seckeydir() const { return iodir() / "secret_key"; }
+  fs::path ctxtupdir() const { return iodir() / "ciphertexts_upload"; }
+  fs::path ctxtdowndir() const { return iodir() / "ciphertexts_download"; }
+  fs::path iointermdir() const { return iodir() / "intermediate"; }
+  fs::path datadir() const {
+    return rootdir / "datasets" / instance_name(size);
+  }
+  fs::path dataintermdir() const { return datadir() / "intermediate"; }
+  fs::path test_input_file() const { return dataintermdir() / "test_pixels.txt"; }
+  // fs::path test_input_file() const { return datadir()/"dataset_pixels.txt"; }
+  fs::path encrypted_model_predictions_file() const {
+    return iodir() / "encrypted_model_predictions.txt";
+  }
 };
 
-#endif  // ifndef PARAMS_H_
+#endif // ifndef PARAMS_H_

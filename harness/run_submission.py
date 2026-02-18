@@ -31,6 +31,7 @@ def main():
     size, params, seed, num_runs, clrtxt, remote_be, model_name, dataset_name = utils.parse_submission_arguments('Run ML Inference FHE benchmark.')
     test = instance_name(size)
     print(f"\n[harness] Running submission for {test} inference")
+    # print(f"         Model: {model_name}, Dataset: {dataset_name}")
 
     # Ensure the required directories exist
     utils.ensure_directories(params.rootdir)
@@ -48,13 +49,14 @@ def main():
 
     # Build the submission if not built already
     utils.build_submission(params.rootdir/"scripts", model_name, remote_be)
-
     # Remove and re-create IO directory
     io_dir = params.iodir()
     if io_dir.exists():
         subprocess.run(["rm", "-rf", str(io_dir)], check=True)
     io_dir.mkdir(parents=True)
     utils.log_step(0, "Init", True)
+
+    
 
     # 1. Client-side: Generate the test datasets
     dataset_path = params.datadir() / f"dataset.txt"
@@ -90,14 +92,16 @@ def main():
     utils.run_exe_or_python(model_exec_dir, "server_preprocess_model")
     utils.log_step(3, "Server: (Encrypted) model preprocessing")
 
+
     # Run steps 4-10 multiple times if requested
     for run in range(num_runs):
         run_path = params.measuredir() / f"results-{run+1}.json"
         if num_runs > 1:
             print(f"\n         [harness] Run {run+1} of {num_runs}")
 
+        
         # 4. Client-side: Generate a new random input using harness/generate_input.py
-        cmd_args = [str(size),]
+        cmd_args = [str(size), "--dataset", str(dataset_name)]
         if seed is not None:
             # Use a different seed for each run but derived from the base seed
             rng = np.random.default_rng(seed)
@@ -143,7 +147,7 @@ def main():
             # 10.1 Run the cleartext computation in cleartext_impl.py
             test_pixels = params.get_test_input_file()
             harness_model_preds = params.get_harness_model_predictions_file()
-            utils.run_exe_or_python(harness_dir, "cleartext_impl", str(test_pixels), str(harness_model_preds))
+            utils.run_exe_or_python(harness_dir, "cleartext_impl", str(test_pixels), str(harness_model_preds), str(dataset_name))
             utils.log_step(10.1, "Harness: Run inference for harness plaintext model")
 
             # 10.2 Run the quality calculation

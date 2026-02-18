@@ -24,15 +24,15 @@
 using namespace std;
 namespace fs = std::filesystem;
 
-vector<uint32_t> levelBudget = {4, 4};
+vector<uint32_t> levelBudget = {3, 3};
 vector<uint32_t> bsgsDim = {0, 0};
-int numSlots = 1 << 12;
-int ringDim = 1 << 13;
+int numSlots = 1 << 14;
 
 CryptoContextT generate_crypto_context() {
 
-  int dcrtBits = 46;
-  int firstMod = 50;
+  int ringDim = 1 << 15;
+  int dcrtBits = 50;
+  int firstMod = 54;
   int modelDepth = 11;
   int digitSize = 4;
   lbcrypto::SecretKeyDist secretKeyDist = lbcrypto::SPARSE_TERNARY;
@@ -41,12 +41,12 @@ CryptoContextT generate_crypto_context() {
 
   CCParamsT parameters;
   parameters.SetMultiplicativeDepth(circuitDepth);
-  // parameters.SetSecurityLevel(HEStd_128_classic);
+  parameters.SetSecurityLevel(HEStd_NotSet);
   parameters.SetRingDim(ringDim);
-  parameters.SetBatchSize(numSlots);
   parameters.SetScalingModSize(dcrtBits);
   parameters.SetFirstModSize(firstMod);
   parameters.SetNumLargeDigits(digitSize);
+  parameters.SetBatchSize(numSlots);
   parameters.SetScalingTechnique(FLEXIBLEAUTO);
   parameters.SetSecretKeyDist(secretKeyDist);
 
@@ -64,14 +64,19 @@ CryptoContextT generate_mult_rot_key(CryptoContextT context,
 
   context->EvalMultKeyGen(secretKey);
   vector<int> rotPositions = {
-      -2880, -2304, -1728, -1152, -960, -896, -864, -832, -768, -720, -704,
-      -640,  -576,  -552,  -528,  -512, -504, -480, -456, -448, -432, -408,
-      -384,  -360,  -336,  -320,  -312, -288, -264, -256, -240, -224, -216,
-      -208,  -192,  -176,  -168,  -160, -144, -128, -120, -112, -104, -96,
-      -88,   -80,   -72,   -64,   -56,  -48,  -40,  -32,  -24,  -16,  -15,
-      -14,   -13,   -12,   -11,   -10,  -9,   -8,   -1,   1,    2,    3,
-      4,     5,     6,     7,     8,    9,    10,   11,   12,   13,   14,
-      15,    16,    24,    28,    36,   48,   64,   144,  432,  576,  784};
+      -15360, -14336, -13312, -12288, -11520, -11264, -10240, -9216, -8192,
+      -7936,  -7680,  -7424,  -7168,  -6912,  -6656,  -6400,  -6144, -5952,
+      -5888,  -5632,  -5376,  -5120,  -4864,  -4608,  -4352,  -4096, -4032,
+      -3968,  -3904,  -3840,  -3776,  -3712,  -3648,  -3584,  -3520, -3456,
+      -3392,  -3328,  -3264,  -3200,  -3136,  -3072,  -3008,  -2944, -2880,
+      -2816,  -2752,  -2688,  -2624,  -2560,  -2496,  -2432,  -2368, -2304,
+      -2240,  -2176,  -2112,  -2048,  -1984,  -1920,  -1856,  -1792, -1728,
+      -1664,  -1600,  -1536,  -1472,  -1408,  -1344,  -1280,  -1216, -1152,
+      -1088,  -1024,  -960,   -896,   -832,   -768,   -704,   -640,  -576,
+      -512,   -448,   -384,   -320,   -256,   -192,   -128,   -64,   -48,
+      -32,    -16,    -8,     -1,     1,      2,      3,      4,     5,
+      6,      7,      8,      9,      10,     11,     12,     13,    14,
+      15,     16,     24,     32,     48,     64,     256,    1024};
   context->EvalRotateKeyGen(secretKey, rotPositions);
   return context;
 }
@@ -97,8 +102,8 @@ int main(int argc, char *argv[]) {
   // cout << "EvalMultKeyGen done." << endl;
 
   // Step 4: Bootstrap key generation
-  cryptoContext->EvalBootstrapSetup(levelBudget, bsgsDim, numSlots);
-  cryptoContext->EvalBootstrapKeyGen(keyPair.secretKey, numSlots);
+  // cryptoContext->EvalBootstrapSetup(levelBudget, bsgsDim, numSlots);
+  // cryptoContext->EvalBootstrapKeyGen(keyPair.secretKey, numSlots);
   // cout << "Bootstrap KeyGen done." << endl;
 
   cryptoContext->EvalSumKeyGen(keyPair.secretKey);

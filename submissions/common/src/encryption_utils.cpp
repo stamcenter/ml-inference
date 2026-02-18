@@ -65,8 +65,8 @@ void read_eval_keys(const InstanceParams &prms, CryptoContextT cc) {
 }
 
 ConstCiphertext<DCRTPoly> input_encrypt(CryptoContext<DCRTPoly> cc,
-                                      std::vector<float> input,
-                                      PublicKey<DCRTPoly> pk) {
+                                        std::vector<float> input,
+                                        PublicKey<DCRTPoly> pk) {
   std::vector<double> v11340(std::begin(input), std::end(input));
   uint32_t v11340_filled_n =
       cc->GetCryptoParameters()->GetElementParams()->GetRingDimension() / 2;
@@ -78,14 +78,17 @@ ConstCiphertext<DCRTPoly> input_encrypt(CryptoContext<DCRTPoly> cc,
   }
   const auto &v11341 = cc->MakeCKKSPackedPlaintext(v11340_filled);
   const auto &v11342 = cc->Encrypt(pk, v11341);
+
+  // auto plaintext = cc->MakeCKKSPackedPlaintext(v11340, 1, 1);
+  // plaintext->SetLength(input.size());
   return v11342;
 }
 
 std::vector<float> input_decrypt(CryptoContextT v11343, CiphertextT v11344,
-                               PrivateKeyT v11345) {
+                                 PrivateKeyT v11345) {
   PlaintextT v11346;
   v11343->Decrypt(v11345, v11344, &v11346);
-  v11346->SetLength(1024);
+  // v11346->SetLength(1024);
   const auto &v11347_cast = v11346->GetCKKSPackedValue();
   std::vector<float> v11347(v11347_cast.size());
   std::transform(std::begin(v11347_cast), std::end(v11347_cast),
@@ -94,22 +97,26 @@ std::vector<float> input_decrypt(CryptoContextT v11343, CiphertextT v11344,
   return v11347;
 }
 
-void load_dataset(std::vector<Sample> &dataset, const char *filename) {
+void load_dataset(std::vector<Sample> &dataset, const char *filename, int dim,
+                  int max_samples) {
   std::ifstream file(filename);
   Sample sample;
   std::string line;
   while (std::getline(file, line)) {
     std::istringstream iss(line);
-    // Read MNIST_DIM values from file
-    for (int i = 0; i < MNIST_DIM; i++) {
+    // Read dim values from file
+    for (int i = 0; i < dim; i++) {
       iss >> sample.image[i];
     }
-    // Pad remaining values with 0.0 if NORMALIZED_DIM > MNIST_DIM
-    for (int i = MNIST_DIM; i < NORMALIZED_DIM; i++) {
+    // Pad remaining values with 0.0 if NORMALIZED_DIM > dim
+    for (int i = dim; i < NORMALIZED_DIM; i++) {
       sample.image[i] = 0.0f;
     }
 
     dataset.push_back(sample);
+    if (max_samples > 0 && static_cast<int>(dataset.size()) >= max_samples) {
+      break;
+    }
   }
 }
 

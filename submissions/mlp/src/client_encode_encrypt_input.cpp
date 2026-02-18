@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
   PublicKey<DCRTPoly> pk = read_public_key(prms);
 
   std::vector<Sample> dataset;
-  load_dataset(dataset, prms.test_input_file().c_str());
+  load_dataset(dataset, prms.test_input_file().c_str(), MNIST_DIM);
   if (dataset.empty()) {
     throw std::runtime_error("No data found in " +
                              prms.test_input_file().string());

@@ -27,19 +27,24 @@ using PrivateKeyT = PrivateKey<DCRTPoly>;
 using PublicKeyT = PublicKey<DCRTPoly>;
 
 #define MNIST_DIM 784
-#define NORMALIZED_DIM 1024
+#define CIFAR_DIM 3072
+#define NORMALIZED_DIM 4096
 
 struct Sample {
   float image[NORMALIZED_DIM];
 };
 
-ConstCiphertext<DCRTPoly> input_encrypt(CryptoContext<DCRTPoly> cc, std::vector<float> input, PublicKey<DCRTPoly> pk);
-std::vector<float> input_decrypt(CryptoContextT v11343, CiphertextT v11344, PrivateKeyT v11345);
-PublicKey<DCRTPoly> read_public_key(const InstanceParams& prms);
-PrivateKey<DCRTPoly> read_secret_key(const InstanceParams& prms);
-CryptoContext<DCRTPoly> read_crypto_context(const InstanceParams& prms);
-void read_eval_keys(const InstanceParams& prms, CryptoContextT cc);
-void load_dataset(std::vector<Sample> &dataset, const char *filename);
+ConstCiphertext<DCRTPoly> input_encrypt(CryptoContext<DCRTPoly> cc,
+                                        std::vector<float> input,
+                                        PublicKey<DCRTPoly> pk);
+std::vector<float> input_decrypt(CryptoContextT v11343, CiphertextT v11344,
+                                 PrivateKeyT v11345);
+PublicKey<DCRTPoly> read_public_key(const InstanceParams &prms);
+PrivateKey<DCRTPoly> read_secret_key(const InstanceParams &prms);
+CryptoContext<DCRTPoly> read_crypto_context(const InstanceParams &prms);
+void read_eval_keys(const InstanceParams &prms, CryptoContextT cc);
+void load_dataset(std::vector<Sample> &dataset, const char *filename, int dim,
+                  int max_samples = -1);
 int argmax(float *A, int N);
 
-#endif  // ifndef input_encryptION_UTILS_H_
+#endif // ifndef input_encryptION_UTILS_H_

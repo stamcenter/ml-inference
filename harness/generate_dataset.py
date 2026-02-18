@@ -18,7 +18,16 @@ from a storage source.
 
 import sys
 from pathlib import Path
-from mnist import mnist
+import warnings
+import numpy as np
+
+# NOTE: Do not import dataset modules at top-level.  Dataset modules
+# register absl flags when imported which can cause DuplicateFlagError if
+# more than one dataset module is imported in the same process. Import the
+# requested dataset lazily inside `main()` so dataset files can keep their
+# flag definitions.
+
+# FIXME: Make Flags global to remove lazy import and simply the code.
 
 def main():
     """
@@ -33,7 +42,11 @@ def main():
     DATASET_PATH.parent.mkdir(parents=True, exist_ok=True)
 
     if DATASET_NAME == "mnist":
-        mnist.export_test_data(output_file=DATASET_PATH, num_samples=10000, seed=None)
+        from mnist import mnist as mnist_mod
+        mnist_mod.export_test_data(output_file=DATASET_PATH, num_samples=10000, seed=None)
+    elif DATASET_NAME == "cifar10":
+        from cifar10 import cifar10 as cifar10_mod
+        cifar10_mod.export_test_data(output_file=DATASET_PATH, num_samples=10000, seed=None)
     else:
         raise ValueError(f"Unsupported dataset name: {DATASET_NAME}")
 
