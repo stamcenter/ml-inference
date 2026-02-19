@@ -24,13 +24,13 @@
 using namespace std;
 namespace fs = std::filesystem;
 
-vector<uint32_t> levelBudget = {3, 3};
+vector<uint32_t> levelBudget = {4, 4};
 vector<uint32_t> bsgsDim = {0, 0};
+int ringDim = 1 << 15;
 int numSlots = 1 << 14;
 
 CryptoContextT generate_crypto_context() {
 
-  int ringDim = 1 << 15;
   int dcrtBits = 50;
   int firstMod = 54;
   int modelDepth = 11;
@@ -41,12 +41,14 @@ CryptoContextT generate_crypto_context() {
 
   CCParamsT parameters;
   parameters.SetMultiplicativeDepth(circuitDepth);
+parameters.SetSecurityLevel(HEStd_NotSet);
+  //parameters.SetSecurityLevel(HEStd_128_classic);
   parameters.SetSecurityLevel(HEStd_NotSet);
   parameters.SetRingDim(ringDim);
+  parameters.SetBatchSize(numSlots);
   parameters.SetScalingModSize(dcrtBits);
   parameters.SetFirstModSize(firstMod);
   parameters.SetNumLargeDigits(digitSize);
-  parameters.SetBatchSize(numSlots);
   parameters.SetScalingTechnique(FLEXIBLEAUTO);
   parameters.SetSecretKeyDist(secretKeyDist);
 

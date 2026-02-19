@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
   PrivateKey<DCRTPoly> sk = read_secret_key(prms);
 
   int numSlots = 1 << 14;
-  std::vector<uint32_t> levelBudget = {3, 3};
+  std::vector<uint32_t> levelBudget = {4, 4};
   std::vector<uint32_t> bsgsDim = {0, 0};
   cc->EvalBootstrapSetup(levelBudget, bsgsDim, numSlots);
   cc->EvalBootstrapKeyGen(sk, numSlots);
@@ -59,12 +59,10 @@ int main(int argc, char *argv[]) {
     auto ctxtResult = resnet20(fheonHEController, cc, ctxt);
     // auto ctxtResult = resnet20(fheonHEController, cc, ctxt, sk);
     
-    ofstream outFile;
-    outFile.open("./../results/resnet20/fhepredictions.txt", ios_base::app);
-
-    cout << std::endl;
-    fheonHEController.read_inferenced_label_with_key(sk, ctxtResult, 10, outFile);
-    cout << std::endl;
+    // ofstream outFile;
+    // outFile.open("./../results/resnet20/fhepredictions.txt", ios_base::app);
+    // fheonHEController.read_inferenced_label_with_key(sk, ctxtResult, 10, outFile);
+    // cout << std::endl;
 
     auto end = std::chrono::high_resolution_clock::now();
     auto duration =
