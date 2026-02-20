@@ -17,7 +17,7 @@
     "Encrypted results": "1.0M"
   },
   "Server Reported": {
-    "Encrypted computation-0": "6.458s",
+    "Encrypted computation": "6.458s",
     "Total": "6.458s"
   }
 }

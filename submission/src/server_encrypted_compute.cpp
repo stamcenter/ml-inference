@@ -99,6 +99,9 @@ int main(int argc, char* argv[]){
     json steps_json = json::object();
     
     std::cout << "         [server] Run encrypted MNIST inference" << std::endl;
+
+    // Note: The reference implementation processes each ciphertext in the batch sequentially,
+    // Submitters may choose to implement optimizations such as parallel processing of ciphertexts.
     for (size_t i = 0; i < prms.getBatchSize(); ++i) {
         auto input_ctxt_path = prms.ctxtupdir()/("cipher_input_" + std::to_string(i) + ".bin");
         if (!Serial::DeserializeFromFile(input_ctxt_path, ctxt, SerType::BINARY)) {
@@ -117,12 +120,12 @@ int main(int argc, char* argv[]){
         total_encrypted_computation_seconds += duration_seconds;
         std::cout << "         [server] Execution time for ciphertext " << i << " : " 
                 << duration_seconds << " seconds" << std::endl;
-        steps_json["Encrypted computation-" + std::to_string(i)] = duration_seconds;
     }
 
-    // Note: The reference implementation reports the time for each ciphertext in the batch,
-    // as well as the total time for all encrypted computations. Submitters may choose to report 
-    // relevant metrics based on their implementation details.
+    // Note: The reference implementation reports the time for the batch,
+    // as well as the total time for all encrypted computations. Submitters may 
+    // choose to report relevant metrics based on their implementation details.
+    steps_json["Encrypted computation"] = total_encrypted_computation_seconds;
     steps_json["Total"] = total_encrypted_computation_seconds;
     std::ofstream json_file(prms.server_reported_steps_file());
     json_file << std::setw(2) << steps_json << "\n";
