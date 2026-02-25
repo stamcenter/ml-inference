@@ -26,8 +26,8 @@ namespace fs = std::filesystem;
 
 vector<uint32_t> levelBudget = {4, 4};
 vector<uint32_t> bsgsDim = {0, 0};
-int ringDim = 1 << 15;
-int numSlots = 1 << 14;
+int ringDim = 1 << 16;
+int numSlots = 1 << 15;
 
 CryptoContextT generate_crypto_context() {
 

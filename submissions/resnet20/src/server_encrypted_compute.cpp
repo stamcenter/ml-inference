@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
     std::string sk_path = (prms.seckeydir() / "sk.bin").string();
     auto ctxtResult =
         resnet20(fheonHEController, cc, ctxt, pubkey_dir, sk_path);
-    // auto ctxtResult = resnet20(fheonHEController, cc, ctxt, sk);
+    // auto ctxtResult = resnet20(fheonHEController, cc, ctxt);
 
     ofstream outFile;
     outFile.open("./../results/resnet20/fhepredictions.txt", ios_base::app);
