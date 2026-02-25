@@ -27,7 +27,7 @@ namespace fs = std::filesystem;
 vector<uint32_t> levelBudget = {4, 4};
 vector<uint32_t> bsgsDim = {0, 0};
 int ringDim = 1 << 16;
-int numSlots = 1 << 15;
+int numSlots = 1 << 14;
 
 CryptoContextT generate_crypto_context() {
 
@@ -44,7 +44,7 @@ CryptoContextT generate_crypto_context() {
   parameters.SetSecurityLevel(HEStd_128_classic);
 //   parameters.SetSecurityLevel(HEStd_NotSet);
 //   parameters.SetRingDim(ringDim);
-//   parameters.SetBatchSize(numSlots);
+  parameters.SetBatchSize(numSlots);
   parameters.SetScalingModSize(dcrtBits);
   parameters.SetFirstModSize(firstMod);
   parameters.SetNumLargeDigits(digitSize);

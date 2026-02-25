@@ -1332,7 +1332,7 @@ void FHEONHEController::harness_read_evaluation_keys(
     throw std::runtime_error("Failed to load secret key from " + sk_path);
   }
 
-  int numSlots = 1 << 15;
+  int numSlots = 1 << 14;
   std::vector<uint32_t> levelBudget = {4, 4};
   std::vector<uint32_t> bsgsDim = {0, 0};
 
