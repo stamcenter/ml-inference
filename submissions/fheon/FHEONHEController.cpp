@@ -1322,7 +1322,7 @@ void FHEONHEController::harness_read_evaluation_keys(
                              rot_file);
   }
 
-  cout << "Successfully loaded evaluation keys into existing context" << endl;
+  // cout << "Successfully loaded evaluation keys into existing context" << endl;
 
   // Re-deserialize secret key to use for bootstrap key regeneration
   // Since we didn't release the context, we might be able to use the old 'sk'
