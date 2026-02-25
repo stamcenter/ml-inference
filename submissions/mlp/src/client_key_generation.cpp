@@ -18,7 +18,8 @@ CryptoContextT mlp_generate_crypto_context() {
   CCParamsT v11348;
   v11348.SetMultiplicativeDepth(9);
   v11348.SetSecurityLevel(HEStd_NotSet);
-  v11348.SetRingDim(1 << 11);
+  // v11348.SetSecurityLevel(HEStd_128_classic);
+  // v11348.SetRingDim(1 << 11);
   CryptoContextT v11349 = GenCryptoContext(v11348);
   v11349->Enable(PKE);
   v11349->Enable(KEYSWITCH);

@@ -22,9 +22,15 @@ using namespace std;
 using namespace lbcrypto;
 // using CiphertextT = ConstCiphertext<DCRTPoly>;
 
-// Ctext resnet20(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &v0, Ctext v1, 
+// Ctext resnet20(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly>
+// &v0, Ctext v1,
 //                              PrivateKey<DCRTPoly> &sk);
 
-Ctext resnet20(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &v0, Ctext &v1);
+// Ctext resnet20(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly>
+// &v0, Ctext &v1);
+
+Ctext resnet20(FHEONHEController &fheonHEController,
+               CryptoContext<DCRTPoly> &v0, Ctext &v1, string pubkey_dir,
+               string sk_path);
 
 #endif // ifndef RESNET20_FHEON_H_

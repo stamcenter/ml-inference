@@ -31,15 +31,9 @@ int main(int argc, char *argv[]) {
   InstanceParams prms(size);
 
   CryptoContext<DCRTPoly> cc = read_crypto_context(prms);
-  read_eval_keys(prms, cc);
+  // read_eval_keys(prms, cc);
   PublicKey<DCRTPoly> pk = read_public_key(prms);
   PrivateKey<DCRTPoly> sk = read_secret_key(prms);
-
-  int numSlots = 1 << 14;
-  std::vector<uint32_t> levelBudget = {4, 4};
-  std::vector<uint32_t> bsgsDim = {0, 0};
-  cc->EvalBootstrapSetup(levelBudget, bsgsDim, numSlots);
-  cc->EvalBootstrapKeyGen(sk, numSlots);
 
   std::cout << "         [server] Loading keys" << std::endl;
 
@@ -55,14 +49,20 @@ int main(int argc, char *argv[]) {
       throw std::runtime_error("Failed to get ciphertexts from " +
                                input_ctxt_path.string());
     }
+
+    std::string pubkey_dir = prms.pubkeydir().string() + "/";
+
     auto start = std::chrono::high_resolution_clock::now();
-    auto ctxtResult = resnet20(fheonHEController, cc, ctxt);
+    std::string sk_path = (prms.seckeydir() / "sk.bin").string();
+    auto ctxtResult =
+        resnet20(fheonHEController, cc, ctxt, pubkey_dir, sk_path);
     // auto ctxtResult = resnet20(fheonHEController, cc, ctxt, sk);
-    
-    // ofstream outFile;
-    // outFile.open("./../results/resnet20/fhepredictions.txt", ios_base::app);
-    // fheonHEController.read_inferenced_label_with_key(sk, ctxtResult, 10, outFile);
-    // cout << std::endl;
+
+    ofstream outFile;
+    outFile.open("./../results/resnet20/fhepredictions.txt", ios_base::app);
+    fheonHEController.read_inferenced_label_with_key(sk, ctxtResult, 10,
+                                                     outFile);
+    cout << std::endl;
 
     auto end = std::chrono::high_resolution_clock::now();
     auto duration =

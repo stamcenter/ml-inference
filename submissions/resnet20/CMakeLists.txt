@@ -90,6 +90,8 @@ set_target_properties( mlp_openfhe PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_
 # --------------------------------------------------------------------
  
 add_executable( client_key_generation src/client_key_generation.cpp )
+target_link_libraries( client_key_generation fheonanncontroller )
+target_link_libraries( client_key_generation fheonhecontroller )
 
 add_executable( client_preprocess_input ../common/src/client_preprocess_input.cpp )
 

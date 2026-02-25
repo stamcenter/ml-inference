@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #include "encryption_utils.h"
+#include "resnet20_fheon.h"
 #include "utils.h"
-
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -41,8 +41,7 @@ CryptoContextT generate_crypto_context() {
 
   CCParamsT parameters;
   parameters.SetMultiplicativeDepth(circuitDepth);
-parameters.SetSecurityLevel(HEStd_NotSet);
-  //parameters.SetSecurityLevel(HEStd_128_classic);
+  // parameters.SetSecurityLevel(HEStd_128_classic);
   parameters.SetSecurityLevel(HEStd_NotSet);
   parameters.SetRingDim(ringDim);
   parameters.SetBatchSize(numSlots);
@@ -58,6 +57,7 @@ parameters.SetSecurityLevel(HEStd_NotSet);
   context->Enable(LEVELEDSHE);
   context->Enable(ADVANCEDSHE);
   context->Enable(FHE);
+
   return context;
 }
 
@@ -66,6 +66,7 @@ CryptoContextT generate_mult_rot_key(CryptoContextT context,
 
   context->EvalMultKeyGen(secretKey);
   vector<int> rotPositions = {
+      // -3276, // required for ringRim 1 << 16
       -15360, -14336, -13312, -12288, -11520, -11264, -10240, -9216, -8192,
       -7936,  -7680,  -7424,  -7168,  -6912,  -6656,  -6400,  -6144, -5952,
       -5888,  -5632,  -5376,  -5120,  -4864,  -4608,  -4352,  -4096, -4032,
@@ -83,6 +84,112 @@ CryptoContextT generate_mult_rot_key(CryptoContextT context,
   return context;
 }
 
+void generate_rotation_keys(CryptoContextT context, PrivateKeyT secretKey,
+                            vector<int> channels, int dataset_size) {
+
+  FHEONHEController fheonHEController(context);
+  FHEONANNController fheonANNController(context);
+
+  int img_depth = 3;
+  int dataWidth = 32;
+  int avgpoolSize = 8;
+  int rotPositions = 16;
+  auto size = static_cast<InstanceSize>(dataset_size);
+  InstanceParams prms(size);
+
+  //** generate rotation keys for conv_layer 1 */
+  auto conv1_keys =
+      fheonANNController.generate_optimized_convolution_rotation_positions(
+          dataWidth, img_depth, channels[0]);
+  auto conv2_keys =
+      fheonANNController.generate_optimized_convolution_rotation_positions(
+          dataWidth, channels[0], channels[0]);
+  auto conv3_keys =
+      fheonANNController.generate_optimized_convolution_rotation_positions(
+          dataWidth, channels[0], channels[1], 2);
+  dataWidth = dataWidth / 2;
+
+  auto conv4_keys =
+      fheonANNController.generate_optimized_convolution_rotation_positions(
+          dataWidth, channels[1], channels[1]);
+  auto conv5_keys =
+      fheonANNController.generate_optimized_convolution_rotation_positions(
+          dataWidth, channels[1], channels[2], 2, "single_channel");
+  dataWidth = dataWidth / 2;
+
+  auto conv6_keys =
+      fheonANNController.generate_optimized_convolution_rotation_positions(
+          dataWidth, channels[2], channels[2]);
+  auto avgpool1_key =
+      fheonANNController.generate_avgpool_optimized_rotation_positions(
+          dataWidth, channels[2], avgpoolSize, avgpoolSize, true,
+          "single_channel", rotPositions);
+  auto fc_keys = fheonANNController.generate_linear_rotation_positions(
+      channels[3], rotPositions);
+
+  /************************************************************************************************
+   */
+  vector<vector<int>> rkeys_layer1, rkeys_layer2, rkeys_layer3, rkeys_layer4;
+  rkeys_layer1.push_back(conv1_keys);
+  rkeys_layer1.push_back(conv2_keys);
+
+  rkeys_layer2.push_back(conv3_keys);
+  rkeys_layer2.push_back(conv4_keys);
+
+  rkeys_layer3.push_back(conv5_keys);
+  rkeys_layer3.push_back(conv6_keys);
+
+  rkeys_layer4.push_back(avgpool1_key);
+  rkeys_layer4.push_back(fc_keys);
+  rkeys_layer4.push_back({32, 64});
+
+  /********************************************************************************************************************************************/
+  ;
+  /*** join all keys and generate unique values only */
+  vector<int> serkeys_layer1 = serialize_rotation_keys(rkeys_layer1);
+  vector<int> serkeys_layer2 = serialize_rotation_keys(rkeys_layer2);
+  vector<int> serkeys_layer3 = serialize_rotation_keys(rkeys_layer3);
+  vector<int> serkeys_layer4 = serialize_rotation_keys(rkeys_layer4);
+
+  cout << "Layer 1 keys (" << serkeys_layer1.size() << ") " << serkeys_layer1
+       << endl;
+  cout << "Layer 2 keys (" << serkeys_layer2.size() << ") " << serkeys_layer2
+       << endl;
+  cout << "Layer 3 keys (" << serkeys_layer3.size() << ") " << serkeys_layer3
+       << endl;
+  cout << "Layer 4 keys (" << serkeys_layer4.size() << ") " << serkeys_layer4
+       << endl;
+
+  ofstream layer1_file(prms.pubkeydir() / "layer1_rk.bin",
+                       ios::out | ios::binary);
+  ofstream layer2_file(prms.pubkeydir() / "layer2_rk.bin",
+                       ios::out | ios::binary);
+  ofstream layer3_file(prms.pubkeydir() / "layer3_rk.bin",
+                       ios::out | ios::binary);
+  ofstream layer4_file(prms.pubkeydir() / "layer4_rk.bin",
+                       ios::out | ios::binary);
+
+  // Each layer's file must include bootstrap automorphism keys so the server
+  // can call EvalBootstrap without sk. Pattern per layer:
+  fheonHEController.harness_generate_bootstrapping_and_rotation_keys(
+      context, secretKey, serkeys_layer1, layer1_file);
+  fheonHEController.harness_clear_bootstrapping_and_rotation_keys(context);
+
+  fheonHEController.harness_generate_bootstrapping_and_rotation_keys(
+      context, secretKey, serkeys_layer2, layer2_file);
+  fheonHEController.harness_clear_bootstrapping_and_rotation_keys(context);
+
+  fheonHEController.harness_generate_bootstrapping_and_rotation_keys(
+      context, secretKey, serkeys_layer3, layer3_file);
+  fheonHEController.harness_clear_bootstrapping_and_rotation_keys(context);
+
+  fheonHEController.harness_generate_bootstrapping_and_rotation_keys(
+      context, secretKey, serkeys_layer4, layer4_file);
+  fheonHEController.harness_clear_bootstrapping_and_rotation_keys(context);
+  cout << "All keys generated" << endl;
+  /********************************************************************************************************************************************/
+}
+
 int main(int argc, char *argv[]) {
 
   if (argc < 2 || !isdigit(argv[1][0])) {
@@ -90,7 +197,9 @@ int main(int argc, char *argv[]) {
     cout << "  Instance-size: 0-SINGLE, 1-SMALL, 2-MEDIUM, 3-LARGE\n";
     return 0;
   }
-  auto size = static_cast<InstanceSize>(stoi(argv[1]));
+
+  int dataset_size = stoi(argv[1]);
+  auto size = static_cast<InstanceSize>(dataset_size);
   InstanceParams prms(size);
 
   // Step 1: Setup CryptoContext
@@ -100,13 +209,14 @@ int main(int argc, char *argv[]) {
   // cout << "Starting KeyGen..." << endl;
   auto keyPair = cryptoContext->KeyGen();
   // cout << "KeyGen done. Starting EvalMultKeyGen..." << endl;
-  cryptoContext = generate_mult_rot_key(cryptoContext, keyPair.secretKey);
+  // cryptoContext = generate_mult_rot_key(cryptoContext, keyPair.secretKey);
+  cryptoContext->EvalMultKeyGen(keyPair.secretKey);
   // cout << "EvalMultKeyGen done." << endl;
 
   // Step 4: Bootstrap key generation
-  // cryptoContext->EvalBootstrapSetup(levelBudget, bsgsDim, numSlots);
-  // cryptoContext->EvalBootstrapKeyGen(keyPair.secretKey, numSlots);
-  // cout << "Bootstrap KeyGen done." << endl;
+  //   cryptoContext->EvalBootstrapSetup(levelBudget, bsgsDim, numSlots);
+  //   cryptoContext->EvalBootstrapKeyGen(keyPair.secretKey, numSlots);
+  //   cout << "Bootstrap KeyGen done." << endl;
 
   cryptoContext->EvalSumKeyGen(keyPair.secretKey);
 
@@ -122,14 +232,18 @@ int main(int argc, char *argv[]) {
   }
   // cout << "CC and PK serialized. Serializing Eval Keys..." << endl;
   ofstream emult_file(prms.pubkeydir() / "mk.bin", ios::out | ios::binary);
-  ofstream erot_file(prms.pubkeydir() / "rk.bin", ios::out | ios::binary);
-  if (!emult_file.is_open() || !erot_file.is_open() ||
-      !cryptoContext->SerializeEvalMultKey(emult_file, SerType::BINARY) ||
-      !cryptoContext->SerializeEvalAutomorphismKey(erot_file,
-                                                   SerType::BINARY)) {
-    throw runtime_error("Failed to write eval keys to " +
+  // ofstream erot_file(prms.pubkeydir() / "rk.bin", ios::out | ios::binary);
+  if (!emult_file.is_open() ||
+      !cryptoContext->SerializeEvalMultKey(emult_file, SerType::BINARY)) {
+    throw runtime_error("Failed to write mult keys to " +
                         prms.pubkeydir().string());
   }
+
+  /*** work on rotation keys */
+  vector<int> channels = {16, 32, 64, 10};
+  generate_rotation_keys(cryptoContext, keyPair.secretKey, channels,
+                         dataset_size);
+
   // cout << "Eval Keys serialized. Serializing Secret Key..." << endl;
 
   fs::create_directories(prms.seckeydir());

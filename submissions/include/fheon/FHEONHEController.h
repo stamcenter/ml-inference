@@ -79,6 +79,7 @@ public:
   FHEONHEController(CryptoContext<DCRTPoly> ctx) : context(ctx) {}
 
   CryptoContext<DCRTPoly> getContext() const { return context; }
+  void setContext(CryptoContext<DCRTPoly> ctx) { context = ctx; }
 
   /*
    * Generating context, bootstrapping keys, rotation keys and loading them */
@@ -145,6 +146,19 @@ public:
   int read_inferenced_label_with_key(PrivateKey<DCRTPoly> &sk,
                                      Ctext encryptedInput, int noElements,
                                      ofstream &outFile);
+
+  void harness_generate_bootstrapping_and_rotation_keys(
+      CryptoContext<DCRTPoly> &crypto_context, PrivateKey<DCRTPoly> &sk,
+      vector<int> rotations_positions, ofstream &key_file);
+  void harness_clear_bootstrapping_and_rotation_keys(
+      CryptoContext<DCRTPoly> &crypto_context);
+
+  void harness_read_evaluation_keys(CryptoContext<DCRTPoly> &crypto_context,
+                                    string &pubkey_dir, string &mult_file,
+                                    string &rot_file);
+  void harness_read_evaluation_keys(CryptoContext<DCRTPoly> &crypto_context,
+                                    string &pubkey_dir, string &mult_file,
+                                    string &rot_file, string &sk_path);
 
 private:
   KeyPair<DCRTPoly> keyPair;
