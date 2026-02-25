@@ -44,7 +44,7 @@ CryptoContextT generate_crypto_context() {
   parameters.SetSecurityLevel(HEStd_128_classic);
 //   parameters.SetSecurityLevel(HEStd_NotSet);
 //   parameters.SetRingDim(ringDim);
-  parameters.SetBatchSize(numSlots);
+//   parameters.SetBatchSize(numSlots);
   parameters.SetScalingModSize(dcrtBits);
   parameters.SetFirstModSize(firstMod);
   parameters.SetNumLargeDigits(digitSize);
