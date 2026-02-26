@@ -1297,7 +1297,7 @@ void FHEONHEController::harness_read_evaluation_keys(
 
 void FHEONHEController::harness_read_evaluation_keys(
     CryptoContext<DCRTPoly> &crypto_context, string &pubkey_dir,
-    string &mult_file, string &rot_file, string &sk_path, int num_slots) {
+    string &mult_file, string &rot_file, string &sk_path) {
 
   // Clear existing evaluation keys from the context
   crypto_context->ClearEvalMultKeys();
@@ -1322,7 +1322,8 @@ void FHEONHEController::harness_read_evaluation_keys(
                              rot_file);
   }
 
-  // cout << "Successfully loaded evaluation keys into existing context" << endl;
+  // cout << "Successfully loaded evaluation keys into existing context" <<
+  // endl;
 
   // Re-deserialize secret key to use for bootstrap key regeneration
   // Since we didn't release the context, we might be able to use the old 'sk'
@@ -1332,7 +1333,7 @@ void FHEONHEController::harness_read_evaluation_keys(
     throw std::runtime_error("Failed to load secret key from " + sk_path);
   }
 
-  int numSlots = 1 >> num_slots; 
+  uint32_t numSlots = crypto_context->GetRingDimension() / 2;
   std::vector<uint32_t> levelBudget = {4, 4};
   std::vector<uint32_t> bsgsDim = {0, 0};
 
@@ -1340,9 +1341,8 @@ void FHEONHEController::harness_read_evaluation_keys(
   crypto_context->EvalBootstrapSetup(levelBudget, bsgsDim, numSlots);
   crypto_context->EvalBootstrapKeyGen(sk, numSlots);
 
-  // crypto_context->EvalBootstrapSetup(levelBudget, bsgsDim, (numSlots/2));
-  // crypto_context->EvalBootstrapKeyGen(sk, (numSlots/2));
-
-  // crypto_context->EvalSumKeyGen(sk);
-
+  // Explicitly generate EvalMult and EvalSum keys to ensure they match the
+  // current context
+  crypto_context->EvalMultKeyGen(sk);
+  crypto_context->EvalSumKeyGen(sk);
 }

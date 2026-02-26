@@ -44,7 +44,7 @@ Ctext lenet5(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &cont
   	string l1_rk = "layer1_rk.bin";
 	int numSlots = 12;
 	FHEONANNController fheonANNController(context);
-	fheonHEController.harness_read_evaluation_keys(context, pubkey_dir, mk_file, l1_rk, sk_path, numSlots);
+	fheonHEController.harness_read_evaluation_keys(context, pubkey_dir, mk_file, l1_rk, sk_path);
   	fheonANNController.setContext(context);
 
 	int kernelWidth = 5;
@@ -130,7 +130,7 @@ Ctext lenet5(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &cont
 	/***** Second convolution Layer input = (6,12,12), kernel=(16,6,5,5)
 	 * striding =1, padding = 0 output = (16,8,8) ***/
 	string l2_rk = "layer2_rk.bin";
-  	fheonHEController.harness_read_evaluation_keys(context, pubkey_dir, mk_file,l2_rk, sk_path, numSlots);
+  	fheonHEController.harness_read_evaluation_keys(context, pubkey_dir, mk_file,l2_rk, sk_path);
 	fheonANNController.setContext(context);
 	convData = fheonANNController.he_convolution(convData, conv2_kernelData, conv2biasEncoded, imgWidth[2], channels[1], channels[2], kernelWidth);
 	convData = fheonANNController.he_relu(convData, reluScale, dataSizeVec[1],polyDegree);
@@ -139,7 +139,7 @@ Ctext lenet5(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &cont
 
 	/*** fully connected layers */
 	string l3_rk = "layer3_rk.bin";
-	fheonHEController.harness_read_evaluation_keys(context, pubkey_dir, mk_file, l3_rk, sk_path, numSlots);
+	fheonHEController.harness_read_evaluation_keys(context, pubkey_dir, mk_file, l3_rk, sk_path);
 	fheonANNController.setContext(context);
 	convData = fheonANNController.he_linear(convData, fc1_kernelData, fc1baisVec, channels[3], channels[4], rotPositions);
 	convData = fheonHEController.bootstrap_function(convData);

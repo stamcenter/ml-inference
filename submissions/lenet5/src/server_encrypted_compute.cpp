@@ -35,10 +35,10 @@ int main(int argc, char *argv[]) {
   PublicKey<DCRTPoly> pk = read_public_key(prms);
   PrivateKey<DCRTPoly> sk = read_secret_key(prms);
 
-  int numSlots = 1 << 12;
-  std::vector<uint32_t> levelBudget = {4, 4};
-  std::vector<uint32_t> bsgsDim = {0, 0};
-  cc->EvalBootstrapSetup(levelBudget, bsgsDim, numSlots);
+  // int numSlots = 1 << 12;
+  // std::vector<uint32_t> levelBudget = {4, 4};
+  // std::vector<uint32_t> bsgsDim = {0, 0};
+  // cc->EvalBootstrapSetup(levelBudget, bsgsDim, numSlots);
 
   std::cout << "         [server] Loading keys" << std::endl;
 
