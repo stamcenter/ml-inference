@@ -42,7 +42,6 @@ Ctext lenet5(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &cont
 
 	string mk_file = "mk.bin";
   	string l1_rk = "layer1_rk.bin";
-	int numSlots = 12;
 	FHEONANNController fheonANNController(context);
 	fheonHEController.harness_read_evaluation_keys(context, pubkey_dir, mk_file, l1_rk, sk_path);
   	fheonANNController.setContext(context);
