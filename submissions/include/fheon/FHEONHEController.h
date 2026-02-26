@@ -158,7 +158,7 @@ public:
                                     string &rot_file);
   void harness_read_evaluation_keys(CryptoContext<DCRTPoly> &crypto_context,
                                     string &pubkey_dir, string &mult_file,
-                                    string &rot_file, string &sk_path);
+                                    string &rot_file, string &sk_path, int num_slots=14);
 
 private:
   KeyPair<DCRTPoly> keyPair;
