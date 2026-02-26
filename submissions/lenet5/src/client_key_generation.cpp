@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include "encryption_utils.h"
 #include "utils.h"
+#include "encryption_utils.h"
 #include "lenet5_fheon.h"
 
 #include <filesystem>
@@ -86,7 +86,7 @@ void generate_rotation_keys(CryptoContextT context, PrivateKeyT secretKey,
 	FHEONHEController fheonHEController(context);
 	FHEONANNController fheonANNController(context);
 
-	iint kernelWidth = 5;
+	int kernelWidth = 5;
 	int poolSize = 2;
 	int Stride = 1;
 	int paddingLen = 0;
