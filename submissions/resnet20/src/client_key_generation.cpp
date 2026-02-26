@@ -13,6 +13,7 @@
 // limitations under the License.
 #include "encryption_utils.h"
 #include "resnet20_fheon.h"
+
 #include "utils.h"
 #include <filesystem>
 #include <fstream>
@@ -31,8 +32,8 @@ int numSlots = 1 << 15;
 
 CryptoContextT generate_crypto_context() {
 
-  int dcrtBits = 50;
-  int firstMod = 54;
+  int dcrtBits = 48;
+  int firstMod = 50;
   int modelDepth = 11;
   int digitSize = 4;
   lbcrypto::SecretKeyDist secretKeyDist = lbcrypto::SPARSE_TERNARY;
@@ -41,10 +42,10 @@ CryptoContextT generate_crypto_context() {
 
   CCParamsT parameters;
   parameters.SetMultiplicativeDepth(circuitDepth);
-  parameters.SetSecurityLevel(HEStd_128_classic);
-//   parameters.SetSecurityLevel(HEStd_NotSet);
-//   parameters.SetRingDim(ringDim);
-//   parameters.SetBatchSize(numSlots);
+//   parameters.SetSecurityLevel(HEStd_128_classic);
+  parameters.SetSecurityLevel(HEStd_NotSet);
+  parameters.SetRingDim(ringDim);
+  parameters.SetBatchSize(numSlots);
   parameters.SetScalingModSize(dcrtBits);
   parameters.SetFirstModSize(firstMod);
   parameters.SetNumLargeDigits(digitSize);
@@ -144,7 +145,6 @@ void generate_rotation_keys(CryptoContextT context, PrivateKeyT secretKey,
   rkeys_layer4.push_back({32, 64});
 
   /********************************************************************************************************************************************/
-  ;
   /*** join all keys and generate unique values only */
   vector<int> serkeys_layer1 = serialize_rotation_keys(rkeys_layer1);
   vector<int> serkeys_layer2 = serialize_rotation_keys(rkeys_layer2);

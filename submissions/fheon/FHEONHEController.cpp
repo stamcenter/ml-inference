@@ -1340,8 +1340,8 @@ void FHEONHEController::harness_read_evaluation_keys(
   crypto_context->EvalBootstrapSetup(levelBudget, bsgsDim, numSlots);
   crypto_context->EvalBootstrapKeyGen(sk, numSlots);
 
-  crypto_context->EvalBootstrapSetup(levelBudget, bsgsDim, (numSlots/2));
-  crypto_context->EvalBootstrapKeyGen(sk, (numSlots/2));
+  // crypto_context->EvalBootstrapSetup(levelBudget, bsgsDim, (numSlots/2));
+  // crypto_context->EvalBootstrapKeyGen(sk, (numSlots/2));
 
   // crypto_context->EvalSumKeyGen(sk);
 
