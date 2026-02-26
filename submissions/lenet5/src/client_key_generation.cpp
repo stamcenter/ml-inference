@@ -92,6 +92,8 @@ void generate_rotation_keys(CryptoContextT context, PrivateKeyT secretKey,
 	int paddingLen = 0;
 	int rotPositions = 16;
 	vector<int> inputWidth = {28, 24, 12, 8, 4};
+	auto size = static_cast<InstanceSize>(dataset_size);
+  	InstanceParams prms(size);
 	
 	//** generate rotation keys*/
 	auto conv1_keys = fheonANNController.generate_convolution_rotation_positions(inputWidth[0], channels[0], channels[1],  kernelWidth, paddingLen, Stride);
