@@ -157,6 +157,7 @@ int main(int argc, char *argv[]) {
 	// Step 2: Key Generation
 	// cout << "Starting KeyGen..." << endl;
 	auto keyPair = cryptoContext->KeyGen();
+	cryptoContext->EvalMultKeyGen(keyPair.secretKey);
 	cryptoContext->EvalSumKeyGen(keyPair.secretKey);
 
 	// Step 3: Serialize cryptocontext and keys

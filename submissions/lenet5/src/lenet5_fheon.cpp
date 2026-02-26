@@ -122,12 +122,14 @@ Ctext lenet5(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &cont
 
 	/***** The first Convolution Layer takes  image=(1,28,28), kernel=(6,1,5,5)
 	 * stride=1, pooling=0 output= (6,24,24) = 3456 vals */
+	cout << "         [server] Layer 1" << endl;
 	auto convData = fheonANNController.he_convolution(encryptedInput, conv1_kernelData, conv1biasEncoded, imgWidth[0], channels[0], channels[1], kernelWidth);
 	convData = fheonANNController.he_relu(convData, reluScale, dataSizeVec[0], polyDegree);
 	convData = fheonANNController.he_avgpool_optimzed(convData, imgWidth[1], channels[1], poolSize, poolSize);
 
 	/***** Second convolution Layer input = (6,12,12), kernel=(16,6,5,5)
 	 * striding =1, padding = 0 output = (16,8,8) ***/
+	cout << "         [server] Layer 2" << endl;
 	string l2_rk = "layer2_rk.bin";
   	fheonHEController.harness_read_evaluation_keys(context, pubkey_dir, mk_file,l2_rk, sk_path);
 	fheonANNController.setContext(context);
@@ -137,6 +139,7 @@ Ctext lenet5(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &cont
 	convData = fheonANNController.he_avgpool_optimzed(convData, imgWidth[3], channels[2], poolSize, poolSize);
 
 	/*** fully connected layers */
+	cout << "         [server] Layer 3" << endl;
 	string l3_rk = "layer3_rk.bin";
 	fheonHEController.harness_read_evaluation_keys(context, pubkey_dir, mk_file, l3_rk, sk_path);
 	fheonANNController.setContext(context);
