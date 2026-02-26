@@ -38,7 +38,7 @@ using namespace lbcrypto;
 #endif
 
 Ctext lenet5(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &context, 
-				Ctext &encryptedInput, string pubkey_dir, string sk_path) {
+			Ctext &encryptedInput, string pubkey_dir, string sk_path) {
 
 	string mk_file = "mk.bin";
   	string l1_rk = "layer1_rk.bin";
