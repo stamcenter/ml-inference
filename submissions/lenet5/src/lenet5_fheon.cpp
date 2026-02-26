@@ -137,18 +137,22 @@ Ctext lenet5(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &cont
 	convData = fheonANNController.he_relu(convData, reluScale, dataSizeVec[1],polyDegree);
 	convData = fheonHEController.bootstrap_function(convData);
 	convData = fheonANNController.he_avgpool_optimzed(convData, imgWidth[3], channels[2], poolSize, poolSize);
+	
 
 	/*** fully connected layers */
 	cout << "         [server] Layer 3" << endl;
 	string l3_rk = "layer3_rk.bin";
 	fheonHEController.harness_read_evaluation_keys(context, pubkey_dir, mk_file, l3_rk, sk_path);
 	fheonANNController.setContext(context);
+	cout << "         [server] FC 1" << endl;
 	convData = fheonANNController.he_linear(convData, fc1_kernelData, fc1baisVec, channels[3], channels[4], rotPositions);
 	convData = fheonHEController.bootstrap_function(convData);
 	convData = fheonANNController.he_relu(convData, reluScale, channels[4], polyDegree);
+	cout << "         [server] FC 2" << endl;
 	convData = fheonANNController.he_linear(convData, fc2_kernelData, fc2baisVec, channels[4], channels[5], rotPositions);
 	convData = fheonHEController.bootstrap_function(convData);
 	convData = fheonANNController.he_relu(convData, reluScale, channels[5], polyDegree);
+	cout << "         [server] FC 3" << endl;
 	convData = fheonANNController.he_linear(convData, fc3_kernelData, fc3baisVec,  channels[5], channels[6], rotPositions);
 	return convData;
 }

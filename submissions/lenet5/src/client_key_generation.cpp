@@ -27,13 +27,13 @@ namespace fs = std::filesystem;
 
 vector<uint32_t> levelBudget = {4, 4};
 vector<uint32_t> bsgsDim = {0, 0};
-int numSlots = 1 << 12;
 int ringDim = 1 << 13;
+int numSlots = 1 << 12;
 
 CryptoContextT generate_crypto_context() {
 
-	int dcrtBits = 46;
-	int firstMod = 50;
+	int dcrtBits = 42;
+	int firstMod = 46;
 	int modelDepth = 11;
 	int digitSize = 4;
 	lbcrypto::SecretKeyDist secretKeyDist = lbcrypto::SPARSE_TERNARY;
@@ -42,10 +42,10 @@ CryptoContextT generate_crypto_context() {
 
 	CCParamsT parameters;
 	parameters.SetMultiplicativeDepth(circuitDepth);
-	// parameters.SetSecurityLevel(HEStd_128_classic);
-	parameters.SetSecurityLevel(HEStd_NotSet);
-	parameters.SetRingDim(ringDim);
-	parameters.SetBatchSize(numSlots);
+	parameters.SetSecurityLevel(HEStd_128_classic);
+	// parameters.SetSecurityLevel(HEStd_NotSet);
+	// parameters.SetRingDim(ringDim);
+	// parameters.SetBatchSize(numSlots);
 	parameters.SetScalingModSize(dcrtBits);
 	parameters.SetFirstModSize(firstMod);
 	parameters.SetNumLargeDigits(digitSize);
@@ -58,6 +58,13 @@ CryptoContextT generate_crypto_context() {
 	context->Enable(LEVELEDSHE);
 	context->Enable(ADVANCEDSHE);
 	context->Enable(FHE);
+
+	cout << "Context built, generating keys..." << endl;
+  	cout << endl
+       << "dcrtBits: " << dcrtBits << " -- firstMod: " << firstMod << endl
+       << "Ciphertexts depth: " << circuitDepth
+       << ", available multiplications: " << modelDepth - 2
+       << endl;
 	return context;
 }
 
@@ -80,10 +87,9 @@ CryptoContextT generate_mult_rot_key(CryptoContextT context,
 }
 
 
-void generate_rotation_keys(CryptoContextT context, PrivateKeyT secretKey,
+void generate_rotation_keys(FHEONHEController &fheonHEController,  CryptoContextT context, PrivateKeyT secretKey,
                             vector<int> channels, int dataset_size) {
 
-	FHEONHEController fheonHEController(context);
 	FHEONANNController fheonANNController(context);
 
 	int kernelWidth = 5;
@@ -101,6 +107,8 @@ void generate_rotation_keys(CryptoContextT context, PrivateKeyT secretKey,
 	auto conv2_keys = fheonANNController.generate_convolution_rotation_positions(inputWidth[2], channels[1], channels[2], kernelWidth, paddingLen, Stride);
 	auto avg2_keys = fheonANNController.generate_avgpool_optimized_rotation_positions(inputWidth[3],channels[2], poolSize, poolSize, false, "single_channel");
 	auto fc_keys = fheonANNController.generate_linear_rotation_positions(channels[4], rotPositions);
+	auto fc2_keys = fheonANNController.generate_linear_rotation_positions(channels[5], rotPositions);
+	auto fc3_keys = fheonANNController.generate_linear_rotation_positions(channels[6], rotPositions);
 
 	/************************************************************************************************
 	 */
@@ -112,6 +120,8 @@ void generate_rotation_keys(CryptoContextT context, PrivateKeyT secretKey,
 	rkeys_layer2.push_back(avg2_keys);
 
 	rkeys_layer3.push_back(fc_keys);
+	rkeys_layer3.push_back(fc2_keys);
+	rkeys_layer3.push_back(fc3_keys);
 
 	/********************************************************************************************************************************************/
 	/*** join all keys and generate unique values only */
@@ -154,11 +164,20 @@ int main(int argc, char *argv[]) {
 	// Step 1: Setup CryptoContext
 	auto cryptoContext = generate_crypto_context();
 
+	FHEONHEController fheonHEController(cryptoContext);
+
 	// Step 2: Key Generation
 	// cout << "Starting KeyGen..." << endl;
 	auto keyPair = cryptoContext->KeyGen();
 	cryptoContext->EvalMultKeyGen(keyPair.secretKey);
 	cryptoContext->EvalSumKeyGen(keyPair.secretKey);
+	
+	double logPQ = fheonHEController.getlogPQ(keyPair.publicKey->GetPublicElements()[0]);
+	cout << "log PQ = " << logPQ << std::endl;
+	cout << "Cyclotomic Order: " << cryptoContext->GetCyclotomicOrder() << endl;
+  	cout << "Ring dimension: " << (cryptoContext->GetCyclotomicOrder()/2) << endl;
+	cout << "Num Slots     : " << (cryptoContext->GetCyclotomicOrder()/4) << endl;
+	cout << endl;
 
 	// Step 3: Serialize cryptocontext and keys
 	fs::create_directories(prms.pubkeydir());
@@ -172,7 +191,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	vector<int> channels = {1, 6, 16, 256, 120, 84, 10};
-	generate_rotation_keys(cryptoContext, keyPair.secretKey, channels, dataset_size);
+	generate_rotation_keys(fheonHEController, cryptoContext, keyPair.secretKey, channels, dataset_size);
 
 	// cout << "Eval Keys serialized. Serializing Secret Key..." << endl;
 	fs::create_directories(prms.seckeydir());

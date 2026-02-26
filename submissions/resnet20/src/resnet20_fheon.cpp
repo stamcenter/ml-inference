@@ -88,18 +88,18 @@ Ctext resnet20(FHEONHEController &fheonHEController,
   convData = fheonANNController.he_relu(convData, reluScale, dataSize, polyDeg);
 
   cout << "         [server] Layer 1" << endl;
-  convData = resnet_block(fheonHEController, fheonANNController,
-                          "layer1_block1", convData, dataWidth, dataSize,
+  cout << "                  [server] Block 1" << endl;
+  convData = resnet_block(fheonHEController, fheonANNController, "layer1_block1", convData, dataWidth, dataSize,
                           channelValues[0], channelValues[0], false, false);
-  cout << "         [server] Block 1" << endl;
+  cout << "                  [server] Block 2" << endl;
   convData = resnet_block(fheonHEController, fheonANNController,
                           "layer1_block2", convData, dataWidth, dataSize,
                           channelValues[0], channelValues[0], true, false);
-  cout << "         [server] Block 2" << endl;
+  cout << "                  [server] Block 3" << endl;
   convData = resnet_block(fheonHEController, fheonANNController,
                           "layer1_block3", convData, dataWidth, dataSize,
                           channelValues[0], channelValues[0], true, false);
-  cout << "         [server] Block 3" << endl;
+  cout << "                  [server] Blocks Done " << endl;
 
   string l2_rk = "layer2_rk.bin";
   fheonHEController.harness_read_evaluation_keys(context, pubkey_dir, mk_file,
@@ -238,9 +238,10 @@ Ctext resnet_block(FHEONHEController &fheonHEController,
   int striding = 1;
   int polyDeg = 59;
   int reluScale = 10;
-  Ctext shortcutConvData = encrytedInput->Clone();
+  
   // Ctext shortcutConvData = encrytedInput;
   Ctext convData;
+  Ctext shortcutConvData = encrytedInput->Clone();
   if (shortcutConv) {
     encrytedInput = fheonHEController.bootstrap_function(encrytedInput);
     auto doubleResults = double_shortcut_convolution_block(fheonHEController, fheonANNController, 
@@ -249,24 +250,25 @@ Ctext resnet_block(FHEONHEController &fheonHEController,
     dataSize = (outputChannels * pow(dataWidth, 2));
     convData = doubleResults[0]->Clone();
     shortcutConvData = doubleResults[1]->Clone();
+    convData = fheonHEController.bootstrap_function(convData);
   } else {
     convData = convolution_block(fheonHEController, fheonANNController, layer + "_conv1", 
-                    encrytedInput,  dataWidth, kernelWidth, striding, inputChannels, outputChannels);
+                    encrytedInput, dataWidth, kernelWidth, striding, inputChannels, outputChannels);
   }
   if (bootstrapState) {
     convData = fheonHEController.bootstrap_function(convData);
   }
 
   convData = fheonANNController.he_relu(convData, reluScale, dataSize, polyDeg);
-  Ctext secConvData = convolution_block(fheonHEController, fheonANNController, layer + "_conv2", convData, 
-                            dataWidth, kernelWidth, striding, outputChannels, outputChannels);
+  Ctext secConvData = convolution_block(fheonHEController, fheonANNController, layer + "_conv2", 
+                            convData, dataWidth, kernelWidth, striding, outputChannels, outputChannels);
   Ctext sumConvData = fheonANNController.he_sum_two_ciphertexts(secConvData, shortcutConvData);
   sumConvData = fheonHEController.bootstrap_function(sumConvData);
   if (layer == "layer3_block2" || layer == "layer3_block3") {
     reluScale = 20;
   }
-
   sumConvData = fheonANNController.he_relu(sumConvData, reluScale, dataSize, polyDeg);
+  
   return sumConvData;
 }
 

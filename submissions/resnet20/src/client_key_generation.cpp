@@ -27,39 +27,46 @@ namespace fs = std::filesystem;
 
 vector<uint32_t> levelBudget = {4, 4};
 vector<uint32_t> bsgsDim = {0, 0};
-int ringDim = 1 << 16;
-int numSlots = 1 << 15;
+int ringDim = 1 << 15;
+int numSlots = 1 << 14;
 
 CryptoContextT generate_crypto_context() {
 
-  int dcrtBits = 48;
-  int firstMod = 50;
-  int modelDepth = 11;
-  int digitSize = 4;
-  lbcrypto::SecretKeyDist secretKeyDist = lbcrypto::SPARSE_TERNARY;
-  int circuitDepth = modelDepth + lbcrypto::FHECKKSRNS::GetBootstrapDepth(
-                                      levelBudget, secretKeyDist);
+    int dcrtBits = 48;
+    int firstMod = 50;
+    int modelDepth = 11;
+    int digitSize = 4;
+    lbcrypto::SecretKeyDist secretKeyDist = lbcrypto::SPARSE_TERNARY;
+    int circuitDepth = modelDepth + lbcrypto::FHECKKSRNS::GetBootstrapDepth(
+                                        levelBudget, secretKeyDist);
 
-  CCParamsT parameters;
-  parameters.SetMultiplicativeDepth(circuitDepth);
-//   parameters.SetSecurityLevel(HEStd_128_classic);
-  parameters.SetSecurityLevel(HEStd_NotSet);
-  parameters.SetRingDim(ringDim);
-  parameters.SetBatchSize(numSlots);
-  parameters.SetScalingModSize(dcrtBits);
-  parameters.SetFirstModSize(firstMod);
-  parameters.SetNumLargeDigits(digitSize);
-  parameters.SetScalingTechnique(FLEXIBLEAUTO);
-  parameters.SetSecretKeyDist(secretKeyDist);
+    CCParamsT parameters;
+    parameters.SetMultiplicativeDepth(circuitDepth);
+    // parameters.SetSecurityLevel(HEStd_128_classic);
+      parameters.SetSecurityLevel(HEStd_NotSet);
+      parameters.SetRingDim(ringDim);
+      parameters.SetBatchSize(numSlots);
+    parameters.SetScalingModSize(dcrtBits);
+    parameters.SetFirstModSize(firstMod);
+    parameters.SetNumLargeDigits(digitSize);
+    parameters.SetScalingTechnique(FLEXIBLEAUTO);
+    parameters.SetSecretKeyDist(secretKeyDist);
 
-  CryptoContextT context = GenCryptoContext(parameters);
-  context->Enable(PKE);
-  context->Enable(KEYSWITCH);
-  context->Enable(LEVELEDSHE);
-  context->Enable(ADVANCEDSHE);
-  context->Enable(FHE);
+    CryptoContextT context = GenCryptoContext(parameters);
+    context->Enable(PKE);
+    context->Enable(KEYSWITCH);
+    context->Enable(LEVELEDSHE);
+    context->Enable(ADVANCEDSHE);
+    context->Enable(FHE);
 
-  return context;
+    cout << "Context built, generating keys..." << endl;
+    cout << endl
+       << "dcrtBits: " << dcrtBits << " -- firstMod: " << firstMod << endl
+       << "Ciphertexts depth: " << circuitDepth
+       << ", available multiplications: " << modelDepth - 2
+       << endl;
+
+    return context;
 }
 
 CryptoContextT generate_mult_rot_key(CryptoContextT context,
@@ -85,10 +92,9 @@ CryptoContextT generate_mult_rot_key(CryptoContextT context,
   return context;
 }
 
-void generate_rotation_keys(CryptoContextT context, PrivateKeyT secretKey,
+void generate_rotation_keys(FHEONHEController &fheonHEController, CryptoContextT context, PrivateKeyT secretKey,
                             vector<int> channels, int dataset_size) {
 
-  FHEONHEController fheonHEController(context);
   FHEONANNController fheonANNController(context);
 
   int img_depth = 3;
@@ -192,66 +198,77 @@ void generate_rotation_keys(CryptoContextT context, PrivateKeyT secretKey,
 
 int main(int argc, char *argv[]) {
 
-  if (argc < 2 || !isdigit(argv[1][0])) {
-    cout << "Usage: " << argv[0] << " instance-size [--count_only]\n";
-    cout << "  Instance-size: 0-SINGLE, 1-SMALL, 2-MEDIUM, 3-LARGE\n";
+    if (argc < 2 || !isdigit(argv[1][0])) {
+        cout << "Usage: " << argv[0] << " instance-size [--count_only]\n";
+        cout << "  Instance-size: 0-SINGLE, 1-SMALL, 2-MEDIUM, 3-LARGE\n";
+        return 0;
+    }
+
+    int dataset_size = stoi(argv[1]);
+    auto size = static_cast<InstanceSize>(dataset_size);
+    InstanceParams prms(size);
+
+    // Step 1: Setup CryptoContext
+    auto cryptoContext = generate_crypto_context();
+
+    FHEONHEController fheonHEController(cryptoContext);
+
+    // Step 2: Key Generation
+    // cout << "Starting KeyGen..." << endl;
+    auto keyPair = cryptoContext->KeyGen();
+    // cout << "KeyGen done. Starting EvalMultKeyGen..." << endl;
+    // cryptoContext = generate_mult_rot_key(cryptoContext, keyPair.secretKey);
+    cryptoContext->EvalMultKeyGen(keyPair.secretKey);
+    // cout << "EvalMultKeyGen done." << endl;
+
+    // Step 4: Bootstrap key generation
+    //   cryptoContext->EvalBootstrapSetup(levelBudget, bsgsDim, numSlots);
+    //   cryptoContext->EvalBootstrapKeyGen(keyPair.secretKey, numSlots);
+    //   cout << "Bootstrap KeyGen done." << endl;
+
+    cryptoContext->EvalSumKeyGen(keyPair.secretKey);
+
+
+    double logPQ = fheonHEController.getlogPQ(keyPair.publicKey->GetPublicElements()[0]);
+    cout << "log PQ = " << logPQ << std::endl;
+    cout << "Cyclotomic Order: " << cryptoContext->GetCyclotomicOrder() << endl;
+    cout << "Ring dimension: " << (cryptoContext->GetCyclotomicOrder()/2) << endl;
+    cout << "Num Slots     : " << (cryptoContext->GetCyclotomicOrder()/4) << endl;
+    cout << endl;
+
+
+    // Step 3: Serialize cryptocontext and keys
+    fs::create_directories(prms.pubkeydir());
+    // cout << "Serializing CC and PK..." << endl;
+
+    if (!Serial::SerializeToFile(prms.pubkeydir() / "cc.bin", cryptoContext,
+                                SerType::BINARY) ||
+        !Serial::SerializeToFile(prms.pubkeydir() / "pk.bin", keyPair.publicKey,
+                                SerType::BINARY)) {
+        throw runtime_error("Failed to write keys to " + prms.pubkeydir().string());
+    }
+    // cout << "CC and PK serialized. Serializing Eval Keys..." << endl;
+    ofstream emult_file(prms.pubkeydir() / "mk.bin", ios::out | ios::binary);
+    // ofstream erot_file(prms.pubkeydir() / "rk.bin", ios::out | ios::binary);
+    if (!emult_file.is_open() ||
+        !cryptoContext->SerializeEvalMultKey(emult_file, SerType::BINARY)) {
+        throw runtime_error("Failed to write mult keys to " +
+                            prms.pubkeydir().string());
+    }
+
+    /*** work on rotation keys */
+    vector<int> channels = {16, 32, 64, 10};
+    generate_rotation_keys(fheonHEController, cryptoContext, keyPair.secretKey, channels,
+                            dataset_size);
+
+    // cout << "Eval Keys serialized. Serializing Secret Key..." << endl;
+
+    fs::create_directories(prms.seckeydir());
+    if (!Serial::SerializeToFile(prms.seckeydir() / "sk.bin", keyPair.secretKey,
+                                SerType::BINARY)) {
+        throw runtime_error("Failed to write keys to " + prms.seckeydir().string());
+    }
+    // cout << "Secret Key serialized." << endl;
+
     return 0;
-  }
-
-  int dataset_size = stoi(argv[1]);
-  auto size = static_cast<InstanceSize>(dataset_size);
-  InstanceParams prms(size);
-
-  // Step 1: Setup CryptoContext
-  auto cryptoContext = generate_crypto_context();
-
-  // Step 2: Key Generation
-  // cout << "Starting KeyGen..." << endl;
-  auto keyPair = cryptoContext->KeyGen();
-  // cout << "KeyGen done. Starting EvalMultKeyGen..." << endl;
-  // cryptoContext = generate_mult_rot_key(cryptoContext, keyPair.secretKey);
-  cryptoContext->EvalMultKeyGen(keyPair.secretKey);
-  // cout << "EvalMultKeyGen done." << endl;
-
-  // Step 4: Bootstrap key generation
-  //   cryptoContext->EvalBootstrapSetup(levelBudget, bsgsDim, numSlots);
-  //   cryptoContext->EvalBootstrapKeyGen(keyPair.secretKey, numSlots);
-  //   cout << "Bootstrap KeyGen done." << endl;
-
-  cryptoContext->EvalSumKeyGen(keyPair.secretKey);
-
-  // Step 3: Serialize cryptocontext and keys
-  fs::create_directories(prms.pubkeydir());
-  // cout << "Serializing CC and PK..." << endl;
-
-  if (!Serial::SerializeToFile(prms.pubkeydir() / "cc.bin", cryptoContext,
-                               SerType::BINARY) ||
-      !Serial::SerializeToFile(prms.pubkeydir() / "pk.bin", keyPair.publicKey,
-                               SerType::BINARY)) {
-    throw runtime_error("Failed to write keys to " + prms.pubkeydir().string());
-  }
-  // cout << "CC and PK serialized. Serializing Eval Keys..." << endl;
-  ofstream emult_file(prms.pubkeydir() / "mk.bin", ios::out | ios::binary);
-  // ofstream erot_file(prms.pubkeydir() / "rk.bin", ios::out | ios::binary);
-  if (!emult_file.is_open() ||
-      !cryptoContext->SerializeEvalMultKey(emult_file, SerType::BINARY)) {
-    throw runtime_error("Failed to write mult keys to " +
-                        prms.pubkeydir().string());
-  }
-
-  /*** work on rotation keys */
-  vector<int> channels = {16, 32, 64, 10};
-  generate_rotation_keys(cryptoContext, keyPair.secretKey, channels,
-                         dataset_size);
-
-  // cout << "Eval Keys serialized. Serializing Secret Key..." << endl;
-
-  fs::create_directories(prms.seckeydir());
-  if (!Serial::SerializeToFile(prms.seckeydir() / "sk.bin", keyPair.secretKey,
-                               SerType::BINARY)) {
-    throw runtime_error("Failed to write keys to " + prms.seckeydir().string());
-  }
-  // cout << "Secret Key serialized." << endl;
-
-  return 0;
 }

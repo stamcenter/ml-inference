@@ -81,6 +81,8 @@ public:
   CryptoContext<DCRTPoly> getContext() const { return context; }
   void setContext(CryptoContext<DCRTPoly> ctx) { context = ctx; }
 
+  double getlogPQ(const DCRTPoly &poly);
+
   /*
    * Generating context, bootstrapping keys, rotation keys and loading them */
   void generate_context(int ringDim = 14, int numSlots = 12,

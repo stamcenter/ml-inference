@@ -83,8 +83,8 @@ vector<int> FHEONANNController::generate_convolution_rotation_positions(
   keys_position.push_back(inputWidth_sq);
   keys_position.push_back(width_out);
   keys_position.push_back(width_out_sq);
-  keys_position.push_back(-1);
-  keys_position.push_back(1);
+  // keys_position.push_back(-1);
+  // keys_position.push_back(1);
   int rot_val;
 
   /** Convolution rotations */
@@ -142,6 +142,7 @@ vector<int> FHEONANNController::generate_avgpool_rotation_positions(
   keys_position.push_back(stride);
   keys_position.push_back(width_avgpool_out);
   keys_position.push_back((stride * inputWidth));
+  keys_position.push_back((inputWidth));
 
   for (int i = 1; i < inputChannels; i++) {
     int rot_val = i * width_avgpool_out;
@@ -434,9 +435,9 @@ FHEONANNController::generate_linear_rotation_positions(int maxFCLayeroutputs,
     // int rot_val =counter*rotationPositions;
     keys_position.push_back(-counter);
   }
-
-  for (int i = 1; i <= rotationPositions; i++) {
+  for (int i = 1; i < rotationPositions; i++) {
     keys_position.push_back(i);
+    keys_position.push_back(-i);
   }
   std::sort(keys_position.begin(), keys_position.end());
   auto new_end = std::remove(keys_position.begin(), keys_position.end(), 0);

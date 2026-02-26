@@ -53,7 +53,7 @@ namespace fs = std::filesystem;
  *
  * @return The computed PQ value as a double.
  */
-double getlogPQ(const DCRTPoly &poly) {
+double FHEONHEController::getlogPQ(const DCRTPoly &poly) {
   int n = poly.GetNumOfElements();
   double logPQ = 0;
   for (int i = 0; i < n; i++) {
@@ -1343,6 +1343,6 @@ void FHEONHEController::harness_read_evaluation_keys(
 
   // Explicitly generate EvalMult and EvalSum keys to ensure they match the
   // current context
-  crypto_context->EvalMultKeyGen(sk);
+  // crypto_context->EvalMultKeyGen(sk);
   crypto_context->EvalSumKeyGen(sk);
 }
