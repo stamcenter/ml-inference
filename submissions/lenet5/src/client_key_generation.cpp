@@ -103,9 +103,9 @@ void generate_rotation_keys(FHEONHEController &fheonHEController,  CryptoContext
 	
 	//** generate rotation keys*/
 	auto conv1_keys = fheonANNController.generate_convolution_rotation_positions(inputWidth[0], channels[0], channels[1],  kernelWidth, paddingLen, Stride);
-	auto avg1_keys = fheonANNController.generate_avgpool_optimized_rotation_positions(inputWidth[1], channels[1],  poolSize, poolSize, false, "single_channel");
+	auto avg1_keys = fheonANNController.generate_avgpool_optimized_rotation_positions(inputWidth[1], channels[1],  poolSize, poolSize, false, "multi_channels");
 	auto conv2_keys = fheonANNController.generate_convolution_rotation_positions(inputWidth[2], channels[1], channels[2], kernelWidth, paddingLen, Stride);
-	auto avg2_keys = fheonANNController.generate_avgpool_optimized_rotation_positions(inputWidth[3],channels[2], poolSize, poolSize, false, "single_channel");
+	auto avg2_keys = fheonANNController.generate_avgpool_optimized_rotation_positions(inputWidth[3],channels[2], poolSize, poolSize, false, "multi_channels");
 	auto fc_keys = fheonANNController.generate_linear_rotation_positions(channels[4], rotPositions);
 	auto fc2_keys = fheonANNController.generate_linear_rotation_positions(channels[5], rotPositions);
 	auto fc3_keys = fheonANNController.generate_linear_rotation_positions(channels[6], rotPositions);

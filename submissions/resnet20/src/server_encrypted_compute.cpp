@@ -59,8 +59,7 @@ int main(int argc, char *argv[]) {
 
     ofstream outFile;
     outFile.open("./../results/resnet20/fhepredictions.txt", ios_base::app);
-    fheonHEController.read_inferenced_label_with_key(sk, ctxtResult, 10,
-                                                     outFile);
+    fheonHEController.read_inferenced_label_with_key(sk, ctxtResult, 10, outFile);
     cout << std::endl;
 
     auto end = std::chrono::high_resolution_clock::now();

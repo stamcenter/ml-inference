@@ -42,10 +42,10 @@ CryptoContextT generate_crypto_context() {
 
     CCParamsT parameters;
     parameters.SetMultiplicativeDepth(circuitDepth);
-    parameters.SetSecurityLevel(HEStd_128_classic);
-    //   parameters.SetSecurityLevel(HEStd_NotSet);
-    //   parameters.SetRingDim(ringDim);
-    //   parameters.SetBatchSize(numSlots);
+    // parameters.SetSecurityLevel(HEStd_128_classic);
+      parameters.SetSecurityLevel(HEStd_NotSet);
+      parameters.SetRingDim(ringDim);
+      parameters.SetBatchSize(numSlots);
     parameters.SetScalingModSize(dcrtBits);
     parameters.SetFirstModSize(firstMod);
     parameters.SetNumLargeDigits(digitSize);
@@ -106,33 +106,19 @@ void generate_rotation_keys(FHEONHEController &fheonHEController, CryptoContextT
 
   //** generate rotation keys for conv_layer 1 */
   auto conv1_keys =
-      fheonANNController.generate_optimized_convolution_rotation_positions(
-          dataWidth, img_depth, channels[0]);
-  auto conv2_keys =
-      fheonANNController.generate_optimized_convolution_rotation_positions(
-          dataWidth, channels[0], channels[0]);
-  auto conv3_keys =
-      fheonANNController.generate_optimized_convolution_rotation_positions(
-          dataWidth, channels[0], channels[1], 2);
+      fheonANNController.generate_optimized_convolution_rotation_positions(dataWidth, img_depth, channels[0]);
+  auto conv2_keys = fheonANNController.generate_optimized_convolution_rotation_positions(dataWidth, channels[0], channels[0]);
+  auto conv3_keys = fheonANNController.generate_optimized_convolution_rotation_positions(dataWidth, channels[0], channels[1], 2);
   dataWidth = dataWidth / 2;
 
-  auto conv4_keys =
-      fheonANNController.generate_optimized_convolution_rotation_positions(
-          dataWidth, channels[1], channels[1]);
-  auto conv5_keys =
-      fheonANNController.generate_optimized_convolution_rotation_positions(
-          dataWidth, channels[1], channels[2], 2, "single_channel");
+  auto conv4_keys = fheonANNController.generate_optimized_convolution_rotation_positions(dataWidth, channels[1], channels[1]);
+  auto conv5_keys = fheonANNController.generate_optimized_convolution_rotation_positions(dataWidth, channels[1], channels[2], 2, "single_channel");
   dataWidth = dataWidth / 2;
 
-  auto conv6_keys =
-      fheonANNController.generate_optimized_convolution_rotation_positions(
-          dataWidth, channels[2], channels[2]);
-  auto avgpool1_key =
-      fheonANNController.generate_avgpool_optimized_rotation_positions(
-          dataWidth, channels[2], avgpoolSize, avgpoolSize, true,
+  auto conv6_keys = fheonANNController.generate_optimized_convolution_rotation_positions(dataWidth, channels[2], channels[2]);
+  auto avgpool1_key = fheonANNController.generate_avgpool_optimized_rotation_positions(dataWidth, channels[2], avgpoolSize, avgpoolSize, true,
           "single_channel", rotPositions);
-  auto fc_keys = fheonANNController.generate_linear_rotation_positions(
-      channels[3], rotPositions);
+  auto fc_keys = fheonANNController.generate_linear_rotation_positions(channels[3], rotPositions);
 
   /************************************************************************************************
    */
@@ -148,7 +134,7 @@ void generate_rotation_keys(FHEONHEController &fheonHEController, CryptoContextT
 
   rkeys_layer4.push_back(avgpool1_key);
   rkeys_layer4.push_back(fc_keys);
-  rkeys_layer4.push_back({32, 64});
+//   rkeys_layer4.push_back({32, 64});
 
   /********************************************************************************************************************************************/
   /*** join all keys and generate unique values only */
@@ -157,40 +143,28 @@ void generate_rotation_keys(FHEONHEController &fheonHEController, CryptoContextT
   vector<int> serkeys_layer3 = serialize_rotation_keys(rkeys_layer3);
   vector<int> serkeys_layer4 = serialize_rotation_keys(rkeys_layer4);
 
-  cout << "Layer 1 keys (" << serkeys_layer1.size() << ") " << serkeys_layer1
-       << endl;
-  cout << "Layer 2 keys (" << serkeys_layer2.size() << ") " << serkeys_layer2
-       << endl;
-  cout << "Layer 3 keys (" << serkeys_layer3.size() << ") " << serkeys_layer3
-       << endl;
-  cout << "Layer 4 keys (" << serkeys_layer4.size() << ") " << serkeys_layer4
-       << endl;
+  cout << "Layer 1 keys (" << serkeys_layer1.size() << ") " << serkeys_layer1 << endl;
+  cout << "Layer 2 keys (" << serkeys_layer2.size() << ") " << serkeys_layer2 << endl;
+  cout << "Layer 3 keys (" << serkeys_layer3.size() << ") " << serkeys_layer3 << endl;
+  cout << "Layer 4 keys (" << serkeys_layer4.size() << ") " << serkeys_layer4 << endl;
 
-  ofstream layer1_file(prms.pubkeydir() / "layer1_rk.bin",
-                       ios::out | ios::binary);
-  ofstream layer2_file(prms.pubkeydir() / "layer2_rk.bin",
-                       ios::out | ios::binary);
-  ofstream layer3_file(prms.pubkeydir() / "layer3_rk.bin",
-                       ios::out | ios::binary);
-  ofstream layer4_file(prms.pubkeydir() / "layer4_rk.bin",
-                       ios::out | ios::binary);
+  ofstream layer1_file(prms.pubkeydir() / "layer1_rk.bin", ios::out | ios::binary);
+  ofstream layer2_file(prms.pubkeydir() / "layer2_rk.bin", ios::out | ios::binary);
+  ofstream layer3_file(prms.pubkeydir() / "layer3_rk.bin", ios::out | ios::binary);
+  ofstream layer4_file(prms.pubkeydir() / "layer4_rk.bin", ios::out | ios::binary);
 
   // Each layer's file must include bootstrap automorphism keys so the server
   // can call EvalBootstrap without sk. Pattern per layer:
-  fheonHEController.harness_generate_bootstrapping_and_rotation_keys(
-      context, secretKey, serkeys_layer1, layer1_file);
+  fheonHEController.harness_generate_bootstrapping_and_rotation_keys(context, secretKey, serkeys_layer1, layer1_file);
   fheonHEController.harness_clear_bootstrapping_and_rotation_keys(context);
 
-  fheonHEController.harness_generate_bootstrapping_and_rotation_keys(
-      context, secretKey, serkeys_layer2, layer2_file);
+  fheonHEController.harness_generate_bootstrapping_and_rotation_keys(context, secretKey, serkeys_layer2, layer2_file);
   fheonHEController.harness_clear_bootstrapping_and_rotation_keys(context);
 
-  fheonHEController.harness_generate_bootstrapping_and_rotation_keys(
-      context, secretKey, serkeys_layer3, layer3_file);
+  fheonHEController.harness_generate_bootstrapping_and_rotation_keys(context, secretKey, serkeys_layer3, layer3_file);
   fheonHEController.harness_clear_bootstrapping_and_rotation_keys(context);
 
-  fheonHEController.harness_generate_bootstrapping_and_rotation_keys(
-      context, secretKey, serkeys_layer4, layer4_file);
+  fheonHEController.harness_generate_bootstrapping_and_rotation_keys(context, secretKey, serkeys_layer4, layer4_file);
   fheonHEController.harness_clear_bootstrapping_and_rotation_keys(context);
   cout << "All keys generated" << endl;
   /********************************************************************************************************************************************/
@@ -211,24 +185,13 @@ int main(int argc, char *argv[]) {
     // Step 1: Setup CryptoContext
     auto cryptoContext = generate_crypto_context();
 
-    FHEONHEController fheonHEController(cryptoContext);
-
     // Step 2: Key Generation
     // cout << "Starting KeyGen..." << endl;
     auto keyPair = cryptoContext->KeyGen();
-    // cout << "KeyGen done. Starting EvalMultKeyGen..." << endl;
-    // cryptoContext = generate_mult_rot_key(cryptoContext, keyPair.secretKey);
     cryptoContext->EvalMultKeyGen(keyPair.secretKey);
-    // cout << "EvalMultKeyGen done." << endl;
-
-    // Step 4: Bootstrap key generation
-    //   cryptoContext->EvalBootstrapSetup(levelBudget, bsgsDim, numSlots);
-    //   cryptoContext->EvalBootstrapKeyGen(keyPair.secretKey, numSlots);
-    //   cout << "Bootstrap KeyGen done." << endl;
-
     cryptoContext->EvalSumKeyGen(keyPair.secretKey);
 
-
+    FHEONHEController fheonHEController(cryptoContext);
     double logPQ = fheonHEController.getlogPQ(keyPair.publicKey->GetPublicElements()[0]);
     cout << "log PQ = " << logPQ << std::endl;
     cout << "Cyclotomic Order: " << cryptoContext->GetCyclotomicOrder() << endl;
@@ -258,8 +221,7 @@ int main(int argc, char *argv[]) {
 
     /*** work on rotation keys */
     vector<int> channels = {16, 32, 64, 10};
-    generate_rotation_keys(fheonHEController, cryptoContext, keyPair.secretKey, channels,
-                            dataset_size);
+    generate_rotation_keys(fheonHEController, cryptoContext, keyPair.secretKey, channels, dataset_size);
 
     // cout << "Eval Keys serialized. Serializing Secret Key..." << endl;
 
