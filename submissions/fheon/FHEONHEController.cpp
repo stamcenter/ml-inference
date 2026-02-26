@@ -1332,12 +1332,13 @@ void FHEONHEController::harness_read_evaluation_keys(
     throw std::runtime_error("Failed to load secret key from " + sk_path);
   }
 
+  int numSlots = 1 >> num_slots; 
   std::vector<uint32_t> levelBudget = {4, 4};
   std::vector<uint32_t> bsgsDim = {0, 0};
 
   // Re-setup and re-generate bootstrap keys
-  crypto_context->EvalBootstrapSetup(levelBudget, bsgsDim, num_slots);
-  crypto_context->EvalBootstrapKeyGen(sk, num_slots);
+  crypto_context->EvalBootstrapSetup(levelBudget, bsgsDim, numSlots);
+  crypto_context->EvalBootstrapKeyGen(sk, numSlots);
 
   // crypto_context->EvalBootstrapSetup(levelBudget, bsgsDim, (numSlots/2));
   // crypto_context->EvalBootstrapKeyGen(sk, (numSlots/2));
