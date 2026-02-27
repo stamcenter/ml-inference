@@ -175,7 +175,7 @@ vector<Ctext> double_shortcut_convolution_block( FHEONHEController &fheonHEContr
   auto biasDataEncoded = fheonHEController.encode_bais_input(biasData, widthOutSq);
   auto shortcutbiasDataEncoded = fheonHEController.encode_bais_input(shortcutbiasData, widthOutSq);
 
-  auto returnedCiphers = fheonANNController.he_convolution_and_shortcut_optimized(encrytedInput, kernelData, shortcutkernelData, 
+  auto returnedCiphers = fheonANNController.he_convolution_and_shortcut_optimized_with_multiple_channels(encrytedInput, kernelData, shortcutkernelData, 
                                             biasDataEncoded, shortcutbiasDataEncoded, dataWidth, inputChannels, outputChannels);
 
   kernelData.clear();
@@ -210,7 +210,6 @@ Ctext resnet_block(FHEONHEController &fheonHEController, FHEONANNController &fhe
     dataSize = (outputChannels * pow(dataWidth, 2));
     convData = doubleResults[0]->Clone();
     shortcutConvData = doubleResults[1]->Clone();
-    convData = fheonHEController.bootstrap_function(convData);
   } else {
     convData = convolution_block(fheonHEController, fheonANNController, layer + "_conv1", 
                     encrytedInput, dataWidth, kernelWidth, striding, inputChannels, outputChannels);

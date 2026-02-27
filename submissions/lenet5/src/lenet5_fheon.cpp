@@ -82,7 +82,6 @@ Ctext lenet5(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &cont
   convData = fheonANNController.he_avgpool_optimzed_with_multiple_channels(convData, imgWidth[3], channels[2], poolSize, poolSize);
 
   /*** fully connected layers */
-  cout << "         [server] Layer 3" << endl;
   string l3_rk = "layer3_rk.bin";
   fheonHEController.harness_read_evaluation_keys(context, pubkey_dir, mk_file, l3_rk, sk_path);
 

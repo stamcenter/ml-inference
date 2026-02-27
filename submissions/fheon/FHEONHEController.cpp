@@ -1283,16 +1283,6 @@ void FHEONHEController::harness_read_evaluation_keys(
   }
 
   cout << "Successfully loaded evaluation keys" << endl;
-
-  // EvalBootstrapSetup MUST be called after re-deserializing the context:
-  // the bootstrap precomputation tables (m_bootPrecomMap) are NOT stored in
-  // cc.bin and are lost when the context is released and re-deserialized.
-  // Without this, EvalLinearTransform inside EvalBootstrap cannot find its
-  // rotation indices, causing: KeySwitchDown: Input ciphertext is nullptr.
-  // int numSlots = 1 << 14;
-  // std::vector<uint32_t> levelBudget = {4, 4};
-  // std::vector<uint32_t> bsgsDim = {0, 0};
-  // crypto_context->EvalBootstrapSetup(levelBudget, bsgsDim, numSlots);
 }
 
 void FHEONHEController::harness_read_evaluation_keys(
