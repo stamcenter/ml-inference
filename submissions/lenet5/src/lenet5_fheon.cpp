@@ -37,18 +37,18 @@ using namespace lbcrypto;
 #define WEIGHTS_DIR "./../weights/lenet5/"
 #endif
 
-Ctext convolution_block(FHEONHEController &fheonHEController, FHEONANNController &fheonANNController, string layer, 
-					Ctext &encryptedInput,  int inputWidth, int inputChannels, int outputChannels, int kernelWidth, int stride = 1);
-Ctext fc_layer_block(FHEONHEController &fheonHEController,FHEONANNController &fheonANNController, string layer,
-                     Ctext &encryptedInput, int inputSize, int outputSize, int rotPositions);
+Ctext convolution_block(FHEONHEController &fheonHEController, FHEONANNController &fheonANNController, string layer, Ctext &encryptedInput, 
+                        int inputWidth, int inputChannels, int outputChannels, int kernelWidth, int stride = 1);
+Ctext fc_layer_block(FHEONHEController &fheonHEController, FHEONANNController &fheonANNController, string layer, 
+                        Ctext &encryptedInput, int inputSize, int outputSize, int rotPositions);
 
-Ctext lenet5(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &context, Ctext &encryptedInput,
-             string pubkey_dir, string sk_path) {
+Ctext lenet5(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &context, Ctext &encryptedInput, string pubkey_dir) {
 
   string mk_file = "mk.bin";
   string l1_rk = "layer1_rk.bin";
   FHEONANNController fheonANNController(context);
   fheonHEController.harness_read_evaluation_keys(context, pubkey_dir, mk_file, l1_rk);
+  context->EvalBootstrapSetup(config.levelBudget);
 
   int kernelWidth = 5;
   int poolSize = 2;
@@ -65,8 +65,8 @@ Ctext lenet5(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &cont
   /***** The first Convolution Layer takes  image=(1,28,28), kernel=(6,1,5,5)
    * stride=1, pooling=0 output= (6,24,24) = 3456 vals */
   cout << "         [server] Layer 1" << endl;
-  Ctext convData = convolution_block(fheonHEController, fheonANNController, "Conv1", encryptedInput, imgWidth[0], channels[0], 
-							channels[1], kernelWidth);
+  Ctext convData = convolution_block(fheonHEController, fheonANNController, "Conv1", encryptedInput, imgWidth[0], 
+                        channels[0], channels[1], kernelWidth);
   convData = fheonANNController.he_relu(convData, reluScale, dataSizeVec[0], polyDegree);
   convData = fheonANNController.he_avgpool_optimzed_with_multiple_channels(convData, imgWidth[1], channels[1], poolSize, poolSize);
 
@@ -76,9 +76,8 @@ Ctext lenet5(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &cont
   string l2_rk = "layer2_rk.bin";
   fheonHEController.harness_read_evaluation_keys(context, pubkey_dir, mk_file, l2_rk);
   convData = convolution_block(fheonHEController, fheonANNController, "Conv2", convData, imgWidth[2], channels[1], 
-								                  channels[2], kernelWidth);
+                            channels[2], kernelWidth);
   convData = fheonANNController.he_relu(convData, reluScale, dataSizeVec[1], polyDegree);
-  context->EvalBootstrapSetup({4, 4});
   convData = fheonHEController.bootstrap_function(convData);
   convData = fheonANNController.he_avgpool_optimzed_with_multiple_channels(convData, imgWidth[3], channels[2], poolSize, poolSize);
 
@@ -105,34 +104,35 @@ Ctext lenet5(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &cont
 Ctext convolution_block(FHEONHEController &fheonHEController, FHEONANNController &fheonANNController, string layer,
                         Ctext &encryptedInput, int inputWidth, int inputChannels, int outputChannels, int kernelWidth, int stride) {
 
-	int widthSq = pow(inputWidth, 2);
-	int outWidth = inputWidth - kernelWidth + 1;
-	int outWidthSq = pow(outWidth, 2);
-	string dataPath = string(WEIGHTS_DIR) + layer;
+  int widthSq = pow(inputWidth, 2);
+  int outWidth = inputWidth - kernelWidth + 1;
+  int outWidthSq = pow(outWidth, 2);
+  string dataPath = string(WEIGHTS_DIR) + layer;
 
-	auto biasVec = load_bias(dataPath + "_bias.csv");
-	auto rawKernel = load_weights(dataPath + "_weight.csv", outputChannels, inputChannels, kernelWidth, kernelWidth);
+  auto biasVec = load_bias(dataPath + "_bias.csv");
+  auto rawKernel = load_weights(dataPath + "_weight.csv", outputChannels,
+                                inputChannels, kernelWidth, kernelWidth);
 
-	vector<vector<Ptext>> convKernelData;
-	for (int i = 0; i < outputChannels; i++) {
-		auto encodeKernel = fheonHEController.encode_kernel(rawKernel[i], widthSq);
-		convKernelData.push_back(encodeKernel);
-	}
-	auto convBiasEncoded = fheonHEController.encode_bais_input(biasVec, outWidthSq);
-	auto convData = fheonANNController.he_convolution(encryptedInput, convKernelData, convBiasEncoded, inputWidth,
-									inputChannels, outputChannels, kernelWidth, 0, stride);
+  vector<vector<Ptext>> convKernelData;
+  for (int i = 0; i < outputChannels; i++) {
+    auto encodeKernel = fheonHEController.encode_kernel(rawKernel[i], widthSq);
+    convKernelData.push_back(encodeKernel);
+  }
+  auto convBiasEncoded = fheonHEController.encode_bais_input(biasVec, outWidthSq);
+  auto convData = fheonANNController.he_convolution(encryptedInput, convKernelData, convBiasEncoded, inputWidth,
+                                        inputChannels, outputChannels, kernelWidth, 0, stride);
 
-	// Clear memory
-	for (auto &inner : convKernelData) {
-		inner.clear();
-	}
-	convKernelData.clear();
-	convKernelData.shrink_to_fit();
-	biasVec.clear();
-	rawKernel.clear();
-	rawKernel.shrink_to_fit();
+  // Clear memory
+  for (auto &inner : convKernelData) {
+    inner.clear();
+  }
+  convKernelData.clear();
+  convKernelData.shrink_to_fit();
+  biasVec.clear();
+  rawKernel.clear();
+  rawKernel.shrink_to_fit();
 
-	return convData;
+  return convData;
 }
 
 Ctext fc_layer_block(FHEONHEController &fheonHEController, FHEONANNController &fheonANNController, string layer,
@@ -148,7 +148,8 @@ Ctext fc_layer_block(FHEONHEController &fheonHEController, FHEONANNController &f
     fcKernelData.push_back(encodeWeights);
   }
   Ptext fcBiasVec = fheonHEController.encode_input(biasVec);
-  Ctext fcData = fheonANNController.he_linear(encryptedInput, fcKernelData, fcBiasVec, inputSize, outputSize, rotPositions);
+  Ctext fcData = fheonANNController.he_linear(encryptedInput, fcKernelData, fcBiasVec,
+                                   inputSize, outputSize, rotPositions);
 
   // Clear memory
   fcKernelData.clear();

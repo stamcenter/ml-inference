@@ -11,32 +11,32 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef RESNET20_FHEON_H_
-#define RESNET20_FHEON_H_
+#ifndef MLP_FHEON_H_
+#define MLP_FHEON_H_
 
-#include "FHEONANNController.h"
-#include "FHEONHEController.h"
+#include "fheon/FHEONANNController.h"
+#include "fheon/FHEONHEController.h"
 #include "openfhe.h"
+#include <cstdint>
+#include <vector>
 
 using namespace std;
 using namespace lbcrypto;
 
-struct ResNet20Config {
-  vector<uint32_t> levelBudget = {4, 4};
+struct MLPConfig {
+  vector<uint32_t> levelBudget = {
+      1, 1}; // MLP doesn't use bootstrapping but harness might expect it
   vector<uint32_t> bsgsDim = {0, 0};
-  int ringDim = 1 << 15;
-  int numSlots = 1 << 14;
-  int dcrtBits = 48;
-  int firstMod = 50;
-  int modelDepth = 11;
-  int digitSize = 4;
+  int ringDim = 0; // GenCryptoContext will Decide
+  int numSlots = 1 << 12;
+  int dcrtBits = 50;
+  int firstMod = 60;
+  int modelDepth = 9;
+  int digitSize = 3;
 };
 
-inline ResNet20Config config;
+inline MLPConfig config;
 
-// using CiphertextT = ConstCiphertext<DCRTPoly>;
+Ctext mlp(CryptoContext<DCRTPoly> &v0, Ctext &v1);
 
-Ctext resnet20(FHEONHEController &fheonHEController,
-               CryptoContext<DCRTPoly> &v0, Ctext &v1, string pubkey_dir);
-
-#endif // ifndef RESNET20_FHEON_H_
+#endif // ifndef MLP_FHEON_H_

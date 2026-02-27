@@ -20,11 +20,26 @@
 
 using namespace std;
 using namespace lbcrypto;
+
+struct LeNetConfig {
+  vector<uint32_t> levelBudget = {4, 4};
+  vector<uint32_t> bsgsDim = {0, 0};
+  int ringDim = 1 << 13;
+  int numSlots = 1 << 12;
+  int dcrtBits = 42;
+  int firstMod = 46;
+  int modelDepth = 11;
+  int digitSize = 4;
+};
+
+inline LeNetConfig config;
+
 // using CiphertextT = ConstCiphertext<DCRTPoly>;
 
-Ctext lenet5(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly>
-                &v0, Ctext &v1, string pubkey_dir, string sk_path);
-                
-// Ctext lenet5(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &v0, Ctext v1);
+Ctext lenet5(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &v0,
+             Ctext &v1, string pubkey_dir);
+
+// Ctext lenet5(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly>
+// &v0, Ctext v1);
 
 #endif // ifndef LENET5_FHEON_H_

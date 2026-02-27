@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
     std::string sk_path = (prms.seckeydir() / "sk.bin").string();
     
     auto start = std::chrono::high_resolution_clock::now();
-    auto ctxtResult = resnet20(fheonHEController, cc, ctxt, pubkey_dir, sk_path);
+    auto ctxtResult = resnet20(fheonHEController, cc, ctxt, pubkey_dir);
     // auto ctxtResult = resnet20(fheonHEController, cc, ctxt);
 
     ofstream outFile;
