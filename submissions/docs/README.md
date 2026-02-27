@@ -20,6 +20,7 @@ The following baseline model is implemented directly using [OpenFHE](https://ope
 ### MLP (Direct OpenFHE)
 
 - **Description**: A Multi-Layer Perceptron (MLP) fully connected network.
+- **Dataset**: MNIST
 - **Implementation**: `submissions/mlp/src/mlp_openfhe.cpp`
 - **Key Details**: Features hardcoded weights optimized for standard CKKS operations.
 
@@ -38,6 +39,7 @@ For more information, visit the [official website](https://fheon.pqcsecure.org/)
 A modular implementation of the classic LeNet-5 model using the FHEON framework.
 
 - **Architecture**: Convolution layers (5x5 kernel, stride 1), Average Pooling (2x2, stride 2), and Polynomial Approximation for ReLU.
+- **Dataset**: MNIST
 - **Optimization**: Modular blocks for Convolution and Fully Connected layers with efficient data management (clears intermediate weights/biases immediately after use).
 - **Implementation**: `submissions/lenet5/src/lenet5_fheon.cpp`
 
@@ -46,6 +48,7 @@ A modular implementation of the classic LeNet-5 model using the FHEON framework.
 A deep residual network targeting CIFAR-10 built using FHEON.
 
 - **Architecture**: Initial convolution, three stages of ResNet blocks with shortcuts, and Global Average Pooling.
+- **Dataset**: CIFAR-10
 - **Bootstrapping**: Strategic integration of CKKS bootstrapping to maintain circuit depth.
 - **Implementation**: `submissions/resnet20/src/resnet20_fheon.cpp`
 
@@ -55,13 +58,6 @@ A deep residual network targeting CIFAR-10 built using FHEON.
 
 Both the LeNet-5 and ResNet-20 models are configured to satisfy the **128-bit security level** using the standardized parameters for CKKS as defined in the [Homomorphic Encryption Standard v1.1](https://homomorphicencryption.org/wp-content/uploads/2018/11/HomomorphicEncryptionStandardv1.1.pdf).
 
-### CKKS Parameters: ResNet-20
-- **Ciphertexts depth**: 29
-- **Available multiplications**: 9
-- **log PQ**: 1862
-- **Cyclotomic Order**: 262144
-- **Ring dimension**: 131072
-- **Number of Slots**: 65536
 
 ### CKKS Parameters: LeNet-5
 - **Ciphertexts depth**: 29
@@ -70,6 +66,16 @@ Both the LeNet-5 and ResNet-20 models are configured to satisfy the **128-bit se
 - **Cyclotomic Order**: 131072
 - **Ring dimension**: 65536
 - **Number of Slots**: 32768
+
+
+### CKKS Parameters: ResNet-20
+- **Ciphertexts depth**: 29
+- **Available multiplications**: 9
+- **log PQ**: 1862
+- **Cyclotomic Order**: 262144
+- **Ring dimension**: 131072
+- **Number of Slots**: 65536
+
 
 ### Optimized Performance
 
