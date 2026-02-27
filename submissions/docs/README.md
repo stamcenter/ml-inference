@@ -1,43 +1,85 @@
+# Workload Implementation – ML Inference Benchmarks
 
-## Workload implementation – ml inference
---------------------------------------
+This submissions implements various privacy-preserving encrypted machine learning inference models for benchmarking.
 
-This submission contains two models:
-1.  **LeNet-5**: Built with the [FHEON](https://fheon.pqcsecure.org/) Framework.
-2.  **MLP**: Built directly on [OpenFHE](https://openfhe-development.readthedocs.io).
+## Project Structure
 
+The submissions directory is organized as follows:
 
-## Model 1: MLP (OpenFHE)
+- **`submissions/`**: Contains specific model implementations (MLP, LeNet-5, ResNet-20).
+- **`fheon/`**: The core FHEON framework implementation.
+- **`common/`**: Shared utilities for encryption helpers, key management, and data loading.
+- **`include/`**: Unified header files for the framework and models.
 
-### Model architecture
-The MLP model is a fully connected network implemented directly using OpenFHE primitives.
+---
 
-### Build details
-- **Implementation**: The MLP model is implemented in `mlp/src/mlp_openfhe.cpp` and `mlp/src/server_encrypted_compute.cpp`.
-- **Key Generation**: `mlp/src/client_key_generation.cpp` handles the crypto context generation.
+## 1. OpenFHE Implementation
 
+The following baseline model is implemented directly using [OpenFHE](https://openfhe-development.readthedocs.io) primitives, serving as a primary reference for encrypted arithmetic performance.
 
-## Model 2: LeNet-5 (FHEON)
+### MLP (Direct OpenFHE)
 
-### Model architecture
-This submission is based on the classic LeNet-5 model.
-The model architecture is as shown below:
-- The convolution layers are configured with a `5x5` kernel window, padding of `0` and stride of `1` layer.
-- The Average Pooling layers are configured with a stride of `2`.
-- The activation layer, using Approx-RELU based on polynomial appox configured with a polynomial degree of `119`
-- The first FC layer maps 256x120
-- The second FC layer maps 120x84
-- The third FC layer maps 84x10 output labels.
+- **Description**: A Multi-Layer Perceptron (MLP) fully connected network.
+- **Implementation**: `submissions/mlp/src/mlp_openfhe.cpp`
+- **Key Details**: Features hardcoded weights optimized for standard CKKS operations.
 
+---
 
-### Build details
-- **Weights**: Placed in `weights/lenet5` folder. 
-- **Source Code**: FHEON source is in `fheon` folder, and headers in `include/fheon`.
-- **Implementation**: The LeNet-5 model is implemented in `lenet5/src/lenet5_fheon.cpp`.
-- **Key Generation**: `lenet5/src/client_key_generation.cpp` is modified to support the required crypto context.
+## 2. FHEON Implementation
 
-## Common Utilities
-Common utility source files for both models (e.g., encryption helpers, data loading) are located in `common/src`.
+### Introduction to FHEON
 
-## Building
-The `CMakeLists.txt` files in `lenet5` and `mlp` folders are used to build and link the respective executables.
+**FHEON** is a configurable framework designed to facilitate the implementation of privacy-preserving neural network inference using Fully Homomorphic Encryption (FHE). Built on top of OpenFHE, FHEON provides high-level abstractions for common deep learning components while optimizing for the unique constraints of homomorphic computation.
+
+For more information, visit the [official website](https://fheon.pqcsecure.org/), explore the [source code](https://github.com/stamcenter/fheon), or read the [research paper](https://arxiv.org/abs/2510.03996).
+
+### Model: LeNet-5
+
+A modular implementation of the classic LeNet-5 model using the FHEON framework.
+
+- **Architecture**: Convolution layers (5x5 kernel, stride 1), Average Pooling (2x2, stride 2), and Polynomial Approximation for ReLU.
+- **Optimization**: Modular blocks for Convolution and Fully Connected layers with efficient data management (clears intermediate weights/biases immediately after use).
+- **Implementation**: `submissions/lenet5/src/lenet5_fheon.cpp`
+
+### Model: ResNet-20
+
+A deep residual network targeting CIFAR-10 built using FHEON.
+
+- **Architecture**: Initial convolution, three stages of ResNet blocks with shortcuts, and Global Average Pooling.
+- **Bootstrapping**: Strategic integration of CKKS bootstrapping to maintain circuit depth.
+- **Implementation**: `submissions/resnet20/src/resnet20_fheon.cpp`
+
+---
+
+## 3. Security Level
+
+Both the LeNet-5 and ResNet-20 models are configured to satisfy the **128-bit security level** using the standardized parameters for CKKS as defined in the [Homomorphic Encryption Standard v1.1](https://homomorphicencryption.org/wp-content/uploads/2018/11/HomomorphicEncryptionStandardv1.1.pdf).
+
+### CKKS Parameters: ResNet-20
+- **Ciphertexts depth**: 29
+- **Available multiplications**: 9
+- **log PQ**: 1862
+- **Cyclotomic Order**: 262144
+- **Ring dimension**: 131072
+- **Number of Slots**: 65536
+
+### CKKS Parameters: LeNet-5
+- **Ciphertexts depth**: 29
+- **Available multiplications**: 9
+- **log PQ**: 1624
+- **Cyclotomic Order**: 131072
+- **Ring dimension**: 65536
+- **Number of Slots**: 32768
+
+### Optimized Performance
+
+The `client_key_generation` utilities also provide equivalent ring dimensions and slot counts that target smaller security levels. These configurations are designed to significantly improve computation speed and reduce memory overhead, consistent with the performance benchmarks presented in the FHEON research paper.
+
+---
+
+## Technical Details
+
+### Execution Paths
+The inference executables typically expect external weights and keys provided at runtime:
+- **Weights**: `submissions/<model_name>/weights/`
+- **Keys**: Generated and managed via model-specific `client_key_generation` utilities.
