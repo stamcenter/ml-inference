@@ -107,18 +107,18 @@ void generate_rotation_keys(FHEONHEController &fheonHEController, CryptoContextT
   /************************************** generate rotation keys for conv_layer 1 **********************************8*/
   auto conv1_keys = fheonANNController.generate_optimized_convolution_rotation_positions(dataWidth, img_depth, channels[0]);
   auto conv2_keys = fheonANNController.generate_optimized_convolution_rotation_positions(dataWidth, channels[0], channels[0]);
-  auto conv3_keys = fheonANNController.generate_optimized_convolution_rotation_positions(dataWidth, channels[0], channels[1], 2);
+  auto conv3_keys = fheonANNController.generate_optimized_convolution_rotation_positions(dataWidth, channels[0], channels[1], 2, "single_channel");
   dataWidth = dataWidth / 2;
 
   auto conv4_keys = fheonANNController.generate_optimized_convolution_rotation_positions(dataWidth, channels[1], channels[1]);
-  auto conv5_keys = fheonANNController.generate_optimized_convolution_rotation_positions(dataWidth, channels[1], channels[2], 2);
+  auto conv5_keys = fheonANNController.generate_optimized_convolution_rotation_positions(dataWidth, channels[1], channels[2], 2, "single_channel");
   dataWidth = dataWidth / 2;
 
   auto conv6_keys = fheonANNController.generate_optimized_convolution_rotation_positions(dataWidth, channels[2], channels[2]);
   auto avgpool1_key = fheonANNController.generate_avgpool_optimized_rotation_positions(dataWidth, channels[2], avgpoolSize, avgpoolSize, 
                                                     true, "single_channel", rotPositions);
   auto fc_keys = fheonANNController.generate_linear_rotation_positions(channels[3], rotPositions);
-  
+
   /*************************************************************************************************/
   vector<vector<int>> rkeys_layer1, rkeys_layer2, rkeys_layer3, rkeys_layer4;
   rkeys_layer1.push_back(conv1_keys);

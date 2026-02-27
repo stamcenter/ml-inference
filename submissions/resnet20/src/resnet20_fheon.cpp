@@ -175,7 +175,7 @@ vector<Ctext> double_shortcut_convolution_block( FHEONHEController &fheonHEContr
   auto biasDataEncoded = fheonHEController.encode_bais_input(biasData, widthOutSq);
   auto shortcutbiasDataEncoded = fheonHEController.encode_bais_input(shortcutbiasData, widthOutSq);
 
-  auto returnedCiphers = fheonANNController.he_convolution_and_shortcut_optimized_with_multiple_channels(encrytedInput, kernelData, shortcutkernelData, 
+  auto returnedCiphers = fheonANNController.he_convolution_and_shortcut_optimized(encrytedInput, kernelData, shortcutkernelData, 
                                             biasDataEncoded, shortcutbiasDataEncoded, dataWidth, inputChannels, outputChannels);
 
   kernelData.clear();
