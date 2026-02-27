@@ -219,6 +219,7 @@ Ctext resnet_block(FHEONHEController &fheonHEController, FHEONANNController &fhe
     convData = fheonHEController.bootstrap_function(convData);
   }
 
+  convData = fheonHEController.bootstrap_function(convData);
   convData = fheonANNController.he_relu(convData, reluScale, dataSize, polyDeg);
   Ctext secConvData = convolution_block(fheonHEController, fheonANNController, layer + "_conv2", 
                             convData, dataWidth, kernelWidth, striding, outputChannels, outputChannels);
