@@ -48,7 +48,7 @@ Ctext lenet5(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &cont
   string mk_file = "mk.bin";
   string l1_rk = "layer1_rk.bin";
   FHEONANNController fheonANNController(context);
-  fheonHEController.harness_read_evaluation_keys(context, pubkey_dir, mk_file, l1_rk, sk_path);
+  fheonHEController.harness_read_evaluation_keys(context, pubkey_dir, mk_file, l1_rk);
 
   int kernelWidth = 5;
   int poolSize = 2;
@@ -74,16 +74,17 @@ Ctext lenet5(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &cont
    * striding =1, padding = 0 output = (16,8,8) ***/
   cout << "         [server] Layer 2" << endl;
   string l2_rk = "layer2_rk.bin";
-  fheonHEController.harness_read_evaluation_keys(context, pubkey_dir, mk_file, l2_rk, sk_path);
+  fheonHEController.harness_read_evaluation_keys(context, pubkey_dir, mk_file, l2_rk);
   convData = convolution_block(fheonHEController, fheonANNController, "Conv2", convData, imgWidth[2], channels[1], 
-								channels[2], kernelWidth);
+								                  channels[2], kernelWidth);
   convData = fheonANNController.he_relu(convData, reluScale, dataSizeVec[1], polyDegree);
+  context->EvalBootstrapSetup({4, 4});
   convData = fheonHEController.bootstrap_function(convData);
   convData = fheonANNController.he_avgpool_optimzed_with_multiple_channels(convData, imgWidth[3], channels[2], poolSize, poolSize);
 
   /*** fully connected layers */
   string l3_rk = "layer3_rk.bin";
-  fheonHEController.harness_read_evaluation_keys(context, pubkey_dir, mk_file, l3_rk, sk_path);
+  fheonHEController.harness_read_evaluation_keys(context, pubkey_dir, mk_file, l3_rk);
 
   cout << "         [server] FC 1" << endl;
   convData = fc_layer_block(fheonHEController, fheonANNController, "FC1", convData, channels[3], channels[4], rotPositions);

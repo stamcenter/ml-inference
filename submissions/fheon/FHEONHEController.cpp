@@ -1228,11 +1228,19 @@ int FHEONHEController::read_inferenced_label_with_key(PrivateKey<DCRTPoly> &sk,
 }
 
 void FHEONHEController::harness_generate_bootstrapping_and_rotation_keys(
-    CryptoContext<DCRTPoly> &crypto_context, PrivateKey<DCRTPoly> &sk,
-    vector<int> rotations_positions, ofstream &key_file) {
+          CryptoContext<DCRTPoly> &crypto_context, PrivateKey<DCRTPoly> &sk,
+          vector<int> rotations_positions, ofstream &key_file, bool sum_key) {
 
+  uint32_t numSlots = crypto_context->GetRingDimension() / 2;
+  std::vector<uint32_t> levelBudget = {4, 4};
+  crypto_context->EvalBootstrapSetup(levelBudget);
+  crypto_context->EvalBootstrapKeyGen(sk, numSlots);
   crypto_context->EvalRotateKeyGen(sk, rotations_positions);
 
+  if(sum_key){
+    crypto_context->EvalSumKeyGen(sk);
+  }
+  
   if (key_file.is_open()) {
     if (!crypto_context->SerializeEvalAutomorphismKey(key_file,
                                                       SerType::BINARY)) {
@@ -1256,33 +1264,28 @@ void FHEONHEController::harness_read_evaluation_keys(
     CryptoContext<DCRTPoly> &crypto_context, string &pubkey_dir,
     string &mult_file, string &rot_file) {
 
-  crypto_context->ClearEvalMultKeys();
-  crypto_context->ClearEvalAutomorphismKeys();
-  // CryptoContextFactory<DCRTPoly>::ReleaseAllContexts();
+	crypto_context->ClearEvalMultKeys();
+	crypto_context->ClearEvalAutomorphismKeys();
+	// DO NOT call ReleaseAllContexts() as it breaks existing ciphertexts
 
-  // Open files in READ mode
-  ifstream multkey_file(pubkey_dir + mult_file, ios::in | ios::binary);
-  ifstream rotkey_file(pubkey_dir + rot_file, ios::in | ios::binary);
+	// Open files in READ mode
+	ifstream multkey_file(pubkey_dir + mult_file, ios::in | ios::binary);
+	ifstream rotkey_file(pubkey_dir + rot_file, ios::in | ios::binary);
 
-  // Deserialize CryptoContext
-  if (!Serial::DeserializeFromFile(pubkey_dir + "cc.bin", crypto_context,
-                                   SerType::BINARY)) {
-    throw std::runtime_error("Failed to load CryptoContext");
-  }
+	// Deserialize Multiplication key into EXISTING context
+	if (!multkey_file.is_open() ||
+		!crypto_context->DeserializeEvalMultKey(multkey_file, SerType::BINARY)) {
+		throw std::runtime_error("Failed to load relinearization key from " +
+								pubkey_dir + mult_file);
+	}
 
-  // Deserialize Multiplication key
-  if (!multkey_file.is_open() ||
-      !crypto_context->DeserializeEvalMultKey(multkey_file, SerType::BINARY)) {
-    throw std::runtime_error("Failed to load relinearization key");
-  }
-
-  // Deserialize Automorphism keys
-  if (!rotkey_file.is_open() || !crypto_context->DeserializeEvalAutomorphismKey(
-                                    rotkey_file, SerType::BINARY)) {
-    throw std::runtime_error("Failed to load rotation keys");
-  }
-
-  cout << "Successfully loaded evaluation keys" << endl;
+	// Deserialize Automorphism keys into EXISTING context
+	if (!rotkey_file.is_open() || !crypto_context->DeserializeEvalAutomorphismKey(
+										rotkey_file, SerType::BINARY)) {
+		throw std::runtime_error("Failed to load rotation keys from " + pubkey_dir +
+								rot_file);
+	}
+	// cout << "Successfully loaded evaluation keys" << endl;
 }
 
 void FHEONHEController::harness_read_evaluation_keys(
@@ -1318,21 +1321,21 @@ void FHEONHEController::harness_read_evaluation_keys(
   // Re-deserialize secret key to use for bootstrap key regeneration
   // Since we didn't release the context, we might be able to use the old 'sk'
   // but re-deserializing ensures it's fresh and correctly associated.
-  PrivateKey<DCRTPoly> sk;
-  if (!Serial::DeserializeFromFile(sk_path, sk, SerType::BINARY)) {
-    throw std::runtime_error("Failed to load secret key from " + sk_path);
-  }
+  // PrivateKey<DCRTPoly> sk;
+  // if (!Serial::DeserializeFromFile(sk_path, sk, SerType::BINARY)) {
+  //   throw std::runtime_error("Failed to load secret key from " + sk_path);
+  // }
 
-  uint32_t numSlots = crypto_context->GetRingDimension() / 2;
-  std::vector<uint32_t> levelBudget = {4, 4};
-  std::vector<uint32_t> bsgsDim = {0, 0};
+  // uint32_t numSlots = crypto_context->GetRingDimension() / 2;
+  // std::vector<uint32_t> levelBudget = {4, 4};
+  // std::vector<uint32_t> bsgsDim = {0, 0};
 
   // Re-setup and re-generate bootstrap keys
-  crypto_context->EvalBootstrapSetup(levelBudget, bsgsDim, numSlots);
-  crypto_context->EvalBootstrapKeyGen(sk, numSlots);
+  // crypto_context->EvalBootstrapSetup(levelBudget);
+  // crypto_context->EvalBootstrapKeyGen(sk, numSlots);
 
   // Explicitly generate EvalMult and EvalSum keys to ensure they match the
   // current context
   // crypto_context->EvalMultKeyGen(sk);
-  crypto_context->EvalSumKeyGen(sk);
+  // crypto_context->EvalSumKeyGen(sk);
 }

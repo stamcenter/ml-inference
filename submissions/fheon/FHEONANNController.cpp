@@ -83,8 +83,15 @@ vector<int> FHEONANNController::generate_convolution_rotation_positions(
   keys_position.push_back(inputWidth_sq);
   keys_position.push_back(width_out);
   keys_position.push_back(width_out_sq);
-  // keys_position.push_back(-1);
-  // keys_position.push_back(1);
+  keys_position.push_back(-1);
+  keys_position.push_back(1);
+  // keys_position.push_back(-16);
+  // keys_position.push_back(16);
+  // keys_position.push_back(-2048);
+  // keys_position.push_back(2048);
+  // keys_position.push_back(-2047);
+  // keys_position.push_back(2047);
+
   int rot_val;
 
   /** Convolution rotations */

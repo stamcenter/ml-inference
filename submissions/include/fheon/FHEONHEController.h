@@ -149,17 +149,13 @@ public:
                                      Ctext encryptedInput, int noElements,
                                      ofstream &outFile);
 
-  void harness_generate_bootstrapping_and_rotation_keys(
-      CryptoContext<DCRTPoly> &crypto_context, PrivateKey<DCRTPoly> &sk,
-      vector<int> rotations_positions, ofstream &key_file);
-  void harness_clear_bootstrapping_and_rotation_keys(
-      CryptoContext<DCRTPoly> &crypto_context);
+  void harness_generate_bootstrapping_and_rotation_keys(CryptoContext<DCRTPoly> &crypto_context, PrivateKey<DCRTPoly> &sk,
+                            vector<int> rotations_positions, ofstream &key_file, bool sum_keys = false);
+  void harness_clear_bootstrapping_and_rotation_keys(CryptoContext<DCRTPoly> &crypto_context);
 
-  void harness_read_evaluation_keys(CryptoContext<DCRTPoly> &crypto_context,
-                                    string &pubkey_dir, string &mult_file,
-                                    string &rot_file);
-  void harness_read_evaluation_keys(CryptoContext<DCRTPoly> &crypto_context,
-                                    string &pubkey_dir, string &mult_file,
+  void harness_read_evaluation_keys(CryptoContext<DCRTPoly> &crypto_context, string &pubkey_dir, 
+                          string &mult_file, string &rot_file);
+  void harness_read_evaluation_keys(CryptoContext<DCRTPoly> &crypto_context, string &pubkey_dir, string &mult_file,
                                     string &rot_file, string &sk_path);
 
 private:
@@ -167,8 +163,7 @@ private:
   vector<uint32_t> level_budget = {4, 4};
   vector<uint32_t> bsgsDim = {0, 0};
   vector<double> build_tiled_mask(int starting_padding, int ending_padding,
-                                  int window_length, int max_length,
-                                  int tile_count);
+                                  int window_length, int max_length, int tile_count);
 
   void keys_serialization();
 };

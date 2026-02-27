@@ -144,7 +144,7 @@ void generate_rotation_keys(FHEONHEController &fheonHEController,  CryptoContext
 	fheonHEController.harness_generate_bootstrapping_and_rotation_keys(context, secretKey, serkeys_layer2, layer2_file);
 	fheonHEController.harness_clear_bootstrapping_and_rotation_keys(context);
 
-	fheonHEController.harness_generate_bootstrapping_and_rotation_keys(context, secretKey, serkeys_layer3, layer3_file);
+	fheonHEController.harness_generate_bootstrapping_and_rotation_keys(context, secretKey, serkeys_layer3, layer3_file, true);
 	fheonHEController.harness_clear_bootstrapping_and_rotation_keys(context);
 	cout << "All keys generated" << endl;
 	/********************************************************************************************************************************************/
