@@ -44,7 +44,6 @@ Ctext lenet5(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &cont
   	string l1_rk = "layer1_rk.bin";
 	FHEONANNController fheonANNController(context);
 	fheonHEController.harness_read_evaluation_keys(context, pubkey_dir, mk_file, l1_rk, sk_path);
-  	fheonANNController.setContext(context);
 
 	int kernelWidth = 5;
 	int poolSize = 2;
@@ -125,25 +124,23 @@ Ctext lenet5(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &cont
 	cout << "         [server] Layer 1" << endl;
 	auto convData = fheonANNController.he_convolution(encryptedInput, conv1_kernelData, conv1biasEncoded, imgWidth[0], channels[0], channels[1], kernelWidth);
 	convData = fheonANNController.he_relu(convData, reluScale, dataSizeVec[0], polyDegree);
-	convData = fheonANNController.he_avgpool_optimzed(convData, imgWidth[1], channels[1], poolSize, poolSize);
+	convData = fheonANNController.he_avgpool_optimzed_with_multiple_channels(convData, imgWidth[1], channels[1], poolSize, poolSize);
 
 	/***** Second convolution Layer input = (6,12,12), kernel=(16,6,5,5)
 	 * striding =1, padding = 0 output = (16,8,8) ***/
 	cout << "         [server] Layer 2" << endl;
 	string l2_rk = "layer2_rk.bin";
   	fheonHEController.harness_read_evaluation_keys(context, pubkey_dir, mk_file,l2_rk, sk_path);
-	fheonANNController.setContext(context);
 	convData = fheonANNController.he_convolution(convData, conv2_kernelData, conv2biasEncoded, imgWidth[2], channels[1], channels[2], kernelWidth);
 	convData = fheonANNController.he_relu(convData, reluScale, dataSizeVec[1],polyDegree);
 	convData = fheonHEController.bootstrap_function(convData);
-	convData = fheonANNController.he_avgpool_optimzed(convData, imgWidth[3], channels[2], poolSize, poolSize);
+	convData = fheonANNController.he_avgpool_optimzed_with_multiple_channels(convData, imgWidth[3], channels[2], poolSize, poolSize);
 	
 
 	/*** fully connected layers */
 	cout << "         [server] Layer 3" << endl;
 	string l3_rk = "layer3_rk.bin";
 	fheonHEController.harness_read_evaluation_keys(context, pubkey_dir, mk_file, l3_rk, sk_path);
-	fheonANNController.setContext(context);
 	cout << "         [server] FC 1" << endl;
 	convData = fheonANNController.he_linear(convData, fc1_kernelData, fc1baisVec, channels[3], channels[4], rotPositions);
 	convData = fheonHEController.bootstrap_function(convData);
