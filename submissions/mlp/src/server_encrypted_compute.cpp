@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
   std::string rk_file = "rk.bin";
 
   // Load evaluation keys using the harness method for consistency across models
-  fheonHEController.harness_read_evaluation_keys(cc, pubkey_dir, mk_file,
+  fheonHEController.read_evaluation_keys(cc, pubkey_dir, mk_file,
                                                  rk_file);
 
   for (size_t i = 0; i < prms.getBatchSize(); ++i) {

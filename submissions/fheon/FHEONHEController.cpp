@@ -1260,7 +1260,7 @@ void FHEONHEController::harness_clear_bootstrapping_and_rotation_keys(
   // CryptoContextFactory<lbcrypto::DCRTPoly>::ReleaseAllContexts();
 }
 
-void FHEONHEController::harness_read_evaluation_keys(
+void FHEONHEController::read_evaluation_keys(
     CryptoContext<DCRTPoly> &crypto_context, string &pubkey_dir,
     string &mult_file, string &rot_file) {
 
@@ -1288,7 +1288,7 @@ void FHEONHEController::harness_read_evaluation_keys(
 	// cout << "Successfully loaded evaluation keys" << endl;
 }
 
-void FHEONHEController::harness_read_evaluation_keys(
+void FHEONHEController::read_evaluation_keys(
     CryptoContext<DCRTPoly> &crypto_context, string &pubkey_dir,
     string &mult_file, string &rot_file, string &sk_path) {
 

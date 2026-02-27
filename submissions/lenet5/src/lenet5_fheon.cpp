@@ -47,7 +47,7 @@ Ctext lenet5(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &cont
   string mk_file = "mk.bin";
   string l1_rk = "layer1_rk.bin";
   FHEONANNController fheonANNController(context);
-  fheonHEController.harness_read_evaluation_keys(context, pubkey_dir, mk_file, l1_rk);
+  fheonHEController.read_evaluation_keys(context, pubkey_dir, mk_file, l1_rk);
   context->EvalBootstrapSetup(config.levelBudget);
 
   int kernelWidth = 5;
@@ -74,7 +74,7 @@ Ctext lenet5(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &cont
    * striding =1, padding = 0 output = (16,8,8) ***/
   cout << "         [server] Layer 2" << endl;
   string l2_rk = "layer2_rk.bin";
-  fheonHEController.harness_read_evaluation_keys(context, pubkey_dir, mk_file, l2_rk);
+  fheonHEController.read_evaluation_keys(context, pubkey_dir, mk_file, l2_rk);
   convData = convolution_block(fheonHEController, fheonANNController, "Conv2", convData, imgWidth[2], channels[1], 
                             channels[2], kernelWidth);
   convData = fheonANNController.he_relu(convData, reluScale, dataSizeVec[1], polyDegree);
@@ -83,7 +83,7 @@ Ctext lenet5(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &cont
 
   /*** fully connected layers */
   string l3_rk = "layer3_rk.bin";
-  fheonHEController.harness_read_evaluation_keys(context, pubkey_dir, mk_file, l3_rk);
+  fheonHEController.read_evaluation_keys(context, pubkey_dir, mk_file, l3_rk);
 
   cout << "         [server] FC 1" << endl;
   convData = fc_layer_block(fheonHEController, fheonANNController, "FC1", convData, channels[3], channels[4], rotPositions);

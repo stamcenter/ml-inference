@@ -153,9 +153,9 @@ public:
                             vector<int> rotations_positions, ofstream &key_file, bool sum_keys = false);
   void harness_clear_bootstrapping_and_rotation_keys(CryptoContext<DCRTPoly> &crypto_context);
 
-  void harness_read_evaluation_keys(CryptoContext<DCRTPoly> &crypto_context, string &pubkey_dir, 
+  void read_evaluation_keys(CryptoContext<DCRTPoly> &crypto_context, string &pubkey_dir, 
                           string &mult_file, string &rot_file);
-  void harness_read_evaluation_keys(CryptoContext<DCRTPoly> &crypto_context, string &pubkey_dir, string &mult_file,
+  void read_evaluation_keys(CryptoContext<DCRTPoly> &crypto_context, string &pubkey_dir, string &mult_file,
                                     string &rot_file, string &sk_path);
 
 private:

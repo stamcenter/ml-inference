@@ -67,7 +67,7 @@ Ctext resnet20(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &co
   string mk_file = "mk.bin";
   cout << "         [server] Layer 0" << endl;
   string l1_rk = "layer1_rk.bin";
-  fheonHEController.harness_read_evaluation_keys(context, pubkey_dir, mk_file, l1_rk);
+  fheonHEController.read_evaluation_keys(context, pubkey_dir, mk_file, l1_rk);
   context->EvalBootstrapSetup(config.levelBudget);
   Ctext convData = convolution_block(fheonHEController, fheonANNController, "layer0_conv1", encryptedInput,
                                 dataWidth, kernelSize, striding, img_depth, channelValues[0]);
@@ -86,7 +86,7 @@ Ctext resnet20(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &co
                           channelValues[0], channelValues[0], true, false);
 
   string l2_rk = "layer2_rk.bin";
-  fheonHEController.harness_read_evaluation_keys(context, pubkey_dir, mk_file, l2_rk);
+  fheonHEController.read_evaluation_keys(context, pubkey_dir, mk_file, l2_rk);
   cout << "         [server] Layer 2" << endl;
   cout << "                  [server] Block 1" << endl;
   convData = resnet_block(fheonHEController, fheonANNController, "layer2_block1", convData, dataWidth, dataSize,
@@ -99,7 +99,7 @@ Ctext resnet20(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &co
                           channelValues[1], channelValues[1], true, false);
 
   string l3_rk = "layer3_rk.bin";
-  fheonHEController.harness_read_evaluation_keys(context, pubkey_dir, mk_file, l3_rk);
+  fheonHEController.read_evaluation_keys(context, pubkey_dir, mk_file, l3_rk);
   cout << "         [server] Layer 3" << endl;
   cout << "                  [server] Block 1" << endl;
   convData = resnet_block(fheonHEController, fheonANNController, "layer3_block1", convData, dataWidth, dataSize,
@@ -112,7 +112,7 @@ Ctext resnet20(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &co
                           channelValues[2], channelValues[2], true, false);
 
   string l4_rk = "layer4_rk.bin";
-  fheonHEController.harness_read_evaluation_keys(context, pubkey_dir, mk_file, l4_rk);
+  fheonHEController.read_evaluation_keys(context, pubkey_dir, mk_file, l4_rk);
   cout << "         [server] Pool + Classifier" << endl;
   convData = fheonHEController.bootstrap_function(convData);
   convData = fheonANNController.he_globalavgpool( convData, dataWidth, channelValues[2], avgpoolSize, rotPositions);
