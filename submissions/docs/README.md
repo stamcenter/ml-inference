@@ -61,7 +61,6 @@ Both the LeNet-5 and ResNet-20 models are configured to satisfy the **128-bit se
 
 ### CKKS Parameters: LeNet-5
 - **Ciphertexts depth**: 29
-- **Available multiplications**: 9
 - **log PQ**: 1624
 - **Cyclotomic Order**: 131072
 - **Ring dimension**: 65536
@@ -70,7 +69,6 @@ Both the LeNet-5 and ResNet-20 models are configured to satisfy the **128-bit se
 
 ### CKKS Parameters: ResNet-20
 - **Ciphertexts depth**: 29
-- **Available multiplications**: 9
 - **log PQ**: 1862
 - **Cyclotomic Order**: 262144
 - **Ring dimension**: 131072
