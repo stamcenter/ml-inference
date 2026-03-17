@@ -50,6 +50,11 @@ harness/mnist/__pycache__/
 # Virtual environments
 virtualenv
 
+# Virtual environments
+virtualenv
+bmenv
+
+
 # Datasets, queries and results since we generate them on the fly
 datasets/*
 # But keep the folder alive with this one file, since some submissions might have fixed datasets
@@ -59,7 +64,7 @@ datasets/*
 harness/mnist/data/*
 harness/mnist/mnist_ffnn_model.pth
 
-
+**/build/
 
 # Temporary files for loading CIFAR-10 data and model training
 harness/cifar10/data/*
@@ -71,3 +76,5 @@ harness/cifar10/cifar10_resnet20_model.pth
 # Remote-submission artifacts
 ek.lpk
 submission_remote/__pycache__/
+
+
