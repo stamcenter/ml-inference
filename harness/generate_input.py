@@ -25,17 +25,21 @@ def main():
     """
     Generate random value representing the query in the workload.
     """
-    __, params, seed, __, __, __ = parse_submission_arguments('Generate input for FHE benchmark.')
+    __, params, seed, __, __, __,__, dataset_name = parse_submission_arguments('Generate input for FHE benchmark.')
     PIXELS_PATH = params.get_test_input_file()
     LABELS_PATH = params.get_ground_truth_labels_file()
+
     PIXELS_PATH.parent.mkdir(parents=True, exist_ok=True)
     num_samples = params.get_batch_size()
-    mnist.export_test_pixels_labels(
-            data_dir = params.datadir(), 
-            pixels_file=PIXELS_PATH, 
-            labels_file=LABELS_PATH, 
-            num_samples=num_samples, 
-            seed=seed)
+    if dataset_name == "mnist":
+        mnist.export_test_pixels_labels(
+                data_dir = params.datadir(), 
+                pixels_file=PIXELS_PATH, 
+                labels_file=LABELS_PATH, 
+                num_samples=num_samples, 
+                seed=seed)
+    else:
+        raise ValueError(f"Unsupported dataset name: {dataset_name}")
 
 if __name__ == "__main__":
     main()

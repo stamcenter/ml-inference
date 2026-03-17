@@ -34,7 +34,7 @@ _bandwidth = {}
 # Global variable to store model quality metrics
 _model_quality = {}
 
-def parse_submission_arguments(workload: str) -> Tuple[int, InstanceParams, int, int, int, bool]:
+def parse_submission_arguments(workload: str) -> Tuple[int, InstanceParams, int, int, int, bool, str, str]:
     """
     Get the arguments of the submission. Populate arguments as needed for the workload.
     """
@@ -50,6 +50,11 @@ def parse_submission_arguments(workload: str) -> Tuple[int, InstanceParams, int,
                         help='Specify with 1 if to rerun the cleartext computation')
     parser.add_argument('--remote', action='store_true',
                         help='Run example submission in remote backend mode')
+    parser.add_argument('--model', default='mlp', type=str,
+                        help='Pick a model run (default: mlp)')
+    parser.add_argument('--dataset', default='mnist', type=str,
+                        help='Pick a dataset run (default: mnist)')
+    
 
     args = parser.parse_args()
     size = args.size
@@ -58,21 +63,25 @@ def parse_submission_arguments(workload: str) -> Tuple[int, InstanceParams, int,
     clrtxt = args.clrtxt
     remote_be = args.remote
 
+    # adding model and dataset to the arguments
+    model_name = args.model.lower()
+    dataset_name = args.dataset.lower()
+
     # Use params.py to get instance parameters
     params = InstanceParams(size)
-    return size, params, seed, num_runs, clrtxt, remote_be
+    return size, params, seed, num_runs, clrtxt, remote_be, model_name, dataset_name
 
 def ensure_directories(rootdir: Path):
     """ Check that the current directory has sub-directories
-    'harness', 'scripts', and 'submission' """
-    required_dirs = ['harness', 'scripts', 'submission']
+    'harness', 'scripts', and 'submissions' """
+    required_dirs = ['harness', 'scripts', 'submissions']
     for dir_name in required_dirs:
         if not (rootdir / dir_name).exists():
             print(f"Error: Required directory '{dir_name}'",
                   f"not found in {rootdir}")
             sys.exit(1)
 
-def build_submission(script_dir: Path, remote_be: bool):
+def build_submission(script_dir: Path, model_name: str, remote_be: bool):
     """
     Build the submission, including pulling dependencies as neeed
     """
@@ -82,7 +91,7 @@ def build_submission(script_dir: Path, remote_be: bool):
         # Clone and build OpenFHE if needed
         subprocess.run([script_dir/"get_openfhe.sh"], check=True)
         # CMake build of the submission itself
-        subprocess.run([script_dir/"build_task.sh", "./submission"], check=True)
+        subprocess.run([script_dir/"build_task.sh", f"./submissions/{model_name}"], check=True)
 
 class TextFormat:
     BOLD = "\033[1m"
@@ -90,7 +99,6 @@ class TextFormat:
     YELLOW = "\033[33m"
     BLUE = "\033[34m"
     RED = "\033[31m"
-    PURPLE = "\033[35m"
     RESET = "\033[0m"
 
 def log_step(step_num: int, step_name: str, start: bool = False):
@@ -145,36 +153,24 @@ def human_readable_size(n: int):
         n /= 1024
     return f"{n:.1f}P"
 
-def save_run(path: Path, submission_report_path: Path, size: int = 0):
+def save_run(path: Path, size: int = 0):
     global _timestamps
     global _timestampsStr
     global _bandwidth
     global _model_quality
 
-    _timestampsStr["Total"] = f"{round(sum(_timestamps.values()), 4)}s"
-    _timestampsRemote = {}
-    if submission_report_path.exists():
-        with open(submission_report_path, "r") as f:
-            server_reported_times = json.load(f)
-            print(f"{TextFormat.GREEN}         [submission] Server reported steps: {server_reported_times}{TextFormat.RESET}")
-            for step_name, time_str in server_reported_times.items():
-                _timestampsRemote[step_name] = f"{time_str}s"
-                print(f"{TextFormat.PURPLE}         [submission] {step_name}: {time_str}s{TextFormat.RESET}")
-    else:
-        print(f"{TextFormat.PURPLE}         [harness] Note: Submitters can specify Server reported steps file at {submission_report_path}{TextFormat.RESET}")
-
     if size == 0:
         json.dump({
-            "Timing": _timestampsStr,
-            "Bandwidth": _bandwidth,
-            "Server Reported": _timestampsRemote,
+            "total_latency_ms": round(sum(_timestamps.values()), 4),
+            "per_stage": _timestampsStr,
+            "bandwidth": _bandwidth,
         }, open(path,"w"), indent=2)
     else:
         json.dump({
-            "Timing": _timestampsStr,
-            "Bandwidth": _bandwidth,
-            "Quality" : _model_quality,
-            "Server Reported": _timestampsRemote,
+            "total_latency_ms": round(sum(_timestamps.values()), 4),
+            "per_stage": _timestampsStr,
+            "bandwidth": _bandwidth,
+            "mnist_model_quality" : _model_quality,
         }, open(path,"w"), indent=2)
 
     print("[total latency]", f"{round(sum(_timestamps.values()), 4)}s")

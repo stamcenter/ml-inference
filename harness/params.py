@@ -41,7 +41,7 @@ class InstanceParams:
         if size > LARGE:
             raise ValueError("Invalid instance size")
         
-        batch_size =              [1, 100, 1000, 10000]
+        batch_size =              [1, 15, 1000, 10000]
 
         self.batch_size = batch_size[size]
 
@@ -54,8 +54,10 @@ class InstanceParams:
         """Return the submission directory of this repository."""
         return self.rootdir
 
-    def datadir(self):
+    def datadir(self, dataset=None):
         """Return the dataset directory path."""
+        # if dataset:
+        #     return self.rootdir / "datasets" / dataset / instance_name(self.size)
         return self.rootdir / "datasets" / instance_name(self.size)
     
     def dataset_intermediate_dir(self):

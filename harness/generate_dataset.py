@@ -25,13 +25,17 @@ def main():
     Usage:  python3 generate_dataset.py  <output_file>
     """
 
-    if len(sys.argv) != 2:
-        sys.exit("Usage: generate_dataset.py <output_file>")
+    if len(sys.argv) != 3:
+        sys.exit("Usage: generate_dataset.py <output_file> [dataset_name]")
 
     DATASET_PATH = Path(sys.argv[1])
+    DATASET_NAME = sys.argv[2]
     DATASET_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-    mnist.export_test_data(output_file=DATASET_PATH, num_samples=10000, seed=None)
+    if DATASET_NAME == "mnist":
+        mnist.export_test_data(output_file=DATASET_PATH, num_samples=10000, seed=None)
+    else:
+        raise ValueError(f"Unsupported dataset name: {DATASET_NAME}")
 
 
 if __name__ == "__main__":

@@ -59,6 +59,15 @@ datasets/*
 harness/mnist/data/*
 harness/mnist/mnist_ffnn_model.pth
 
+
+
+# Temporary files for loading CIFAR-10 data and model training
+harness/cifar10/data/*
+harness/cifar10/data/
+harness/cifar10/cifar10_resnet20.pth
+harness/cifar10/cifar10_resnet20_model.pth
+
+
 # Remote-submission artifacts
 ek.lpk
 submission_remote/__pycache__/
