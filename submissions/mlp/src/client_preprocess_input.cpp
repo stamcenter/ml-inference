@@ -40,7 +40,6 @@ int main(int argc, char* argv[]){
     }
 
     if (dataset.size() != prms.getBatchSize()) {
-        std::cerr << "Error: Dataset size (" << dataset.size() << ") does not match instance size (" << prms.getBatchSize() << ")" << std::endl;
         throw std::runtime_error("Dataset size does not match instance size");
     }
 
