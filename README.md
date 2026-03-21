@@ -6,7 +6,7 @@ The harness also supports an optional *remote backend execution mode* under the 
 
 Submitters should clone this repository and add their content as a subdirectory within the `submissions` directory, or replaced the content of `submission_remote` subdirectory by their own implementation.
 They also may need to changes or replace the script `scripts/build_task.sh` to account for dependencies and build environment for their submission.
-Submitters are expected to document any changes made to the model architecture `harness/mnist/mnist.py` in the `submission/README.md` file. Submitters have the option to generate an `io/server_reported_steps.json` file, which contains fine grained metrics reported by the server in addition to the metrics reported by the harness.
+Submitters are expected to document any changes made to the model architecture `harness/mnist/mnist.py` in the `submissions/[--model]/README.md` file. Submitters have the option to generate an `io/server_reported_steps.json` file, which contains fine grained metrics reported by the server in addition to the metrics reported by the harness.
 
 ## Execution Modes
 
@@ -21,7 +21,7 @@ All steps are executed on a single machine:
 - Homomorphic inference
 - Decryption and postprocessing
 
-This corresponds to the reference submission in `submissions/`.
+This corresponds to every reference submission in `submissions/`.
 
 ### Remote Backend Execution (Optional)
 
@@ -77,8 +77,8 @@ options:
   --seed SEED          Random seed for dataset and query generation
   --clrtxt CLRTXT      Specify with 1 if to rerun the cleartext computation
   --remote             Specify if to run in remote-backend mode
-  --dataset            Specify the dataset to be used (default: mnist)
-  --model              Specify the model to be used (default: mlp)
+  --dataset DATASET    Specify the dataset to be used (default: mnist)
+  --model   MODEL      Specify the model to be used (default: mlp)
 ```
 
 The single instance runs the inference for a single input and verifies the correctness of the obtained label compared to the ground-truth label.
