@@ -31,15 +31,16 @@ def main():
 
     PIXELS_PATH.parent.mkdir(parents=True, exist_ok=True)
     num_samples = params.get_batch_size()
-    if dataset_name == "mnist":
-        mnist.export_test_pixels_labels(
-                data_dir = params.datadir(), 
-                pixels_file=PIXELS_PATH, 
-                labels_file=LABELS_PATH, 
-                num_samples=num_samples, 
-                seed=seed)
-    else:
-        raise ValueError(f"Unsupported dataset name: {dataset_name}")
+    match dataset_name:
+        case "mnist": 
+            return mnist.export_test_pixels_labels(
+                    data_dir = params.datadir(), 
+                    pixels_file=PIXELS_PATH, 
+                    labels_file=LABELS_PATH, 
+                    num_samples=num_samples, 
+                    seed=seed)
+        case _:
+            raise ValueError(f"Unsupported dataset name: {dataset_name}")
 
 if __name__ == "__main__":
     main()

@@ -170,7 +170,7 @@ def save_run(path: Path, size: int = 0):
             "total_latency_ms": round(sum(_timestamps.values()), 4),
             "per_stage": _timestampsStr,
             "bandwidth": _bandwidth,
-            "mnist_model_quality" : _model_quality,
+            "model_quality" : _model_quality,
         }, open(path,"w"), indent=2)
 
     print("[total latency]", f"{round(sum(_timestamps.values()), 4)}s")

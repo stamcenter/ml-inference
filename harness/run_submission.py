@@ -36,7 +36,7 @@ def main():
     utils.ensure_directories(params.rootdir)
 
     # The harness scripts are in the 'harness' directory,
-    # the submission code is either in submission or submission_remote
+    # the submission code is either in submissions or submission_remote
     harness_dir = params.rootdir/"harness"
     exec_dir = params.rootdir/ ("submission_remote" if remote_be else "submissions")
     

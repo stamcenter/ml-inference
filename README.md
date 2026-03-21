@@ -1,10 +1,10 @@
 # FHE Benchmarking Suite - ML Inference
 This repository contains the harness for the ML-inference workload of the FHE benchmarking suite of [HomomorphicEncryption.org](https://www.HomomorphicEncryption.org).
 The harness currently supports mnist model benchmarking as specified in `harness/mnist` directory.
-The `main` branch contains a reference implementation of this workload, under the `submission` subdirectory.
+The `main` branch contains a reference implementation of this workload, under the `submissions` subdirectory.
 The harness also supports an optional *remote backend execution mode* under the `submission_remote` subdirectory, where the homomorphic evaluation is executed on a remote backend.
 
-Submitters need to clone this repository, replace the content of the `submission` or `submission_remote` subdirectory by their own implementation.
+Submitters should clone this repository and add their content as a subdirectory within the `submissions` directory, or replaced the content of `submission_remote` subdirectory by their own implementation.
 They also may need to changes or replace the script `scripts/build_task.sh` to account for dependencies and build environment for their submission.
 Submitters are expected to document any changes made to the model architecture `harness/mnist/mnist.py` in the `submission/README.md` file. Submitters have the option to generate an `io/server_reported_steps.json` file, which contains fine grained metrics reported by the server in addition to the metrics reported by the harness.
 
@@ -21,7 +21,7 @@ All steps are executed on a single machine:
 - Homomorphic inference
 - Decryption and postprocessing
 
-This corresponds to the reference submission in `submission/`.
+This corresponds to the reference submission in `submissions/`.
 
 ### Remote Backend Execution (Optional)
 
@@ -64,7 +64,7 @@ The harness script `harness/run_submission.py` will attempt to build the submiss
 
 ```console
 $ python3 harness/run_submission.py -h
-usage: run_submission.py [-h] [--num_runs NUM_RUNS] [--seed SEED] [--clrtxt CLRTXT] [--remote] {0,1,2,3}
+usage: run_submission.py [-h] [--num_runs NUM_RUNS] [--seed SEED] [--clrtxt CLRTXT] [--remote] {0,1,2,3} [--dataset] {mnist} [--model] {mlp}
 
 Run ML Inference FHE benchmark.
 
@@ -77,12 +77,14 @@ options:
   --seed SEED          Random seed for dataset and query generation
   --clrtxt CLRTXT      Specify with 1 if to rerun the cleartext computation
   --remote             Specify if to run in remote-backend mode
+  --dataset            Specify the dataset to be used (default: mnist)
+  --model              Specify the model to be used (default: mlp)
 ```
 
 The single instance runs the inference for a single input and verifies the correctness of the obtained label compared to the ground-truth label.
 
 ```console
-$ python3 ./harness/run_submission.py 0 --seed 3 --num_runs 2
+$ python3 ./harness/run_submission.py 0 --seed 3 --num_runs 2 --dataset mnist --model mlp
  
 
 [harness] Running submission for single inference
@@ -282,19 +284,20 @@ The directory structure of this reposiroty is as follows:
 ├─ io/           # This directory is used for client<->server communication
 ├─ measurements/ # Holds logs with performance numbers
 ├─ scripts/      # Helper scripts for dependencies and build system
-└─ submission/   # This is where the workload implementation lives
-    ├─ README.md   # Submission documentation (mandatory)
-    ├─ LICENSE.md  # Optional software license (if different from Apache v2)
-    └─ [...]
+└─ submissions/   # This is where the workload implementation lives
+    └─ [--model]/
+      ├─ README.md   # Submission documentation (mandatory)
+      ├─ LICENSE.md  # Optional software license (if different from Apache v2)
+      └─ [...]
 └─ submission_remote/  # This is where the remote-backend workload implementation lives
     └─ [...]
 ```
-Submitters must overwrite the contents of the `scripts` and `submissions`
+Submitters must overwrite the contents of the `scripts` and add a subdirectory to the `submissions`
 subdirectories.
 
 ## Description of stages
 
-A submitter can edit any of the `client_*` / `server_*` sources in `/submission`. 
+A submitter can copy and edit any of the `client_*` / `server_*` sources in `/submissions/mlp`. 
 Moreover, for the particular parameters related to a workload, the submitter can modify the params files.
 If the current description of the files are inaccurate, the stage names in `run_submission` can be also 
 modified.
