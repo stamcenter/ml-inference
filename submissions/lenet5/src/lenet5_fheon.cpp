@@ -56,7 +56,7 @@ Ctext lenet5(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &cont
   vector<int> imgWidth = {28, 24, 12, 8, 4};
   vector<int> channels = {1, 6, 16, 256, 120, 84, 10};
 
-  int reluScale = 10;
+  int reluScale = 15;
   int polyDegree = 119;
   vector<int> dataSizeVec;
   dataSizeVec.push_back((channels[1] * pow(imgWidth[1], 2)));

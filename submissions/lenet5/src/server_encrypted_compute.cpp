@@ -63,9 +63,9 @@ int main(int argc, char *argv[]) {
     // auto ctxtResult = lenet5(fheonHEController, cc, ctxt);
     auto end = std::chrono::high_resolution_clock::now();
 
-	  ofstream outFile;
-    outFile.open("./../results/lenet5/fhepredictions.txt", ios_base::app);
-    fheonHEController.read_inferenced_label_with_key(sk, ctxtResult, 10, outFile);
+	  // ofstream outFile;
+    // outFile.open("./../results/lenet5/fhepredictions.txt", ios_base::app);
+    // fheonHEController.read_inferenced_label_with_key(sk, ctxtResult, 10, outFile);
 
 
     auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);
