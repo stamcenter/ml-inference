@@ -50,7 +50,7 @@ The LeNet-5 model is configured to satisfy the **128-bit security level** using 
 
 ### Optimized Performance
 
-The `client_key_generation` utilities also provide equivalent ring dimensions and slot counts that provide a smaller security level but perform 10x faster.
+The `client_key_generation` utilities also provide equivalent ring dimensions and slot counts that provide a smaller security level but boost perform by atelast 10x.
 These configuration parameters are selected to significantly improve computation speed and reduce memory overhead, consistent with the performance benchmarks presented in the FHEON research paper.
 
 ---
