@@ -4,6 +4,7 @@ io/
 third_party/
 harness/__pycache__/
 harness/mnist/__pycache__/
+harness/cifar10/__pycache__/
 
 # Prerequisites
 *.d
@@ -68,7 +69,7 @@ harness/mnist/mnist_ffnn_model.pth
 
 # Temporary files for loading CIFAR-10 data and model training
 harness/cifar10/data/*
-harness/cifar10/data/
+harness/cifar10/data/.gitkeep
 harness/cifar10/cifar10_resnet20.pth
 harness/cifar10/cifar10_resnet20_model.pth
 
