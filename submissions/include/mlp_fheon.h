@@ -30,7 +30,7 @@ struct MLPConfig {
   int numSlots = 1 << 10;
   int dcrtBits = 32;
   int firstMod = 36;
-  int modelDepth = 8;
+  int modelDepth = 10;
   int digitSize = 3;
 };
 

@@ -43,8 +43,7 @@ Ctext fc_layer_block(FHEONHEController &fheonHEController, FHEONANNController &f
 Ctext mlp(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &context, Ctext &encryptedInput) {
 
 	int rotPositions = 16;
-	int reluScale = 100;
-	int polyDegree = 59;
+	int polyDegree = 119;
     vector<int> channels = {784, 128, 64, 10};
 
     FHEONANNController fheonANNController(context);
@@ -52,12 +51,13 @@ Ctext mlp(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &context
     cout << "         [server] FC1 layer" << endl;
     auto mlpData = fc_layer_block(fheonHEController, fheonANNController, "fc1", encryptedInput, channels[0], channels[1], rotPositions);
     
-     reluScale = 100; 
+    int reluScale = 100; 
     mlpData = fheonANNController.he_relu(mlpData, reluScale, channels[1], polyDegree);
     
     cout << "         [server] FC2 layer" << endl;
     mlpData = fc_layer_block(fheonHEController, fheonANNController, "fc2", mlpData, channels[1], channels[2], rotPositions);
-    reluScale = 200;
+   
+    reluScale = 150;
     mlpData = fheonANNController.he_relu(mlpData, reluScale, channels[2], polyDegree);
     
     cout << "         [server] FC3 layer" << endl;
