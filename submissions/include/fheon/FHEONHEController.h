@@ -112,6 +112,7 @@ public:
   void clear_context(int bootstrapping_key_slots);
   void clear_bootstrapping_and_rotation_keys(int bootstrap_num_slots);
   Ctext bootstrap_function(Ctext &encryptedInput, int level = 2);
+  vector<Ctext> batch_bootstrap_function(vector<Ctext>& encryptedInputs, int inputChannels, int encode_level = 2);
 
   /*** Encrypt and decrypt packed ciphertext. used to encrypt image and decrpt
    * the results ****/
@@ -141,6 +142,20 @@ public:
   int read_minmax(Ctext encryptedInput, int noElements);
   int read_scaling_value(Ctext encryptedInput, int noElements);
 
+  vector<int> read_batch_inferenced_label(Ctext inferencedData, int batchSize,
+                                          int numClasses, ofstream &outFile,
+                                          int baseIndex);
+  vector<int> read_batch_inferenced_label_multiple_outputs(vector<Ctext> inferencedData,
+                                                           int batchSize, int numClasses,
+                                                           ofstream &outFile, int baseIndex);
+  vector<int> read_batch_scaling_values(vector<Ctext> &encryptedInputs,
+                                        int inputChannels, int num_slots);
+  int read_batch_minmax(vector<Ctext> &encryptedInputs, int inputChannels,
+                        int num_slots);
+  int decrypt_batch_data(vector<Ctext> &encryptedInputs, int inputChannels,
+                         int num_slots);
+  void decrypt_and_print(Ctext encryptedpackedVector, int num_slots);
+
   Ptext decrypt_data_with_key(PrivateKey<DCRTPoly> &sk,
                               Ctext encryptedinputData, int cols);
   int read_scaling_value_with_key(PrivateKey<DCRTPoly> &sk,
@@ -153,10 +168,13 @@ public:
                             vector<int> rotations_positions, ofstream &key_file, bool sum_keys = false);
   void harness_clear_bootstrapping_and_rotation_keys(CryptoContext<DCRTPoly> &crypto_context);
 
-  void read_evaluation_keys(CryptoContext<DCRTPoly> &crypto_context, string &pubkey_dir, 
-                          string &mult_file, string &rot_file);
-  void read_evaluation_keys(CryptoContext<DCRTPoly> &crypto_context, string &pubkey_dir, string &mult_file,
-                                    string &rot_file, string &sk_path);
+  void read_evaluation_keys(CryptoContext<DCRTPoly> &crypto_context, const string &pubkey_dir,
+                            const string &mult_file, const string &rot_file);
+  void read_evaluation_keys(CryptoContext<DCRTPoly> &crypto_context, const string &pubkey_dir,
+                            const string &mult_file, const string &rot_file, const string &sk_path);
+
+  void harness_generate_rotation_keys(CryptoContext<DCRTPoly> &crypto_context, PrivateKey<DCRTPoly> &sk,
+                            vector<int> rotations_positions, ofstream &key_file, bool sum_key);
 
 private:
   KeyPair<DCRTPoly> keyPair;
