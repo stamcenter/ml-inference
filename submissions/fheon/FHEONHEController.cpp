@@ -1311,12 +1311,12 @@ int FHEONHEController::read_scaling_value_with_key(PrivateKey<DCRTPoly> &sk,
     auto decryptedValue = decrypt_data_with_key(sk, inferencedData, num_slots);
     auto decryptedVector = decryptedValue->GetRealPackedValue();
 
-    cout << endl
-        << "--------------------------------------------------- " << endl
-        << endl;
-    cout << "Decrypted Vector for Scaling Value: " << decryptedVector << endl;
-    cout << endl
-        << "--------------------------------------------------- " << endl;
+    // cout << endl
+    //     << "--------------------------------------------------- " << endl
+    //     << endl;
+    // cout << "Decrypted Vector for Scaling Value: " << decryptedVector << endl;
+    // cout << endl
+    //     << "--------------------------------------------------- " << endl;
 
     double maxAbsValue =
         *std::max_element(decryptedVector.begin(), decryptedVector.end(),

@@ -56,10 +56,11 @@ int main(int argc, char *argv[]) {
 	fheonHEController.read_evaluation_keys(cc, pubkey_dir, mk_file, "rk.bin");
 
     auto start = std::chrono::high_resolution_clock::now();
-    auto ctxtResult = mlp(fheonHEController, cc, ctxt);
+    // auto ctxtResult = mlp(fheonHEController, cc, ctxt);
+	auto ctxtResult = mlp(fheonHEController, cc, ctxt, sk);
     auto end = std::chrono::high_resolution_clock::now();
 
-	  ofstream outFile;
+	ofstream outFile;
     outFile.open("./../results/mlp/fhepredictions.txt", ios_base::app);
     fheonHEController.read_inferenced_label_with_key(sk, ctxtResult, 10, outFile);
 
