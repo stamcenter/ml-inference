@@ -40,32 +40,22 @@ using namespace lbcrypto;
 Ctext fc_layer_block(FHEONHEController &fheonHEController, FHEONANNController &fheonANNController, string layer, 
                         Ctext &encryptedInput, int inputSize, int outputSize, int rotPositions);
 
-Ctext mlp(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &context, Ctext &encryptedInput, PrivateKey<DCRTPoly>& sk) {
-// Ctext mlp(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &context, Ctext &encryptedInput) {
+// Ctext mlp(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &context, Ctext &encryptedInput, PrivateKey<DCRTPoly>& sk) {
+Ctext mlp(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &context, Ctext &encryptedInput) {
 
 	int rotPositions = 16;
-	int polyDegree = 119;
+	int polyDegree = 59;
     vector<int> channels = {784, 128, 64, 10};
 
     FHEONANNController fheonANNController(context);
-
-    // cout << "         [server] FC1 layer" << endl;
     auto mlpData = fc_layer_block(fheonHEController, fheonANNController, "fc1", encryptedInput, channels[0], channels[1], rotPositions);
     
-    int reluScale = 175; 
-    // reluScale = fheonHEController.read_scaling_value_with_key(sk, mlpData, channels[1]); 
-    // cout << "         [server] ReLU1 layer " << reluScale << endl;
+    int reluScale = 10; 
     mlpData = fheonANNController.he_relu(mlpData, reluScale, channels[1], polyDegree);
-    
-    // cout << "         [server] FC2 layer" << endl;
     mlpData = fc_layer_block(fheonHEController, fheonANNController, "fc2", mlpData, channels[1], channels[2], rotPositions);
    
-    reluScale = 300;
-    // reluScale = fheonHEController.read_scaling_value_with_key(sk, mlpData, channels[2]);
-    // cout << "         [server] ReLU2 with scale " << reluScale << endl;
+    reluScale = 15;
     mlpData = fheonANNController.he_relu(mlpData, reluScale, channels[2], polyDegree);
-    
-    // cout << "         [server] FC3 layer" << endl;
     mlpData = fc_layer_block(fheonHEController, fheonANNController, "fc3", mlpData, channels[2], channels[3], rotPositions);
 
     return mlpData;

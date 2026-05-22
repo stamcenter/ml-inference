@@ -30,13 +30,13 @@ struct MLPConfig {
   int numSlots = 1 << 10;
   int dcrtBits = 26;
   int firstMod = 30;
-  int modelDepth = 7;
+  int modelDepth = 6;
   int digitSize = 3;
 };
 
 inline MLPConfig config;
 
-// Ctext mlp(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &v0, Ctext &v1);
-Ctext mlp(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &context, Ctext &encryptedInput, PrivateKey<DCRTPoly>& sk);
+Ctext mlp(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &v0, Ctext &v1);
+// Ctext mlp(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &context, Ctext &encryptedInput, PrivateKey<DCRTPoly>& sk);
 
 #endif // ifndef MLP_FHEON_H_
