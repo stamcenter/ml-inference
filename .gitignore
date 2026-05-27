@@ -2,9 +2,9 @@
 */build/
 io/
 third_party/
-measurements/
 harness/__pycache__/
 harness/mnist/__pycache__/
+harness/cifar10/__pycache__/
 
 # Prerequisites
 *.d
@@ -46,10 +46,16 @@ harness/mnist/__pycache__/
 .DS_Store
 .idea/
 .vscode/
+.venv/
 
 # Virtual environments
 virtualenv
 bmenv
+
+# Virtual environments
+virtualenv
+bmenv
+
 
 # Datasets, queries and results since we generate them on the fly
 datasets/*
@@ -60,6 +66,17 @@ datasets/*
 harness/mnist/data/*
 harness/mnist/mnist_ffnn_model.pth
 
+**/build/
+
+# Temporary files for loading CIFAR-10 data and model training
+harness/cifar10/data/*
+harness/cifar10/data/
+harness/cifar10/cifar10_resnet20.pth
+harness/cifar10/cifar10_resnet20_model.pth
+
+
 # Remote-submission artifacts
 ek.lpk
 submission_remote/__pycache__/
+
+

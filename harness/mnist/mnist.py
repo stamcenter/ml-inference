@@ -24,22 +24,25 @@ MODEL_PATH = './harness/mnist/mnist_ffnn_model.pth'
 RNG_SEED = 42 # for reproducibility
 DATA_DIR='./harness/mnist/data'
 
-# Define command line flags
-flags.DEFINE_string('model_path', MODEL_PATH, 'Path to save/load the model')
-flags.DEFINE_integer('batch_size', BATCH_SIZE, 'Batch size for training and evaluation')
-flags.DEFINE_float('learning_rate', LEARNING_RATE, 'Learning rate for optimizer')
-flags.DEFINE_integer('epochs', EPOCHS, 'Number of training epochs')
-flags.DEFINE_string('data_dir', './harness/mnist/data', 'Directory to store/load MNIST dataset')
-flags.DEFINE_boolean('no_cuda', False, 'Disable CUDA even if available')
-flags.DEFINE_integer('seed', RNG_SEED, 'Random seed for reproducibility')
+# Define command line flags safely to allow importing this module from other apps
+try:
+    flags.DEFINE_string('model_path', MODEL_PATH, 'Path to save/load the model')
+    flags.DEFINE_integer('batch_size', BATCH_SIZE, 'Batch size for training and evaluation')
+    flags.DEFINE_float('learning_rate', LEARNING_RATE, 'Learning rate for optimizer')
+    flags.DEFINE_integer('epochs', EPOCHS, 'Number of training epochs')
+    flags.DEFINE_string('data_dir', './harness/mnist/data', 'Directory to store/load MNIST dataset')
+    flags.DEFINE_boolean('no_cuda', False, 'Disable CUDA even if available')
+    flags.DEFINE_integer('seed', RNG_SEED, 'Random seed for reproducibility')
 
-flags.DEFINE_boolean('export_test_data', False, 'Export test dataset to file and exit')
-flags.DEFINE_string('test_data_output', 'mnist_test.txt', 'Output file for exported test data')
-flags.DEFINE_integer('num_samples', -1, 'Number of samples to export (-1 for all samples)')
+    flags.DEFINE_boolean('export_test_data', False, 'Export test dataset to file and exit')
+    flags.DEFINE_string('test_data_output', 'mnist_test.txt', 'Output file for exported test data')
+    flags.DEFINE_integer('num_samples', -1, 'Number of samples to export (-1 for all samples)')
 
-flags.DEFINE_boolean('predict', False, 'Run prediction on pixels file and exit')
-flags.DEFINE_string('pixels_file', '', 'Path to file containing pixel data for prediction')
-flags.DEFINE_string('predictions_file', 'predictions.txt', 'Output file for predictions')
+    flags.DEFINE_boolean('predict', False, 'Run prediction on pixels file and exit')
+    flags.DEFINE_string('pixels_file', '', 'Path to file containing pixel data for prediction')
+    flags.DEFINE_string('predictions_file', 'predictions.txt', 'Output file for predictions')
+except flags.DuplicateFlagError:
+    pass
 
 # Ensure reproducibility
 torch.manual_seed(RNG_SEED)
