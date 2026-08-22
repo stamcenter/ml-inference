@@ -41,7 +41,7 @@ def main():
     exec_dir = params.rootdir/ ("submission_remote" if remote_be else "submissions")
     
     # check whether the exec_dir contains a subdirectory equals to the model name. 
-    model_exec_dir = exec_dir / model_name
+    model_exec_dir = exec_dir / dataset_name
     if not model_exec_dir.is_dir():
         print(f"[harness]: Model directory {model_exec_dir} not found.")
         sys.exit(1)
@@ -53,7 +53,8 @@ def main():
         sys.exit(1)
 
     # Build the submission if not built already
-    utils.build_submission(params.rootdir/"scripts", model_name, remote_be)
+    print(f"[harness] Using {model_name} model from {dataset_name} with {dataset_name} dataset")
+    utils.build_submission(params.rootdir/"scripts", dataset_name, remote_be)
 
     # Remove and re-create IO directory
     io_dir = params.iodir()
@@ -69,7 +70,7 @@ def main():
         str(dataset_name),
     )
     utils.run_exe_or_python(harness_dir, "generate_dataset", *dataset_args)
-    utils.log_step(1, f"Harness: {dataset_name.upper()} Test dataset generation")
+    utils.log_step(1, "Test dataset generation")
 
     # 2.1 Communication: Get cryptographic context
     if remote_be:
@@ -83,9 +84,9 @@ def main():
     #   handle its own prg needs. It means that even if called with the same
     #   seed multiple times, the keys and ciphertexts will still be different.
     utils.run_exe_or_python(model_exec_dir, "client_key_generation", str(size))
-    utils.log_step(2.2 , "Client: Key Generation")
+    utils.log_step(2.2 , "Key Generation")
     # Report size of keys and encrypted data
-    utils.log_size(io_dir / "public_keys", "Client: Public and evaluation keys")
+    utils.log_size(io_dir / "public_keys", "Public and evaluation keys")
 
     # 2.3 Communication: Upload evaluation key
     if remote_be:
@@ -94,46 +95,45 @@ def main():
 
     # 3. Server-side: Preprocess the (encrypted) dataset using exec_dir/server_preprocess_model
     utils.run_exe_or_python(model_exec_dir, "server_preprocess_model")
-    utils.log_step(3, "Server: (Encrypted) model preprocessing")
+    utils.log_step(3, "Encrypted model preprocessing")
 
     # Run steps 4-10 multiple times if requested
     for run in range(num_runs):
-        run_path = params.measuredir() / f"results-{run+1}.json"
         if num_runs > 1:
             print(f"\n         [harness] Run {run+1} of {num_runs}")
 
         # 4. Client-side: Generate a new random input using harness/generate_input.py
-        cmd_args = [str(size),]
+        cmd_args = [str(size), "--dataset", dataset_name]
         if seed is not None:
             # Use a different seed for each run but derived from the base seed
             rng = np.random.default_rng(seed)
             genqry_seed = rng.integers(0,0x7fffffff)
             cmd_args.extend(["--seed", str(genqry_seed)])
         utils.run_exe_or_python(harness_dir, "generate_input", *cmd_args)
-        utils.log_step(4, f"Harness: Input generation for {dataset_name.upper()}")
+        utils.log_step(4, "Input generation")
 
         # 5. Client-side: Preprocess input using exec_dir/client_preprocess_input
         utils.run_exe_or_python(model_exec_dir, "client_preprocess_input", str(size))
-        utils.log_step(5, "Client: Input preprocessing")
+        utils.log_step(5, "Input preprocessing")
 
         # 6. Client-side: Encrypt the input
         utils.run_exe_or_python(model_exec_dir, "client_encode_encrypt_input", str(size))
-        utils.log_step(6, "Client: Input encryption")
-        utils.log_size(io_dir / "ciphertexts_upload", "Client: Encrypted input")
+        utils.log_step(6, "Input encryption")
+        utils.log_size(io_dir / "ciphertexts_upload", "Encrypted input")
 
         # 7. Server side: Run the encrypted processing run exec_dir/server_encrypted_compute
         utils.run_exe_or_python(model_exec_dir, "server_encrypted_compute", str(size))
-        utils.log_step(7, "Server: Encrypted ML Inference computation")
+        utils.log_step(7, "Encrypted computation")
         # Report size of encrypted results
-        utils.log_size(io_dir / "ciphertexts_download", "Client: Encrypted results")
+        utils.log_size(io_dir / "ciphertexts_download", "Encrypted results")
 
         # 8. Client-side: decrypt
         utils.run_exe_or_python(model_exec_dir, "client_decrypt_decode", str(size))
-        utils.log_step(8, "Client: Result decryption")
+        utils.log_step(8, "Result decryption")
 
         # 9. Client-side: post-process
         utils.run_exe_or_python(model_exec_dir, "client_postprocess", str(size))
-        utils.log_step(9, "Client: Result postprocessing")
+        utils.log_step(9, "Result postprocessing")
 
         # 10 Verify the result for single inference or calculate quality for batch inference.
         encrypted_model_preds = params.get_encrypted_model_predictions_file()
@@ -149,7 +149,7 @@ def main():
             # 10.1 Run the cleartext computation in cleartext_impl.py
             test_pixels = params.get_test_input_file()
             harness_model_preds = params.get_harness_model_predictions_file()
-            utils.run_exe_or_python(harness_dir, "cleartext_impl", str(test_pixels), str(harness_model_preds))
+            utils.run_exe_or_python(harness_dir, "cleartext_impl", str(test_pixels), str(harness_model_preds), str(dataset_name))
             utils.log_step(10.1, "Harness: Run inference for harness plaintext model")
 
             # 10.2 Run the quality calculation
@@ -158,8 +158,10 @@ def main():
             utils.log_step(10.2, "Harness: Run quality check")
 
         # 11. Store measurements
+        run_path = params.measuredir() / f"results-{run+1}.json"
         run_path.parent.mkdir(parents=True, exist_ok=True)
-        utils.save_run(run_path, size)
+        submission_report_path = io_dir / "server_reported_steps.json"
+        utils.save_run(run_path, submission_report_path, model_name, dataset_name, size)
 
     print(f"\nAll steps completed for the {instance_name(size)} inference!")
 

@@ -5,6 +5,8 @@ third_party/
 harness/__pycache__/
 harness/mnist/__pycache__/
 harness/cifar10/__pycache__/
+**/__pycache__/
+
 
 # Prerequisites
 *.d
@@ -77,5 +79,4 @@ harness/cifar10/cifar10_resnet20_model.pth
 # Remote-submission artifacts
 ek.lpk
 submission_remote/__pycache__/
-
-
+submission_remote/mnist/__pycache__/

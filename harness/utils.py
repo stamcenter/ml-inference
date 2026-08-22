@@ -50,7 +50,7 @@ def parse_submission_arguments(workload: str) -> Tuple[int, InstanceParams, int,
                         help='Specify with 1 if to rerun the cleartext computation')
     parser.add_argument('--remote', action='store_true',
                         help='Run example submission in remote backend mode')
-    parser.add_argument('--model', default='mlp', type=str,
+    parser.add_argument('--model', default=None, type=str,
                         help='Pick a model run (default: mlp)')
     parser.add_argument('--dataset', default='mnist', type=str,
                         help='Pick a dataset run (default: mnist)')
@@ -64,8 +64,19 @@ def parse_submission_arguments(workload: str) -> Tuple[int, InstanceParams, int,
     remote_be = args.remote
 
     # adding model and dataset to the arguments
-    model_name = args.model.lower()
     dataset_name = args.dataset.lower()
+
+    # Dataset-specific model defaults
+    dataset_model_defaults = {
+        "mnist": "mlp",
+        "cifar10": "resnet20",
+    }
+    
+    # Model selection: use provided model or dataset-specific default
+    if args.model is None:
+        model_name = dataset_model_defaults.get(dataset_name, "mlp")
+    else:
+        model_name = args.model.lower()
 
     # Use params.py to get instance parameters
     params = InstanceParams(size)
@@ -81,23 +92,24 @@ def ensure_directories(rootdir: Path):
                   f"not found in {rootdir}")
             sys.exit(1)
 
-def build_submission(script_dir: Path, model_name: str, remote_be: bool):
+def build_submission(script_dir: Path, dataset_name: str, remote_be: bool):
     """
     Build the submission, including pulling dependencies as neeed
     """
     if remote_be:
-        subprocess.run(["pip", "install", "-r", f"./submission_remote/{model_name}/requirements.txt"], check=True)
+        subprocess.run(["pip", "install", "-r", f"./submission_remote/{dataset_name}/requirements.txt"], check=True)
     else:
         # Clone and build OpenFHE if needed
         subprocess.run([script_dir/"get_openfhe.sh"], check=True)
         # CMake build of the submission itself
-        subprocess.run([script_dir/"build_task.sh", f"./submissions/{model_name}"], check=True)
+        subprocess.run([script_dir/"build_task.sh", f"./submissions/{dataset_name}"], check=True)
 
 class TextFormat:
     BOLD = "\033[1m"
     GREEN = "\033[32m"
     YELLOW = "\033[33m"
     BLUE = "\033[34m"
+    PURPLE = "\033[35m"
     RED = "\033[31m"
     RESET = "\033[0m"
 
@@ -153,25 +165,41 @@ def human_readable_size(n: int):
         n /= 1024
     return f"{n:.1f}P"
 
-def save_run(path: Path, size: int = 0):
+def save_run(path: Path, submission_report_path: Path, model_name: str, dataset_name: str, size: int = 0):
     global _timestamps
     global _timestampsStr
     global _bandwidth
     global _model_quality
 
+    _timestampsStr["Total"] = f"{round(sum(_timestamps.values()), 4)}s"
+    _timestampsReported = {}
+    if submission_report_path.exists():
+        with open(submission_report_path, "r") as f:
+            server_reported_times = json.load(f)
+            print(f"{TextFormat.GREEN}         [submission] Server reported steps: {server_reported_times}{TextFormat.RESET}")
+            for step_name, time_str in server_reported_times.items():
+                _timestampsReported[step_name] = f"{time_str}s"
+                print(f"{TextFormat.PURPLE}         [submission] {step_name}: {time_str}s{TextFormat.RESET}")
+    else:
+        print(f"{TextFormat.PURPLE}         [harness] Note: Submitters can specify Server reported steps file at {submission_report_path}{TextFormat.RESET}")
+
     if size == 0:
         json.dump({
-            "total_latency_ms": round(sum(_timestamps.values()), 4),
-            "per_stage": _timestampsStr,
-            "bandwidth": _bandwidth,
-        }, open(path,"w"), indent=2)
+            "model_name": model_name,
+            "dataset_name": dataset_name,
+            "Timing": _timestampsStr,
+            "Bandwidth": _bandwidth,
+            "Server Reported": _timestampsReported,
+        }, open(path, "w"), indent=2)
     else:
         json.dump({
-            "total_latency_ms": round(sum(_timestamps.values()), 4),
-            "per_stage": _timestampsStr,
-            "bandwidth": _bandwidth,
-            "model_quality" : _model_quality,
-        }, open(path,"w"), indent=2)
+            "model_name": model_name,
+            "dataset_name": dataset_name,
+            "Timing": _timestampsStr,
+            "Bandwidth": _bandwidth,
+            "Quality": _model_quality,
+            "Server Reported": _timestampsReported,
+        }, open(path, "w"), indent=2)
 
     print("[total latency]", f"{round(sum(_timestamps.values()), 4)}s")
 
