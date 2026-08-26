@@ -81,16 +81,19 @@ Ctext lenet5(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &cont
   convData = fheonHEController.bootstrap_function(convData);
   convData = fheonANNController.he_avgpool_optimzed_with_multiple_channels(convData, imgWidth[3], channels[2], poolSize, poolSize);
 
+
   /*** fully connected layers */
   string l3_rk = "layer3_rk.bin";
   fheonHEController.read_evaluation_keys(context, pubkey_dir, mk_file, l3_rk);
 
+  // reluScale = 15; best value 93%
   reluScale = 22;
   cout << "         [server] FC 1" << endl;
   convData = fc_layer_block(fheonHEController, fheonANNController, "FC1", convData, channels[3], channels[4], rotPositions);
   convData = fheonHEController.bootstrap_function(convData);
   convData = fheonANNController.he_relu(convData, reluScale, channels[4], polyDegree);
   
+
   cout << "         [server] FC 2" << endl;
   convData = fc_layer_block(fheonHEController, fheonANNController, "FC2", convData, channels[4], channels[5], rotPositions);
   convData = fheonHEController.bootstrap_function(convData);
