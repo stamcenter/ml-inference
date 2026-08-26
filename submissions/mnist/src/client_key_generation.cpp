@@ -44,6 +44,7 @@ CryptoContextT generate_crypto_context() {
   parameters.SetNumLargeDigits(config.digitSize);
   parameters.SetScalingTechnique(FLEXIBLEAUTO);
   parameters.SetSecretKeyDist(secretKeyDist);
+  parameters.SetKeySwitchTechnique(HYBRID);
 
   CryptoContextT context = GenCryptoContext(parameters);
   context->Enable(PKE);
