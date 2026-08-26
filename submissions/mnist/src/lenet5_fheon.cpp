@@ -86,8 +86,8 @@ Ctext lenet5(FHEONHEController &fheonHEController, CryptoContext<DCRTPoly> &cont
   string l3_rk = "layer3_rk.bin";
   fheonHEController.read_evaluation_keys(context, pubkey_dir, mk_file, l3_rk);
 
-  // reluScale = 15; best value 93%
-  reluScale = 22;
+  // reluScale = 15; 22 best value 93%, 91
+  reluScale = 25;
   cout << "         [server] FC 1" << endl;
   convData = fc_layer_block(fheonHEController, fheonANNController, "FC1", convData, channels[3], channels[4], rotPositions);
   convData = fheonHEController.bootstrap_function(convData);
