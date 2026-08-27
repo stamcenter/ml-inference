@@ -22,6 +22,14 @@ if (OpenFHE_FOUND)
     message(STATUS "OpenFHE include files location: ${OpenFHE_INCLUDE}")
     message(STATUS "OpenFHE lib files location: ${OpenFHE_LIBDIR}")
     message(STATUS "OpenFHE Native Backend size: ${OpenFHE_NATIVE_SIZE}")
+
+
+    if(TARGET HEXL::hexl)
+        message(STATUS "HEXL target found.")
+    else()
+        message(STATUS "HEXL target NOT found.")
+    endif()
+    
 else()
     message(FATAL_ERROR "PACKAGE OpenFHE NOT FOUND")
 endif ()

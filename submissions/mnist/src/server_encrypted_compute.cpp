@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
     // auto ctxtResult = lenet5(fheonHEController, cc, ctxt);
     auto end = std::chrono::high_resolution_clock::now();
 
-    
+
 	  // ofstream outFile;
     // outFile.open("./../results/lenet5/fhepredictions.txt", ios_base::app);
     // fheonHEController.read_inferenced_label_with_key(sk, ctxtResult, 10, outFile);
@@ -72,8 +72,7 @@ int main(int argc, char *argv[]) {
     auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);
     std::cout << "         [server] Execution time for ciphertext " << i
               << " : " << duration.count() << " seconds" << std::endl;
-    auto result_ctxt_path =
-        prms.ctxtdowndir() / ("cipher_result_" + std::to_string(i) + ".bin");
+    auto result_ctxt_path = prms.ctxtdowndir() / ("cipher_result_" + std::to_string(i) + ".bin");
     Serial::SerializeToFile(result_ctxt_path, ctxtResult, SerType::BINARY);
 
 	cout << endl; 
