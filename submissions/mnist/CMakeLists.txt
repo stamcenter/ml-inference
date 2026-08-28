@@ -22,13 +22,6 @@ if (OpenFHE_FOUND)
     message(STATUS "OpenFHE include files location: ${OpenFHE_INCLUDE}")
     message(STATUS "OpenFHE lib files location: ${OpenFHE_LIBDIR}")
     message(STATUS "OpenFHE Native Backend size: ${OpenFHE_NATIVE_SIZE}")
-
-    if(TARGET HEXL::hexl)
-        message(STATUS "HEXL target found.")
-    else()
-        message(STATUS "HEXL target NOT found.")
-    endif()
-
 else()
     message(FATAL_ERROR "PACKAGE OpenFHE NOT FOUND")
 endif ()
@@ -67,11 +60,6 @@ else()
     set( CMAKE_EXE_LINKER_FLAGS ${OpenFHE_EXE_LINKER_FLAGS} )
     link_libraries( ${OpenFHE_SHARED_LIBRARIES} )
 endif()
-
-if(TARGET HEXL::hexl)
-    link_libraries(HEXL::hexl)
-endif()
-
 
 # --------------------------------------------------------------------
 # 4.  Create FHEON Libraries
