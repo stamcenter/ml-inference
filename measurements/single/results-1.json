@@ -1,23 +1,22 @@
 {
+  "model_name": "lenet5",
+  "dataset_name": "mnist",
   "Timing": {
-    "Test dataset generation": "4.7884s",
-    "Key Generation": "0.9751s",
-    "Encrypted model preprocessing": "0.0037s",
-    "Input generation": "2.3544s",
-    "Input preprocessing": "0.0036s",
-    "Input encryption": "0.0921s",
-    "Encrypted computation": "7.6145s",
-    "Result decryption": "0.0845s",
-    "Result postprocessing": "0.0028s",
-    "Total": "15.9192s"
+    "Test dataset generation": "8.268s",
+    "Key Generation": "169.8772s",
+    "Encrypted model preprocessing": "0.1548s",
+    "Input generation": "19.6123s",
+    "Input preprocessing": "0.0023s",
+    "Input encryption": "0.4953s",
+    "Encrypted computation": "228.8254s",
+    "Result decryption": "0.3023s",
+    "Result postprocessing": "0.0024s",
+    "Total": "427.54s"
   },
   "Bandwidth": {
-    "Public and evaluation keys": "1.0G",
-    "Encrypted input": "5.0M",
-    "Encrypted results": "1.0M"
+    "Public and evaluation keys": "45.2G",
+    "Encrypted input": "32.0M",
+    "Encrypted results": "4.0M"
   },
-  "Server Reported": {
-    "Encrypted computation": "6.467s",
-    "Total": "6.467s"
-  }
+  "Server Reported": {}
 }

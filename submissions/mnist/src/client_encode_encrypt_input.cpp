@@ -13,6 +13,7 @@
 // limitations under the License.
 #include "encryption_utils.h"
 #include "utils.h"
+#include "lenet5_fheon.h"
 
 using namespace lbcrypto;
 
@@ -43,15 +44,20 @@ int main(int argc, char *argv[]) {
     }
 
     std::shared_ptr<const CiphertextImpl<DCRTPoly>> ctxt;
+    int input_level = lenet5_input_level(cc);
     fs::create_directories(prms.ctxtupdir());
     for (size_t i = 0; i < dataset.size(); ++i) {
 		auto *input = dataset[i].image;
-		std::vector<float> input_vector(input, input + NORMALIZED_DIM);
+		std::vector<float> input_vector(input, input + MNIST_DIM);
 		// Apply Normalization: (x - 0.1307) / 0.3081
 		for (auto &val : input_vector) {
 			val = (val - 0.1307f) / 0.3081f;
 		}
-		ctxt = input_encrypt(cc, input_vector, pk);
+		// LeNet5Diagonal input: the 784 pixels in the first slots, zeros in the other slots, encrypted at the level
+		// of the circuit
+		std::vector<double> input_values(input_vector.begin(), input_vector.end());
+		Plaintext plaintext = cc->MakeCKKSPackedPlaintext(input_values, 1, input_level);
+		ctxt = cc->Encrypt(pk, plaintext);
 		auto ctxt_path = prms.ctxtupdir() / ("cipher_input_" + std::to_string(i) + ".bin");
 		Serial::SerializeToFile(ctxt_path, ctxt, SerType::BINARY);
     }
