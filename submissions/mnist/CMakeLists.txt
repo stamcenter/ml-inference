@@ -79,12 +79,8 @@ if(TARGET HEXL::hexl)
 endif()
 
 
-# Security level of the CKKS context (FHEON_SECURITY_LEVEL): 128 (HEStd_128_classic) for the
-# benchmark, 0 for the performance-efficient parameters (HEStd_NotSet, sparse secret) used to test
-#   cmake -DSECURITY_LEVEL=0 ...
-set( SECURITY_LEVEL 128 CACHE STRING "CKKS security level: 0 (performance efficient), 128, 192 or 256" )
-message(STATUS "FHEON security level: ${SECURITY_LEVEL}")
-add_compile_definitions( FHEON_SECURITY_LEVEL=${SECURITY_LEVEL} )
+# The security level of the CKKS context (128 bits or performance efficient) is set by performanceMode in
+# include/lenet5_fheon.h
 
 # --------------------------------------------------------------------
 # 4.  Create FHEON Libraries (HE controller and diagonal ANN controller)
@@ -97,10 +93,9 @@ target_link_libraries( fheonanndiagonalcontroller fheonannstandardcontroller )
 
 add_library( encryption_utils src/encryption_utils.cpp )
 
-# The LeNet-5 circuit (parameters, keys, levels and layers) shared by the client and the server
+# The LeNet-5 model (architecture, layouts, levels and layers) shared by the client and the server
 add_library( lenet5_fheon src/lenet5_fheon.cpp )
 target_link_libraries( lenet5_fheon fheonanndiagonalcontroller )
-target_compile_definitions( lenet5_fheon PRIVATE WEIGHTS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/weights/lenet5/" )
 
 # --------------------------------------------------------------------
 # 5.  Each *.cpp file becomes its own executable.
@@ -124,3 +119,4 @@ add_executable( server_preprocess_model src/server_preprocess_model.cpp )
 
 add_executable( server_encrypted_compute src/server_encrypted_compute.cpp )
 target_link_libraries( server_encrypted_compute encryption_utils lenet5_fheon )
+target_compile_definitions( server_encrypted_compute PRIVATE WEIGHTS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/weights/lenet5/" )

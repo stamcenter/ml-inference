@@ -18,7 +18,27 @@
 #include "utils.h"
 #include <chrono>
 
+#ifndef WEIGHTS_DIR
+#define WEIGHTS_DIR "./submissions/mnist/weights/lenet5/"
+#endif
+
 using namespace lbcrypto;
+
+/** reads the trained weights from the CSV files of weightsDir (Conv1_weight.csv, Conv1_bias.csv, ..., FC3_bias.csv) */
+static LeNet5Weights load_lenet5_weights(const std::string &weightsDir) {
+    LeNet5Weights weights;
+    weights.conv1Weight = load_weights(weightsDir + "Conv1_weight.csv", channels[1], channels[0], kernelWidth, kernelWidth);
+    weights.conv1Bias = load_bias(weightsDir + "Conv1_bias.csv");
+    weights.conv2Weight = load_weights(weightsDir + "Conv2_weight.csv", channels[2], channels[1], kernelWidth, kernelWidth);
+    weights.conv2Bias = load_bias(weightsDir + "Conv2_bias.csv");
+    weights.fc1Weight = load_fc_weights(weightsDir + "FC1_weight.csv", channels[4], channels[3]);
+    weights.fc1Bias = load_bias(weightsDir + "FC1_bias.csv");
+    weights.fc2Weight = load_fc_weights(weightsDir + "FC2_weight.csv", channels[5], channels[4]);
+    weights.fc2Bias = load_bias(weightsDir + "FC2_bias.csv");
+    weights.fc3Weight = load_fc_weights(weightsDir + "FC3_weight.csv", channels[6], channels[5]);
+    weights.fc3Bias = load_bias(weightsDir + "FC3_bias.csv");
+    return weights;
+}
 
 int main(int argc, char *argv[]) {
 
@@ -27,6 +47,7 @@ int main(int argc, char *argv[]) {
         std::cout << "  Instance-size: 0-SINGLE, 1-SMALL, 2-MEDIUM, 3-LARGE\n";
         return 0;
     }
+    lenet5_init_fheon();
     auto size = static_cast<InstanceSize>(std::stoi(argv[1]));
     InstanceParams prms(size);
 
@@ -35,7 +56,9 @@ int main(int argc, char *argv[]) {
     std::cout << "         [server] Loading keys" << std::endl;
     CryptoContext<DCRTPoly> context;
     FHEONHEController fheonHEController(context);
-    fheonHEController.load_context(lenet5_he_config(prms.pubkeydir().string()), true);
+    FHEONHEController::HEConfig keysConfig;
+    keysConfig.keysFolder = prms.pubkeydir().string();
+    fheonHEController.load_context(keysConfig, true);
     context = fheonHEController.getContext();
     ANNController fheonANNController(context);
     fheonHEController.load_rotation_keys(lenet5KeyFile);
@@ -43,12 +66,15 @@ int main(int argc, char *argv[]) {
     if (lenet5_uses_bootstrapping()) {
         fheonHEController.prepare_bootstrapping(fcDiagonals);
     }
-    LeNet5 lenet5(fheonHEController, fheonANNController);
+    /** the trained weights, read from the CSV files of the weights folder */
+    LeNet5 lenet5(fheonHEController, fheonANNController, load_lenet5_weights(WEIGHTS_DIR));
 
     fs::create_directories(prms.ctxtdowndir());
     std::cout << "         [server] run encrypted MNIST inference" << std::endl;
     Ctext ctxt;
     for (size_t i = 0; i < prms.getBatchSize(); ++i) {
+
+        cout << endl<< "         [server] Processing Input " << i << std::endl;
         auto input_ctxt_path = prms.ctxtupdir() / ("cipher_input_" + std::to_string(i) + ".bin");
         if (!Serial::DeserializeFromFile(input_ctxt_path, ctxt, SerType::BINARY)) {
             throw std::runtime_error("Failed to get ciphertexts from " + input_ctxt_path.string());

@@ -38,7 +38,7 @@ The LeNet-5 model of FHEON's `HEDiagonalSingleModels/LeNet5Diagonal`, built on t
 
 ## 3. Security Level
 
-The security level is chosen when the submission is built: `cmake -DSECURITY_LEVEL=128` (the default) or `-DSECURITY_LEVEL=0` for the performance-efficient parameters. At 128 bits the LeNet-5 model satisfies the **128-bit security level** of the [Homomorphic Encryption Standard v1.1](https://homomorphicencryption.org/wp-content/uploads/2018/11/HomomorphicEncryptionStandardv1.1.pdf) (`HEStd_128_classic`, uniform ternary secret): OpenFHE picks the ring dimension from log QP of the chain.
+The security level is set by `performanceMode` in `include/lenet5_fheon.h`: `false` (the default) for 128 bits, `true` for the performance-efficient parameters (rebuild and rerun key generation after changing it). At 128 bits the LeNet-5 model satisfies the **128-bit security level** of the [Homomorphic Encryption Standard v1.1](https://homomorphicencryption.org/wp-content/uploads/2018/11/HomomorphicEncryptionStandardv1.1.pdf) (`HEStd_128_classic`, uniform ternary secret): OpenFHE picks the ring dimension from log QP of the chain.
 
 ### CKKS Parameters: LeNet-5, 128 bits (leveled, no bootstrapping)
 - **Ciphertexts depth**: 28 (the whole network, no bootstrapping)
@@ -47,7 +47,7 @@ The security level is chosen when the submission is built: `cmake -DSECURITY_LEV
 - **Ring dimension**: 32768
 - **Number of Slots**: 16384 (every slot of the ring; conv2 runs its 16 channels in parallel)
 
-### Performance-efficient parameters (`-DSECURITY_LEVEL=0`)
+### Performance-efficient parameters (`performanceMode = true`)
 
 Ring dimension 8192 (4096 slots), sparse ternary secret, scale 46 bits and one bootstrapping on the 128 slots of fc2. Not a standard security level.
 
