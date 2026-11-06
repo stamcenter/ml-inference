@@ -13,6 +13,8 @@ import sys
 # Add the current directory to the Python path
 sys.path.insert(0, os.path.dirname(__file__))
 from resnet20 import ResNet20
+sys.modules.pop("train", None)  # mnist/ also has train.py and test.py; drop its cached modules
+sys.modules.pop("test", None)
 import train
 import test
 

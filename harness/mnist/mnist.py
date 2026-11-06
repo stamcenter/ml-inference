@@ -11,6 +11,8 @@ from absl import app, flags
 sys.path.insert(0, os.path.dirname(__file__))
 
 import model as simple_ffn
+sys.modules.pop("train", None)  # cifar10/ also has train.py and test.py; drop its cached modules
+sys.modules.pop("test", None)
 import train
 import test
 
