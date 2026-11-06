@@ -1,0 +1,36 @@
+{
+  "model_name": "lenet5",
+  "dataset_name": "mnist",
+  "Timing": {
+    "Test dataset generation": "4.839s",
+    "Key Generation": "5.1931s",
+    "Encrypted model preprocessing": "0.0073s",
+    "Input generation": "8.3861s",
+    "Input preprocessing": "0.0025s",
+    "Input encryption": "64.2872s",
+    "Encrypted computation": "9552.9056s",
+    "Result decryption": "19.6525s",
+    "Result postprocessing": "0.0024s",
+    "Harness: Run inference for harness plaintext model": "2.1817s",
+    "Harness: Run quality check": "0.0017s",
+    "Total": "9657.4592s"
+  },
+  "Bandwidth": {
+    "Public and evaluation keys": "7.4G",
+    "Encrypted input": "14.2G",
+    "Encrypted results": "1.5G"
+  },
+  "Quality": {
+    "Encrypted model quality": {
+      "correct_predictions": 993,
+      "total_samples": 1000,
+      "accuracy": 0.993
+    },
+    "Harness model quality": {
+      "correct_predictions": 974,
+      "total_samples": 1000,
+      "accuracy": 0.974
+    }
+  },
+  "Server Reported": {}
+}
