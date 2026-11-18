@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(add_lenet5 LANGUAGES CXX)
+project(add_mlp LANGUAGES CXX)
 
 # ---------------------------------------------------------------
 # 1.  Compiler / flags
@@ -80,7 +80,7 @@ endif()
 
 
 # The security level of the CKKS context (128 bits or performance efficient) is set by performanceMode in
-# include/lenet5_fheon.h
+# include/mlp_fheon.h
 
 # --------------------------------------------------------------------
 # 4.  Create FHEON Libraries (HE controller and diagonal ANN controller)
@@ -93,9 +93,9 @@ target_link_libraries( fheonanndiagonalcontroller fheonannstandardcontroller )
 
 add_library( encryption_utils src/encryption_utils.cpp )
 
-# The LeNet-5 model (architecture, layouts, levels and layers) shared by the client and the server
-add_library( lenet5_fheon src/lenet5_fheon.cpp )
-target_link_libraries( lenet5_fheon fheonanndiagonalcontroller )
+# The MLP model (architecture, layouts, levels and layers) shared by the client and the server
+add_library( mlp_fheon src/mlp_fheon.cpp )
+target_link_libraries( mlp_fheon fheonanndiagonalcontroller )
 
 # --------------------------------------------------------------------
 # 5.  Each *.cpp file becomes its own executable.
@@ -103,12 +103,12 @@ target_link_libraries( lenet5_fheon fheonanndiagonalcontroller )
 # --------------------------------------------------------------------
 
 add_executable( client_key_generation src/client_key_generation.cpp )
-target_link_libraries( client_key_generation lenet5_fheon )
+target_link_libraries( client_key_generation mlp_fheon )
 
 add_executable( client_preprocess_input src/client_preprocess_input.cpp )
 
 add_executable( client_encode_encrypt_input src/client_encode_encrypt_input.cpp )
-target_link_libraries( client_encode_encrypt_input encryption_utils lenet5_fheon )
+target_link_libraries( client_encode_encrypt_input encryption_utils mlp_fheon )
 
 add_executable( client_decrypt_decode src/client_decrypt_decode.cpp )
 target_link_libraries( client_decrypt_decode encryption_utils )
@@ -118,5 +118,5 @@ add_executable( client_postprocess src/client_postprocess.cpp )
 add_executable( server_preprocess_model src/server_preprocess_model.cpp )
 
 add_executable( server_encrypted_compute src/server_encrypted_compute.cpp )
-target_link_libraries( server_encrypted_compute encryption_utils lenet5_fheon )
-target_compile_definitions( server_encrypted_compute PRIVATE WEIGHTS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/weights/lenet5/" )
+target_link_libraries( server_encrypted_compute encryption_utils mlp_fheon )
+target_compile_definitions( server_encrypted_compute PRIVATE WEIGHTS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/weights/mlp/" )

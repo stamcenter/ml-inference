@@ -1,30 +1,30 @@
 {
-  "model_name": "lenet5",
+  "model_name": "mlp",
   "dataset_name": "mnist",
   "Timing": {
-    "Test dataset generation": "4.839s",
-    "Key Generation": "5.1931s",
-    "Encrypted model preprocessing": "0.0073s",
-    "Input generation": "1.6344s",
-    "Input preprocessing": "0.0024s",
-    "Input encryption": "68.449s",
-    "Encrypted computation": "9391.8384s",
-    "Result decryption": "20.4302s",
-    "Result postprocessing": "0.0024s",
-    "Harness: Run inference for harness plaintext model": "1.8972s",
-    "Harness: Run quality check": "0.0006s",
-    "Total": "9494.2939s"
+    "Test dataset generation": "2.6857s",
+    "Key Generation": "0.7667s",
+    "Encrypted model preprocessing": "0.0096s",
+    "Input generation": "1.6168s",
+    "Input preprocessing": "0.0022s",
+    "Input encryption": "13.1664s",
+    "Encrypted computation": "1575.9822s",
+    "Result decryption": "4.9331s",
+    "Result postprocessing": "0.0022s",
+    "Harness: Run inference for harness plaintext model": "1.5109s",
+    "Harness: Run quality check": "0.0005s",
+    "Total": "1600.6763s"
   },
   "Bandwidth": {
-    "Public and evaluation keys": "7.4G",
-    "Encrypted input": "14.2G",
-    "Encrypted results": "1.5G"
+    "Public and evaluation keys": "708.2M",
+    "Encrypted input": "3.7G",
+    "Encrypted results": "752.0M"
   },
   "Quality": {
     "Encrypted model quality": {
-      "correct_predictions": 993,
+      "correct_predictions": 975,
       "total_samples": 1000,
-      "accuracy": 0.993
+      "accuracy": 0.975
     },
     "Harness model quality": {
       "correct_predictions": 974,

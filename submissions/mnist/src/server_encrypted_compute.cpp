@@ -13,30 +13,26 @@
 // limitations under the License.
 
 #include "encryption_utils.h"
-#include "lenet5_fheon.h"
+#include "mlp_fheon.h"
 #include "params.h"
 #include "utils.h"
 #include <chrono>
 
 #ifndef WEIGHTS_DIR
-#define WEIGHTS_DIR "./submissions/mnist/weights/lenet5/"
+#define WEIGHTS_DIR "./submissions/mnist/weights/mlp/"
 #endif
 
 using namespace lbcrypto;
 
-/** reads the trained weights from the CSV files of weightsDir (Conv1_weight.csv, Conv1_bias.csv, ..., FC3_bias.csv) */
-static LeNet5Weights load_lenet5_weights(const std::string &weightsDir) {
-    LeNet5Weights weights;
-    weights.conv1Weight = load_weights(weightsDir + "Conv1_weight.csv", channels[1], channels[0], kernelWidth, kernelWidth);
-    weights.conv1Bias = load_bias(weightsDir + "Conv1_bias.csv");
-    weights.conv2Weight = load_weights(weightsDir + "Conv2_weight.csv", channels[2], channels[1], kernelWidth, kernelWidth);
-    weights.conv2Bias = load_bias(weightsDir + "Conv2_bias.csv");
-    weights.fc1Weight = load_fc_weights(weightsDir + "FC1_weight.csv", channels[4], channels[3]);
-    weights.fc1Bias = load_bias(weightsDir + "FC1_bias.csv");
-    weights.fc2Weight = load_fc_weights(weightsDir + "FC2_weight.csv", channels[5], channels[4]);
-    weights.fc2Bias = load_bias(weightsDir + "FC2_bias.csv");
-    weights.fc3Weight = load_fc_weights(weightsDir + "FC3_weight.csv", channels[6], channels[5]);
-    weights.fc3Bias = load_bias(weightsDir + "FC3_bias.csv");
+/** reads the trained weights from the CSV files of weightsDir (fc1_weight.csv, fc1_bias.csv, ..., fc3_bias.csv) */
+static MLPWeights load_mlp_weights(const std::string &weightsDir) {
+    MLPWeights weights;
+    weights.fc1Weight = load_fc_weights(weightsDir + "fc1_weight.csv", channels[1], channels[0]);
+    weights.fc1Bias = load_bias(weightsDir + "fc1_bias.csv");
+    weights.fc2Weight = load_fc_weights(weightsDir + "fc2_weight.csv", channels[2], channels[1]);
+    weights.fc2Bias = load_bias(weightsDir + "fc2_bias.csv");
+    weights.fc3Weight = load_fc_weights(weightsDir + "fc3_weight.csv", channels[3], channels[2]);
+    weights.fc3Bias = load_bias(weightsDir + "fc3_bias.csv");
     return weights;
 }
 
@@ -47,7 +43,7 @@ int main(int argc, char *argv[]) {
         std::cout << "  Instance-size: 0-SINGLE, 1-SMALL, 2-MEDIUM, 3-LARGE\n";
         return 0;
     }
-    lenet5_init_fheon();
+    mlp_init_fheon();
     auto size = static_cast<InstanceSize>(std::stoi(argv[1]));
     InstanceParams prms(size);
 
@@ -61,13 +57,9 @@ int main(int argc, char *argv[]) {
     fheonHEController.load_context(keysConfig, true);
     context = fheonHEController.getContext();
     ANNController fheonANNController(context);
-    fheonHEController.load_rotation_keys(lenet5KeyFile);
-    /** the bootstrapping precomputations of the 128 slots of fc2 (the keys are in the key file) */
-    if (lenet5_uses_bootstrapping()) {
-        fheonHEController.prepare_bootstrapping(fcDiagonals);
-    }
+    fheonHEController.load_rotation_keys(mlpKeyFile);
     /** the trained weights, read from the CSV files of the weights folder */
-    LeNet5 lenet5(fheonHEController, fheonANNController, load_lenet5_weights(WEIGHTS_DIR));
+    MLP mlp(fheonHEController, fheonANNController, load_mlp_weights(WEIGHTS_DIR));
 
     fs::create_directories(prms.ctxtdowndir());
     std::cout << "         [server] run encrypted MNIST inference" << std::endl;
@@ -80,7 +72,7 @@ int main(int argc, char *argv[]) {
             throw std::runtime_error("Failed to get ciphertexts from " + input_ctxt_path.string());
         }
         auto start = std::chrono::high_resolution_clock::now();
-        auto ctxtResult = lenet5.infer(ctxt);
+        auto ctxtResult = mlp.infer(ctxt);
         auto end = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
         std::cout << "         [server] Execution time for ciphertext " << i

@@ -13,7 +13,7 @@
 // limitations under the License.
 #include "encryption_utils.h"
 #include "utils.h"
-#include "lenet5_fheon.h"
+#include "mlp_fheon.h"
 
 using namespace lbcrypto;
 
@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
     }
 
     std::shared_ptr<const CiphertextImpl<DCRTPoly>> ctxt;
-    int input_level = lenet5_input_level(cc);
+    int input_level = mlp_input_level(cc);
     fs::create_directories(prms.ctxtupdir());
     for (size_t i = 0; i < dataset.size(); ++i) {
 		auto *input = dataset[i].image;
@@ -53,8 +53,8 @@ int main(int argc, char *argv[]) {
 		for (auto &val : input_vector) {
 			val = (val - 0.1307f) / 0.3081f;
 		}
-		// LeNet5Diagonal input: the 784 pixels in the first slots, zeros in the other slots, encrypted at the level
-		// of the circuit
+		// MLPDiagonal input: the 784 pixels in the first slots of the 1024 slots, zeros in the others, encrypted at
+		// the level of the circuit
 		std::vector<double> input_values(input_vector.begin(), input_vector.end());
 		Plaintext plaintext = cc->MakeCKKSPackedPlaintext(input_values, 1, input_level);
 		ctxt = cc->Encrypt(pk, plaintext);

@@ -1,0 +1,22 @@
+{
+  "model_name": "mlp",
+  "dataset_name": "mnist",
+  "Timing": {
+    "Test dataset generation": "3.0116s",
+    "Key Generation": "0.0448s",
+    "Encrypted model preprocessing": "0.003s",
+    "Input generation": "1.7076s",
+    "Input preprocessing": "0.0022s",
+    "Input encryption": "0.0149s",
+    "Encrypted computation": "0.2086s",
+    "Result decryption": "0.015s",
+    "Result postprocessing": "0.002s",
+    "Total": "5.0098s"
+  },
+  "Bandwidth": {
+    "Public and evaluation keys": "17.3M",
+    "Encrypted input": "483.5K",
+    "Encrypted results": "98.1K"
+  },
+  "Server Reported": {}
+}
