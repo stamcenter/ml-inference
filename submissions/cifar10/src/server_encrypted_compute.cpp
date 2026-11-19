@@ -14,42 +14,31 @@
 
 #include "encryption_utils.h"
 #include "params.h"
-#include "resnet20_fheon.h"
+#include "vgg11_fheon.h"
 #include "utils.h"
 #include <chrono>
 
 #ifndef WEIGHTS_DIR
-#define WEIGHTS_DIR "./submissions/cifar10/weights/resnet20/"
+#define WEIGHTS_DIR "./submissions/cifar10/weights/vgg11/"
 #endif
 
 using namespace lbcrypto;
 
 /** reads the trained weights from the CSV files of weightsDir (<layer>_weight.csv and <layer>_bias.csv of every layer) */
-static ResNet20Weights load_resnet20_weights(const std::string &weightsDir) {
-	ResNet20Weights weights;
-	auto add_conv = [&](const std::string &layer, int outputChannels, int inputChannels) {
-		weights.conv[layer] = load_weights(weightsDir + layer + "_weight.csv", outputChannels, inputChannels, kernelWidth, kernelWidth);
-		weights.bias[layer] = load_bias(weightsDir + layer + "_bias.csv");
-	};
+static VGG11Weights load_vgg11_weights(const std::string &weightsDir) {
+	VGG11Weights weights;
+	for (const auto &conv : vgg11Convs) {
+		weights.conv[conv.name] = load_weights(weightsDir + conv.name + "_weight.csv", conv.outputChannels, conv.inputChannels,
+		                                       kernelWidth, kernelWidth);
+		weights.bias[conv.name] = load_bias(weightsDir + conv.name + "_bias.csv");
+	}
 	auto add_linear = [&](const std::string &layer, int outputs, int inputs) {
 		weights.linear[layer] = load_fc_weights(weightsDir + layer + "_weight.csv", outputs, inputs);
 		weights.bias[layer] = load_bias(weightsDir + layer + "_bias.csv");
 	};
-	add_conv("layer0_conv1", channelValues[0], imgDepth);
-	for (int stage = 0; stage < numStages; stage++) {
-		int channels = channelValues[stage];
-		for (int block = 1; block <= 3; block++) {
-			std::string name = "layer" + std::to_string(stage+1) + "_block" + std::to_string(block);
-			/** the first block of stages 2 and 3 downsamples: its first convolution and its shortcut take the previous channels */
-			int inputChannels = (stage > 0 && block == 1) ? channelValues[stage-1] : channels;
-			add_conv(name + "_conv1", channels, inputChannels);
-			add_conv(name + "_conv2", channels, channels);
-			if (inputChannels != channels) {
-				add_linear(name + "_shortcut", channels, inputChannels);
-			}
-		}
-	}
-	add_linear("layer_fc", channelValues[3], channelValues[numStages-1]);
+	add_linear("fc1", fcWidth, vgg11Convs.back().outputChannels);
+	add_linear("fc2", fcWidth, fcWidth);
+	add_linear("fc3", numClasses, fcWidth);
 	return weights;
 }
 
@@ -60,7 +49,7 @@ int main(int argc, char *argv[]) {
 		std::cout << "  Instance-size: 0-SINGLE, 1-SMALL, 2-MEDIUM, 3-LARGE\n";
 		return 0;
 	}
-	resnet20_init_fheon();
+	vgg11_init_fheon();
 	auto size = static_cast<InstanceSize>(std::stoi(argv[1]));
 	InstanceParams prms(size);
 
@@ -76,7 +65,7 @@ int main(int argc, char *argv[]) {
 	context = fheonHEController.getContext();
 	ANNController fheonANNController(context);
 	/** the trained weights, read once from the CSV files of the weights folder */
-	ResNet20Weights weights = load_resnet20_weights(WEIGHTS_DIR);
+	VGG11Weights weights = load_vgg11_weights(WEIGHTS_DIR);
 
 	fs::create_directories(prms.ctxtdowndir());
 	std::cout << "         [server] run encrypted CIFAR10 inference" << std::endl;
@@ -87,7 +76,7 @@ int main(int argc, char *argv[]) {
 			throw std::runtime_error("Failed to get ciphertexts from " + input_ctxt_path.string());
 		}
 		auto start = std::chrono::high_resolution_clock::now();
-		auto ctxtResult = resnet20_infer(fheonHEController, fheonANNController, weights, ctxt);
+		auto ctxtResult = vgg11_infer(fheonHEController, fheonANNController, weights, ctxt);
 		auto end = std::chrono::high_resolution_clock::now();
 		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 		std::cout << "         [server] Execution time for ciphertext " << i

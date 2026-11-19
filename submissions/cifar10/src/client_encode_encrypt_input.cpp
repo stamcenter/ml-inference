@@ -13,7 +13,7 @@
 // limitations under the License.
 #include "encryption_utils.h"
 #include "utils.h"
-#include "resnet20_fheon.h"
+#include "vgg11_fheon.h"
 
 using namespace lbcrypto;
 
@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	std::shared_ptr<const CiphertextImpl<DCRTPoly>> ctxt;
-	int input_level = resnet20_input_level(cc);
+	int input_level = vgg11_input_level(cc);
 	fs::create_directories(prms.ctxtupdir());
 	for (size_t i = 0; i < dataset.size(); ++i) {
 	// for(size_t i = 0; i < 1; ++i) {
@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
 			}
 		}
 
-		// ResNet20Diagonal input: the 3072 values (channel-major) in the first slots of a 2^14-slot ciphertext, zeros in
+		// VGG11Diagonal input: the 3072 values (channel-major) in the first slots of a 2^14-slot ciphertext, zeros in
 		// the other slots, encrypted at the level of the circuit before its first bootstrapping
 		std::vector<double> input_values(input_vector.begin(), input_vector.end());
 		Plaintext plaintext = cc->MakeCKKSPackedPlaintext(input_values, 1, input_level);

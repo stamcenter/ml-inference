@@ -1,0 +1,22 @@
+{
+  "model_name": "vgg11",
+  "dataset_name": "cifar10",
+  "Timing": {
+    "Test dataset generation": "9.0508s",
+    "Key Generation": "259.5013s",
+    "Encrypted model preprocessing": "0.1077s",
+    "Input generation": "4.2153s",
+    "Input preprocessing": "0.0025s",
+    "Input encryption": "0.3164s",
+    "Encrypted computation": "195.9823s",
+    "Result decryption": "0.3701s",
+    "Result postprocessing": "0.0026s",
+    "Total": "469.5491s"
+  },
+  "Bandwidth": {
+    "Public and evaluation keys": "65.7G",
+    "Encrypted input": "13.0M",
+    "Encrypted results": "3.0M"
+  },
+  "Server Reported": {}
+}

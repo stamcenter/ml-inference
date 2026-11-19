@@ -1,30 +1,30 @@
 {
-  "model_name": "resnet20",
+  "model_name": "vgg11",
   "dataset_name": "cifar10",
   "Timing": {
-    "Test dataset generation": "7.0615s",
-    "Key Generation": "110.6473s",
-    "Encrypted model preprocessing": "0.2575s",
-    "Input generation": "7.7246s",
-    "Input preprocessing": "0.0031s",
-    "Input encryption": "10.9733s",
-    "Encrypted computation": "23763.1814s",
-    "Result decryption": "7.603s",
+    "Test dataset generation": "9.4664s",
+    "Key Generation": "130.0413s",
+    "Encrypted model preprocessing": "0.0536s",
+    "Input generation": "4.2351s",
+    "Input preprocessing": "0.0024s",
+    "Input encryption": "6.5874s",
+    "Encrypted computation": "20599.8258s",
+    "Result decryption": "7.2025s",
     "Result postprocessing": "0.0028s",
-    "Harness: Run inference for harness plaintext model": "3.8189s",
-    "Harness: Run quality check": "0.0042s",
-    "Total": "23911.2775s"
+    "Harness: Run inference for harness plaintext model": "3.8309s",
+    "Harness: Run quality check": "0.0033s",
+    "Total": "20761.2516s"
   },
   "Bandwidth": {
-    "Public and evaluation keys": "42.4G",
-    "Encrypted input": "2.1G",
-    "Encrypted results": "400.3M"
+    "Public and evaluation keys": "65.7G",
+    "Encrypted input": "1.3G",
+    "Encrypted results": "300.3M"
   },
   "Quality": {
     "Encrypted model quality": {
-      "correct_predictions": 93,
+      "correct_predictions": 88,
       "total_samples": 100,
-      "accuracy": 0.93
+      "accuracy": 0.88
     },
     "Harness model quality": {
       "correct_predictions": 93,

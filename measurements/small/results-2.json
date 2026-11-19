@@ -1,0 +1,36 @@
+{
+  "model_name": "vgg11",
+  "dataset_name": "cifar10",
+  "Timing": {
+    "Test dataset generation": "9.4664s",
+    "Key Generation": "130.0413s",
+    "Encrypted model preprocessing": "0.0536s",
+    "Input generation": "2.0699s",
+    "Input preprocessing": "0.0027s",
+    "Input encryption": "7.0858s",
+    "Encrypted computation": "20805.525s",
+    "Result decryption": "7.1428s",
+    "Result postprocessing": "0.0029s",
+    "Harness: Run inference for harness plaintext model": "3.9761s",
+    "Harness: Run quality check": "0.0028s",
+    "Total": "20965.3692s"
+  },
+  "Bandwidth": {
+    "Public and evaluation keys": "65.7G",
+    "Encrypted input": "1.3G",
+    "Encrypted results": "300.3M"
+  },
+  "Quality": {
+    "Encrypted model quality": {
+      "correct_predictions": 88,
+      "total_samples": 100,
+      "accuracy": 0.88
+    },
+    "Harness model quality": {
+      "correct_predictions": 93,
+      "total_samples": 100,
+      "accuracy": 0.93
+    }
+  },
+  "Server Reported": {}
+}

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(add_resnet20 LANGUAGES CXX)
+project(add_vgg11 LANGUAGES CXX)
 
 # ---------------------------------------------------------------
 # 1.  Compiler / flags
@@ -84,7 +84,7 @@ if(TARGET HEXL::hexl)
 endif()
 
 # The security level of the CKKS context (128 bits or performance efficient) is set by performanceMode in
-# include/resnet20_fheon.h
+# include/vgg11_fheon.h
 
 # --------------------------------------------------------------------
 # 4.  Create FHEON library (HE controller and diagonal ANN controller)
@@ -97,9 +97,9 @@ target_link_libraries( fheonanndiagonalcontroller fheonannstandardcontroller )
 
 add_library( encryption_utils src/encryption_utils.cpp )
 
-# The ResNet-20 model (architecture, stages, levels and layers) shared by the client and the server
-add_library( resnet20_fheon src/resnet20_fheon.cpp )
-target_link_libraries( resnet20_fheon fheonanndiagonalcontroller )
+# The VGG-11 model (architecture, stages, levels and layers) shared by the client and the server
+add_library( vgg11_fheon src/vgg11_fheon.cpp )
+target_link_libraries( vgg11_fheon fheonanndiagonalcontroller )
 
 # --------------------------------------------------------------------
 # 5.  Each *.cpp file becomes its own executable.
@@ -107,12 +107,12 @@ target_link_libraries( resnet20_fheon fheonanndiagonalcontroller )
 # --------------------------------------------------------------------
 
 add_executable( client_key_generation src/client_key_generation.cpp )
-target_link_libraries( client_key_generation resnet20_fheon )
+target_link_libraries( client_key_generation vgg11_fheon )
 
 add_executable( client_preprocess_input src/client_preprocess_input.cpp )
 
 add_executable( client_encode_encrypt_input src/client_encode_encrypt_input.cpp )
-target_link_libraries( client_encode_encrypt_input encryption_utils resnet20_fheon )
+target_link_libraries( client_encode_encrypt_input encryption_utils vgg11_fheon )
 
 add_executable( client_decrypt_decode src/client_decrypt_decode.cpp )
 target_link_libraries( client_decrypt_decode encryption_utils )
@@ -122,5 +122,5 @@ add_executable( client_postprocess src/client_postprocess.cpp )
 add_executable( server_preprocess_model src/server_preprocess_model.cpp )
 
 add_executable( server_encrypted_compute src/server_encrypted_compute.cpp )
-target_link_libraries( server_encrypted_compute encryption_utils resnet20_fheon )
-target_compile_definitions( server_encrypted_compute PRIVATE WEIGHTS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/weights/resnet20/" )
+target_link_libraries( server_encrypted_compute encryption_utils vgg11_fheon )
+target_compile_definitions( server_encrypted_compute PRIVATE WEIGHTS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/weights/vgg11/" )
